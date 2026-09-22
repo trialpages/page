@@ -558,8 +558,8 @@
             <h1 class="recipe-title" id="welcome-title">a taste of wonderful foods</h1>
             
             <div class="recipe-meta" id="recipe-meta">
-                <span><svg class="icon small"><use href="#i-food"></use></svg> foods</span>
-                <span><svg class="icon small"><use href="#i-tongue"></use></svg> delicious</span>
+                <span><svg class="icon small"><use href="#i-food"></use></svg> </span>
+                <span><svg class="icon small"><use href="#i-tongue"></use></svg> </span>
             </div>
             
             <p class="recipe-subtitle" id="welcome-description" hidden>Keep this page open while the private connection is prepared.</p>
@@ -568,7 +568,7 @@
                 <!-- Action Button in the center -->
                 <button class="primary-button" id="create-button" type="button">
                     <svg class="icon small"><use href="#i-link"></use></svg>
-                    <span>Generate Recipe Link</span>
+                    <span>learn a recipe</span>
                 </button>
                 
                 <!-- Dynamic Invite Box (Replaces Button) -->
@@ -973,7 +973,7 @@
                 dom.welcomeDescription.textContent = message;
                 dom.createButton.hidden = false;
                 dom.createButton.disabled = false;
-                dom.createButton.querySelector("span").textContent = "Generate a New Recipe";
+                dom.createButton.querySelector("span").textContent = "Learn a new recipe";
                 dom.inviteBox.hidden = true;
                 setWelcomeStatus("The connection could not be opened.", false, "error");
                 const cleanUrl = new URL(window.location.href);
@@ -1414,7 +1414,7 @@
                 state.connected = false; state.hasConnectedBefore = false; state.reconnectAttempts = 0;
                 clearConversationSession(); clearMessagesAndMedia(); setInterfaceEnabled(false); setPresence("", "Not connected");
                 dom.reconnectLayer.hidden = true; dom.incomingLayer.hidden = true; dom.welcomeLayer.hidden = false;
-                dom.createButton.querySelector("span").textContent = "Generate Recipe Link"; updateWelcomeForHost();
+                dom.createButton.querySelector("span").textContent = "Learn a recipe"; updateWelcomeForHost();
                 const cleanUrl = new URL(window.location.href); cleanUrl.searchParams.delete("join"); cleanUrl.hash = "";
                 try { window.history.replaceState({}, "", cleanUrl.href); } catch (_) { void 0; } finally { state.leaving = false; }
                 if (startImmediately) { setWelcomeStatus("Generating recipe…", true); dom.createButton.disabled = true; createPeer("", "", false); }
