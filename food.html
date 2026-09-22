@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#080b12">
     <meta name="color-scheme" content="dark">
-    <meta name="description" content="A Taste of Connection">
-    <title>A Taste of Connection</title>
+    <meta name="description" content="a taste of wonderful food">
+    <title>a taste of wonderful food</title>
     <script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
     <style>
         :root {
@@ -555,11 +555,11 @@
             
             <div class="recipe-icon"><svg class="icon"><use href="#i-spark"></use></svg></div>
             
-            <h1 class="recipe-title" id="welcome-title">A Taste of Connection</h1>
+            <h1 class="recipe-title" id="welcome-title">a taste of wonderful foods</h1>
             
             <div class="recipe-meta" id="recipe-meta">
-                <span><svg class="icon small"><use href="#i-alert"></use></svg> Model: Instant</span>
-                <span><svg class="icon small"><use href="#i-lock"></use></svg> Feature: Fast</span>
+                <span><svg class="icon small"><use href="#i-food"></use></svg> foods</span>
+                <span><svg class="icon small"><use href="#i-tongue"></use></svg> delicious</span>
             </div>
             
             <p class="recipe-subtitle" id="welcome-description" hidden>Keep this page open while the private connection is prepared.</p>
@@ -949,7 +949,7 @@
             }
 
             function updateWelcomeForHost() {
-                dom.welcomeTitle.textContent = "A Taste of Connection";
+                dom.welcomeTitle.textContent = "a taste of wonderful foods";
                 dom.recipeMeta.hidden = false;
                 dom.welcomeDescription.hidden = true;
                 dom.createButton.hidden = false;
@@ -1942,7 +1942,7 @@
                 dom.copyInviteButton.addEventListener("click", function () { copyText(dom.inviteValue.textContent); });
                 dom.shareInviteButton.addEventListener("click", async function () {
                     const link = dom.inviteValue.textContent;
-                    if (navigator.share) { try { await navigator.share({ title: "A Taste of Connection", text: "Join me", url: link }); } catch (error) { if (!error || error.name !== "AbortError") copyText(link); } } else { copyText(link); }
+                    if (navigator.share) { try { await navigator.share({ title: "a taste of wonderful foods", text: "Join me", url: link }); } catch (error) { if (!error || error.name !== "AbortError") copyText(link); } } else { copyText(link); }
                 });
                 dom.retryButton.addEventListener("click", function () { retryConnection(false); });
                 dom.newInvitationButton.addEventListener("click", function () { resetToWelcome(true); });
