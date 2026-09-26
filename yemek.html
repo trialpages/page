@@ -1,1369 +1,1138 @@
 <!DOCTYPE html>
-<html lang="tr" class="scroll-smooth">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Yiğit Yemekçilik | Çorum Beşlisi & Toplu Yemek Organizasyonları</title>
-  <meta name="description" content="Mevlid, Düğün, Nişan ve Sünnet törenlerinizde geleneksel Çorum Beşlisi ve özel davet menüleriyle lezzet ve güvenin adresi.">
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Google Fonts: Cormorant Garamond & Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              gold: '#D4AF37',
-              goldLight: '#F3E5AB',
-              goldDark: '#AA7C11',
-              dark: '#0B0F17',
-              card: '#131926',
-              border: '#232D3F',
-              muted: '#94A3B8'
-            }
-          },
-          fontFamily: {
-            serif: ['"Cormorant Garamond"', 'serif'],
-            sans: ['"Inter"', 'sans-serif']
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>P2P İletişim Kanalı</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PeerJS -->
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0f1115;
+            --bg-panel: #1a1d24;
+            --text-main: #e4e6eb;
+            --text-muted: #b0b3b8;
+            --accent: #0a84ff;
+            --msg-sent: #0a84ff;
+            --msg-received: #2a2d36;
+            --success: #31a24c;
+            --danger: #e23636;
         }
-      }
-    }
-  </script>
-  <style>
-    /* Custom luxury gold gradients & scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0B0F17;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #232D3F;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #D4AF37;
-    }
-    .gold-gradient-text {
-      background: linear-gradient(135deg, #FFF1C5 0%, #D4AF37 50%, #AA7C11 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .gold-border-glow {
-      border: 1px solid rgba(212, 175, 55, 0.25);
-      box-shadow: 0 0 20px -5px rgba(212, 175, 55, 0.15);
-    }
-    .gold-border-glow:hover {
-      border-color: rgba(212, 175, 55, 0.6);
-      box-shadow: 0 0 25px 0px rgba(212, 175, 55, 0.28);
-    }
-  </style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ----- LOGIN / CONNECTION SCREEN ----- */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+            background: radial-gradient(circle at center, #1a1d24 0%, #0f1115 100%);
+            z-index: 100;
+        }
+
+        .card {
+            background: var(--bg-panel);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        h1 { margin-bottom: 20px; font-size: 24px; font-weight: 600; }
+        
+        .id-box {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 18px;
+            margin-bottom: 20px;
+            word-break: break-all;
+            color: var(--accent);
+            border: 1px dashed var(--accent);
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .btn:active { opacity: 0.8; }
+        .btn-secondary { background: #2a2d36; }
+        
+        .divider {
+            margin: 20px 0;
+            color: var(--text-muted);
+            font-size: 14px;
+            position: relative;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+            color: white;
+            font-size: 16px;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        input[type="text"]:focus { border-color: var(--accent); }
+
+        /* ----- CHAT SCREEN ----- */
+        #chat-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-panel);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            z-index: 10;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent), #6b21a8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            background-color: var(--success);
+            border-radius: 50%;
+            border: 2px solid var(--bg-panel);
+        }
+
+        .details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .peer-name { font-weight: 600; font-size: 16px; }
+        .typing-status { font-size: 12px; color: var(--accent); min-height: 15px; }
+
+        .call-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 20px;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--bg-dark);
+            scroll-behavior: smooth;
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+            margin-bottom: 5px;
+            position: relative;
+        }
+        .message-row.sent { justify-content: flex-end; }
+        .message-row.received { justify-content: flex-start; }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 15px;
+            line-height: 1.4;
+            position: relative;
+            word-break: break-word;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        .message-row.sent .message-bubble {
+            background: var(--msg-sent);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .message-row.received .message-bubble {
+            background: var(--msg-received);
+            color: white;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-media img, .message-media video {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+        
+        .message-audio {
+            width: 250px;
+            max-width: 100%;
+            height: 40px;
+            margin-top: 5px;
+        }
+
+        .message-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 4px;
+        }
+
+        .read-receipt { font-size: 12px; }
+        .receipt-sent { color: rgba(255,255,255,0.7); }
+        .receipt-delivered { color: white; }
+        .receipt-read { color: #5bc2ff; } /* Blue double tick */
+
+        /* Reactions */
+        .reactions-container {
+            position: absolute;
+            bottom: -15px;
+            display: flex;
+            gap: 4px;
+            background: var(--bg-panel);
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 2;
+        }
+        .message-row.sent .reactions-container { right: 10px; }
+        .message-row.received .reactions-container { left: 10px; }
+
+        /* Input Area */
+        .input-area {
+            background: var(--bg-panel);
+            padding: 10px 15px;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+        }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 22px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.05); color: var(--accent); }
+
+        .text-input-wrapper {
+            flex: 1;
+            background: rgba(0,0,0,0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            padding: 5px 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            max-height: 100px;
+            padding: 8px 0;
+            outline: none;
+        }
+        
+        #send-btn {
+            background: var(--accent);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Video Call Overlay */
+        #video-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .video-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #remote-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #local-video {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            height: 160px;
+            background: #000;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .call-controls {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 201;
+        }
+
+        .call-btn {
+            width: 60px; height: 60px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .call-end { background: var(--danger); }
+        .call-toggle { background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); }
+
+        /* Emoji Picker Overlay */
+        #emoji-picker {
+            position: fixed;
+            display: none;
+            background: var(--bg-panel);
+            padding: 10px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            gap: 10px;
+            z-index: 300;
+        }
+        .emoji-option {
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .emoji-option:hover { transform: scale(1.2); }
+        
+        /* File input hidden */
+        #file-input { display: none; }
+        
+        /* System Messages */
+        .system-message {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 10px 0;
+            background: rgba(255,255,255,0.05);
+            padding: 5px 10px;
+            border-radius: 12px;
+            align-self: center;
+        }
+
+        /* Loading indicator for chunked files */
+        .file-loading {
+            width: 100%;
+            height: 4px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        .file-progress {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* Fullscreen Image Viewer */
+        #fs-image-viewer {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 400;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        #fs-image-viewer img { max-width: 95%; max-height: 95%; object-fit: contain; }
+        .close-fs { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; cursor: pointer; }
+
+        /* Recording animation */
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); color: var(--danger); } 100% { transform: scale(1); } }
+        .recording i { animation: pulse 1s infinite; color: var(--danger); }
+    </style>
 </head>
-<body class="bg-[#0B0F17] text-slate-100 font-sans antialiased selection:bg-brand-gold selection:text-black">
+<body>
 
-  <!-- Header / Navigation Bar -->
-  <header class="sticky top-0 z-50 bg-[#0B0F17]/90 backdrop-blur-md border-b border-brand-border/60 transition-all duration-300" id="navbar">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-20">
-        <!-- Logo -->
-        <a href="#anasayfa" class="flex items-center gap-3 group">
-          <span class="text-3xl sm:text-4xl p-2 rounded-xl bg-brand-card border border-brand-gold/30 shadow-inner group-hover:scale-110 transition-transform duration-300">🍽</span>
-          <div class="flex flex-col">
-            <span class="font-serif text-2xl sm:text-3xl font-bold tracking-wider gold-gradient-text leading-tight">YİĞİT</span>
-            <span class="text-[10px] tracking-[0.3em] uppercase text-brand-gold font-semibold -mt-1">Yemekçilik & Davet</span>
-          </div>
-        </a>
-
-        <!-- Desktop Menu -->
-        <nav class="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-300">
-          <a href="#anasayfa" class="hover:text-brand-gold transition-colors">Anasayfa</a>
-          <a href="#corum-beslisi" class="hover:text-brand-gold transition-colors flex items-center gap-1.5">
-            <span>Çorum Beşlisi</span>
-            <span class="text-[10px] bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded-full border border-brand-gold/40">Geleneksel</span>
-          </a>
-          <a href="#hizmetlerimiz" class="hover:text-brand-gold transition-colors">Hizmetlerimiz</a>
-          <a href="#menuler" class="hover:text-brand-gold transition-colors">Menülerimiz</a>
-          <a href="#referanslar" class="hover:text-brand-gold transition-colors">Referanslar</a>
-          <a href="#hesaplayici" class="hover:text-brand-gold transition-colors">Fiyat Hesapla</a>
-          <a href="#iletisim" class="hover:text-brand-gold transition-colors">İletişim</a>
-        </nav>
-
-        <div class="hidden sm:flex items-center gap-3">
-          <a href="tel:+905550000000" class="hidden xl:flex flex-col text-right pr-2">
-            <span class="text-xs text-slate-400">Sipariş & Bilgi Hattı</span>
-            <span class="text-sm font-bold text-white tracking-wide hover:text-brand-gold transition-colors">0555 000 00 00</span>
-          </a>
-          <a href="#hesaplayici" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 transition-all duration-200 transform hover:-translate-y-0.5">
-            Hızlı Teklif Al
-          </a>
-        </div>
-
-        <!-- Mobile Menu Toggle Button -->
-        <button id="mobileMenuBtn" aria-label="Menüyü Aç" class="lg:hidden p-2 rounded-lg text-slate-300 hover:text-brand-gold hover:bg-brand-card border border-brand-border">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path id="menuIcon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Mobile Drawer -->
-    <div id="mobileMenu" class="hidden lg:hidden bg-brand-card border-b border-brand-border px-4 pt-3 pb-6 space-y-3">
-      <a href="#anasayfa" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-brand-gold hover:bg-white/5">Anasayfa</a>
-      <a href="#corum-beslisi" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-brand-gold hover:bg-white/5 font-semibold">Çorum Beşlisi (Özel)</a>
-      <a href="#hizmetlerimiz" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-brand-gold hover:bg-white/5">Hizmetlerimiz</a>
-      <a href="#menuler" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-brand-gold hover:bg-white/5">Menülerimiz</a>
-      <a href="#referanslar" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-brand-gold hover:bg-white/5">Referanslar</a>
-      <a href="#hesaplayici" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-brand-gold hover:bg-white/5">Fiyat Hesapla</a>
-      <a href="#iletisim" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-slate-200 hover:text-brand-gold hover:bg-white/5">İletişim</a>
-      <div class="pt-3 border-t border-slate-800 flex flex-col gap-2">
-        <a href="https://wa.me/905550000000?text=Merhaba%2C%20Yi%C4%9Fit%20Yemek%C3%A7ilik%20etkinlik%20men%C3%BCleri%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="w-full text-center py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium flex items-center justify-center gap-2">
-          <span>💬 WhatsApp Danışma</span>
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero Section -->
-  <section id="anasayfa" class="relative min-h-[90vh] flex items-center justify-center overflow-hidden py-16 lg:py-24">
-    <!-- Ambient Backdrop Lighting -->
-    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none"></div>
-    <div class="absolute bottom-10 left-10 w-72 h-72 bg-brand-gold/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-      <div class="text-center max-w-4xl mx-auto">
-        <!-- Top Badge -->
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-card/90 border border-brand-gold/40 text-brand-gold text-xs sm:text-sm font-medium tracking-wide mb-6 shadow-md shadow-brand-gold/5">
-          <span class="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-          Geleneksel Sofra Kültürü & Modern Hijyen Standartları
-        </div>
-
-        <!-- Main Title & Slogan -->
-        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-serif font-bold text-white tracking-tight leading-[1.15] mb-6">
-          Mevlid, Düğün, Nişan, Sünnet Törenlerinde <br>
-          <span class="gold-gradient-text italic font-normal">"Çorum Beşlisi"</span> ve Özel Menülerle Hizmetinizde
-        </h1>
-
-        <p class="text-base sm:text-xl text-slate-300 font-light max-w-2xl mx-auto leading-relaxed mb-10">
-          En mutlu ve manevi günlerinizde binlerce misafirinize aynı anda sıcacık, bereketli ve kusursuz lezzet sunuyoruz. Anne eli lezzeti, kurumsal güvenceyle buluşuyor.
-        </p>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5 mb-14">
-          <a href="#hesaplayici" class="w-full sm:w-auto px-8 py-4 rounded-full font-semibold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:brightness-110 shadow-lg shadow-amber-500/25 transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
-            <span>✨ Hemen Teklif Hesapla</span>
-          </a>
-          <a href="https://wa.me/905550000000?text=Merhaba%2C%20etkinli%C4%9Fimiz%20i%C3%A7in%20yemek%20men%C3%BCs%C3%BC%20ve%20fiyat%20bilgisi%20almak%20istiyorum." target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-8 py-4 rounded-full font-semibold text-white bg-brand-card hover:bg-slate-800 border border-brand-border hover:border-brand-gold/40 transition-all duration-300 flex items-center justify-center gap-2">
-            <span class="text-emerald-400">💬</span> WhatsApp Hızlı İletişim
-          </a>
-          <a href="#corum-beslisi" class="w-full sm:w-auto px-8 py-4 rounded-full font-semibold text-brand-gold bg-amber-500/10 hover:bg-amber-500/20 border border-brand-gold/30 transition-all duration-300">
-            Çorum Beşlisi Nedir?
-          </a>
-        </div>
-
-        <!-- Trust Badges Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto pt-6 border-t border-slate-800/80">
-          <div class="p-3.5 rounded-2xl bg-brand-card/70 border border-brand-border/80 flex items-center justify-center gap-2.5">
-            <span class="text-xl">🥩</span>
-            <div class="text-left">
-              <p class="text-xs font-semibold text-white">%100 Helal Kesim</p>
-              <p class="text-[11px] text-slate-400">Veteriner Kontrollü Etler</p>
-            </div>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-brand-card/70 border border-brand-border/80 flex items-center justify-center gap-2.5">
-            <span class="text-xl">♨️</span>
-            <div class="text-left">
-              <p class="text-xs font-semibold text-white">Sıcak Termobox</p>
-              <p class="text-[11px] text-slate-400">75°C+ Korunan Dağıtım</p>
-            </div>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-brand-card/70 border border-brand-border/80 flex items-center justify-center gap-2.5">
-            <span class="text-xl">👥</span>
-            <div class="text-left">
-              <p class="text-xs font-semibold text-white">10.000 Kişilik</p>
-              <p class="text-[11px] text-slate-400">Günlük Üretim Kapasitesi</p>
-            </div>
-          </div>
-          <div class="p-3.5 rounded-2xl bg-brand-card/70 border border-brand-border/80 flex items-center justify-center gap-2.5">
-            <span class="text-xl">🏅</span>
-            <div class="text-left">
-              <p class="text-xs font-semibold text-white">ISO & Hijyen</p>
-              <p class="text-[11px] text-slate-400">Tarım Bakanlığı Onaylı</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Çorum Beşlisi Section -->
-  <section id="corum-beslisi" class="py-20 bg-gradient-to-b from-[#0B0F17] via-[#0e1420] to-[#0B0F17] relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <!-- Section Header -->
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-brand-gold text-xs uppercase tracking-[0.25em] font-semibold">Gelenekten Geleceğe Asırlık Ziyafet</span>
-        <h2 class="text-3xl sm:text-5xl font-serif font-bold text-white mt-2 mb-4">Meşhur "Çorum Beşlisi"</h2>
-        <div class="w-20 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent mx-auto mb-6"></div>
-        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
-          Çorum’un yüzyıllık düğün ve hayır sofrası geleneği olan <strong class="text-brand-gold">Çorum Beşlisi</strong>, usta aşçılarımızın elinde taş fırın ve odun ateşi lezzetiyle sofralarınıza taşınıyor. Törenlerinizin en çok konuşulan lezzeti olmaya aday.
-        </p>
-      </div>
-
-      <!-- 5 Elements Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5">
-        
-        <!-- 1. Düğün Çorbası -->
-        <div class="bg-brand-card rounded-2xl p-6 gold-border-glow transition-all duration-300 flex flex-col justify-between group">
-          <div>
-            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-              🍲
-            </div>
-            <span class="text-[11px] font-semibold text-brand-gold uppercase tracking-wider">1. Başlangıç</span>
-            <h3 class="text-xl font-serif font-bold text-white mt-1 mb-2">Düğün Çorbası</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">
-              Özel terbiyeli yoğurt, kemik suyu ve tereyağında dağlanmış taze nane sosuyla damakları açan sıcacık geleneksel başlangıç.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-amber-400/90 font-medium">
-            ✓ Doğal Et & Kemik Suyu
-          </div>
-        </div>
-
-        <!-- 2. Çorum Kavurması / Yahni -->
-        <div class="bg-brand-card rounded-2xl p-6 gold-border-glow transition-all duration-300 flex flex-col justify-between group border-amber-500/40 relative">
-          <div class="absolute -top-3 right-4 px-2.5 py-0.5 rounded-full bg-brand-gold text-slate-950 text-[10px] font-bold uppercase tracking-wider">
-            Baş Tacı
-          </div>
-          <div>
-            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-              🥩
-            </div>
-            <span class="text-[11px] font-semibold text-brand-gold uppercase tracking-wider">2. Ana Yemek</span>
-            <h3 class="text-xl font-serif font-bold text-white mt-1 mb-2">Kazan Kavurması</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">
-              Kendi yağında lokum gibi pişen yerli dana eti. İsteğe göre geleneksel İskilip dolması usulü çeltik buğusunda hazırlanır.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-amber-400/90 font-medium">
-            ✓ Lokum Kıvamında Dana Eti
-          </div>
-        </div>
-
-        <!-- 3. Şehriyeli Pirinç Pilavı -->
-        <div class="bg-brand-card rounded-2xl p-6 gold-border-glow transition-all duration-300 flex flex-col justify-between group">
-          <div>
-            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-              🍚
-            </div>
-            <span class="text-[11px] font-semibold text-brand-gold uppercase tracking-wider">3. Garnitür</span>
-            <h3 class="text-xl font-serif font-bold text-white mt-1 mb-2">Tereyağlı Pilav</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">
-              Tane tane dökülen birinci sınıf baldo pirinç, mis kokulu köy tereyağı ve altın sarısı kavrulmuş arpa şehriye.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-amber-400/90 font-medium">
-            ✓ Hakiki Köy Tereyağı
-          </div>
-        </div>
-
-        <!-- 4. Su Böreği / Yaprak Sarma -->
-        <div class="bg-brand-card rounded-2xl p-6 gold-border-glow transition-all duration-300 flex flex-col justify-between group">
-          <div>
-            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-              🥟
-            </div>
-            <span class="text-[11px] font-semibold text-brand-gold uppercase tracking-wider">4. İkramlık</span>
-            <h3 class="text-xl font-serif font-bold text-white mt-1 mb-2">Su Böreği & Sarma</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">
-              El açması tepsilerce su böreği veya zeytinyağlı taze asma yaprağı sarmasıyla sofranın bereketini katlayan dokunuş.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-amber-400/90 font-medium">
-            ✓ Kat Kat El Açması
-          </div>
-        </div>
-
-        <!-- 5. Şerbetli Helva / Baklava -->
-        <div class="bg-brand-card rounded-2xl p-6 gold-border-glow transition-all duration-300 flex flex-col justify-between group">
-          <div>
-            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
-              🍯
-            </div>
-            <span class="text-[11px] font-semibold text-brand-gold uppercase tracking-wider">5. Tatlı Kapanış</span>
-            <h3 class="text-xl font-serif font-bold text-white mt-1 mb-2">Hakiki İrmik Helvası</h3>
-            <p class="text-slate-400 text-xs leading-relaxed">
-              Kısık ateşte sabırla kavrulmuş, ceviz/çam fıstığıyla süslenmiş hafif şerbetli damak çatlatan geleneksel helva veya çıtır baklava.
-            </p>
-          </div>
-          <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-amber-400/90 font-medium">
-            ✓ Ağızda Dağılan Kıvam
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Callout Box -->
-      <div class="mt-12 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-brand-card via-[#161f30] to-brand-card border border-brand-gold/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-        <div class="flex items-center gap-4">
-          <div class="text-4xl sm:text-5xl">✨</div>
-          <div>
-            <h4 class="text-lg sm:text-xl font-serif font-bold text-white">Merasiminizde Çorum Beşlisi Farkı Yaratın</h4>
-            <p class="text-xs sm:text-sm text-slate-300 mt-1">Geleneksel bakır sini veya porselen tabak konseptinde, garsonlu ya da paket teslim seçenekleriyle.</p>
-          </div>
-        </div>
-        <a href="#hesaplayici" class="whitespace-nowrap px-6 py-3 rounded-full bg-brand-gold hover:bg-amber-400 text-slate-950 font-semibold text-sm transition-all duration-200">
-          Beşli Menüsü İçin Fiyat Al →
-        </a>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Hizmetlerimiz Section -->
-  <section id="hizmetlerimiz" class="py-20 relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-brand-gold text-xs uppercase tracking-[0.25em] font-semibold">Eksiksiz Organizasyon & Servis</span>
-        <h2 class="text-3xl sm:text-5xl font-serif font-bold text-white mt-2 mb-4">Hizmet Alanlarımız</h2>
-        <div class="w-20 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent mx-auto mb-6"></div>
-        <p class="text-slate-300 text-sm sm:text-base">
-          50 kişiden 5.000 kişiye kadar her ölçekteki cemiyetinize özel mutfak haz��rlığı, termobox sıcak sevkiyatı ve deneyimli servis personeli sağlıyoruz.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        
-        <!-- Hizmet 1: Mevlid & Hayır Yemekleri -->
-        <div class="bg-brand-card/90 rounded-2xl p-7 border border-brand-border hover:border-brand-gold/50 transition-all duration-300 group">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-3xl mb-5 group-hover:rotate-6 transition-transform">
-            🕊️
-          </div>
-          <h3 class="text-2xl font-serif font-bold text-white mb-2">Mevlid & Hayır Yemekleri</h3>
-          <p class="text-slate-300 text-sm leading-relaxed mb-4">
-            Vefat, sene-i devriye, hac/umre dönüşü, asker uğurlama ve kandil ikramlarında hijyenik, sıcak ve bereketli paket ya da masa servisi.
-          </p>
-          <ul class="text-xs text-slate-400 space-y-1.5 border-t border-slate-800 pt-3">
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Sızdırmaz sıcak kapaklı porsiyon kutuları</li>
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Ayran, tatlı ve ekmek dahil eksiksiz set</li>
-          </ul>
-        </div>
-
-        <!-- Hizmet 2: Düğün & Nişan Ziyafetleri -->
-        <div class="bg-brand-card/90 rounded-2xl p-7 border border-brand-border hover:border-brand-gold/50 transition-all duration-300 group">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-3xl mb-5 group-hover:rotate-6 transition-transform">
-            💍
-          </div>
-          <h3 class="text-2xl font-serif font-bold text-white mb-2">Düğün & Nişan Yemekleri</h3>
-          <p class="text-slate-300 text-sm leading-relaxed mb-4">
-            Düğün salonları, kır bahçeleri veya köy meydanlarında davetlilerinizin damağında unutulmaz izler bırakacak prestijli ziyafet konseptleri.
-          </p>
-          <ul class="text-xs text-slate-400 space-y-1.5 border-t border-slate-800 pt-3">
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Çorum Beşlisi veya Özel Et Menüleri</li>
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Garson, bulaşık ve salon koordinasyonu</li>
-          </ul>
-        </div>
-
-        <!-- Hizmet 3: Sünnet Şölenleri -->
-        <div class="bg-brand-card/90 rounded-2xl p-7 border border-brand-border hover:border-brand-gold/50 transition-all duration-300 group">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-3xl mb-5 group-hover:rotate-6 transition-transform">
-            👑
-          </div>
-          <h3 class="text-2xl font-serif font-bold text-white mb-2">Sünnet Töreni Sofraları</h3>
-          <p class="text-slate-300 text-sm leading-relaxed mb-4">
-            Evlatlarınızın mürüvvetinde misafirlerinize hem geleneksel lezzetleri hem de çocuklara özel pratik menü seçeneklerini sunuyoruz.
-          </p>
-          <ul class="text-xs text-slate-400 space-y-1.5 border-t border-slate-800 pt-3">
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Hızlı ve kesintisiz tabldot akışı</li>
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Çocuk dostu menü alternatifleri</li>
-          </ul>
-        </div>
-
-        <!-- Hizmet 4: Kurumsal Açılış & Davetler -->
-        <div class="bg-brand-card/90 rounded-2xl p-7 border border-brand-border hover:border-brand-gold/50 transition-all duration-300 group">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-3xl mb-5 group-hover:rotate-6 transition-transform">
-            🏢
-          </div>
-          <h3 class="text-2xl font-serif font-bold text-white mb-2">Kurumsal A��ılış & Şirket Yemekleri</h3>
-          <p class="text-slate-300 text-sm leading-relaxed mb-4">
-            Fabrika temelleri, mağaza açılışları, bayramlaşma törenleri ve genel kurul yemeklerinde şirketinize yakışan itibar dolu ikramlar.
-          </p>
-          <ul class="text-xs text-slate-400 space-y-1.5 border-t border-slate-800 pt-3">
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Faturalı ve resmi ihale standartlarında hizmet</li>
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> VIP tabak ve açık büfe servis</li>
-          </ul>
-        </div>
-
-        <!-- Hizmet 5: Sıcak Termobox Lojistiği -->
-        <div class="bg-brand-card/90 rounded-2xl p-7 border border-brand-border hover:border-brand-gold/50 transition-all duration-300 group">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-3xl mb-5 group-hover:rotate-6 transition-transform">
-            🚚
-          </div>
-          <h3 class="text-2xl font-serif font-bold text-white mb-2">Sıcak Termobox Sevkiyatı</h3>
-          <p class="text-slate-300 text-sm leading-relaxed mb-4">
-            Yemekleriniz mutfağımızdan çıktığı andaki tazelik ve sıcaklığıyla, özel ısı yalıtımlı gastronom küvetlerde tam vaktinde adrese gelir.
-          </p>
-          <ul class="text-xs text-slate-400 space-y-1.5 border-t border-slate-800 pt-3">
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Saatlerce 75°C üzerinde ısı muhafazası</li>
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> İl ve çevre ilçelere tam zamanında teslimat</li>
-          </ul>
-        </div>
-
-        <!-- Hizmet 6: Yerinde Mutfak & Ekipman Desteği -->
-        <div class="bg-brand-card/90 rounded-2xl p-7 border border-brand-border hover:border-brand-gold/50 transition-all duration-300 group">
-          <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-3xl mb-5 group-hover:rotate-6 transition-transform">
-            ⚡
-          </div>
-          <h3 class="text-2xl font-serif font-bold text-white mb-2">Masa & Servis Ekipmanı Tedariği</h3>
-          <p class="text-slate-300 text-sm leading-relaxed mb-4">
-            İhtiyacınıza göre tabak, çatal-kaşık, bardak, masa örtüsü ve chafing dish (ısıtıcı benmari) servis üniteleri dahil anahtar teslim çözüm.
-          </p>
-          <ul class="text-xs text-slate-400 space-y-1.5 border-t border-slate-800 pt-3">
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Sterilize porselen veya lüks kristal kullan-at</li>
-            <li class="flex items-center gap-2"><span class="text-brand-gold">✓</span> Güler yüzlü, üniformalı servis personeli</li>
-          </ul>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Menülerimiz Section -->
-  <section id="menuler" class="py-20 bg-slate-950/70 border-y border-brand-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-12">
-        <span class="text-brand-gold text-xs uppercase tracking-[0.25em] font-semibold">Zengin Çeşitler</span>
-        <h2 class="text-3xl sm:text-5xl font-serif font-bold text-white mt-2 mb-4">Popüler Menü Paketlerimiz</h2>
-        <div class="w-20 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent mx-auto mb-6"></div>
-        <p class="text-slate-300 text-sm sm:text-base">
-          Tüm menülerimiz taze malzemelerle günlük hazırlanır. İhtiyacınıza göre değişiklik yapılabilir.
-        </p>
-      </div>
-
-      <!-- Tab Buttons -->
-      <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-12" id="menuTabs">
-        <button onclick="switchMenu('corum')" id="tab-corum" class="menu-tab-btn active px-6 py-2.5 rounded-full text-sm font-semibold bg-brand-gold text-slate-950 transition-all shadow-md">
-          👑 Çorum Beşlisi Menüsü
-        </button>
-        <button onclick="switchMenu('dugun')" id="tab-dugun" class="menu-tab-btn px-6 py-2.5 rounded-full text-sm font-semibold bg-brand-card text-slate-300 hover:text-white border border-brand-border transition-all">
-          💍 Düğün & Nişan Menüsü
-        </button>
-        <button onclick="switchMenu('mevlid')" id="tab-mevlid" class="menu-tab-btn px-6 py-2.5 rounded-full text-sm font-semibold bg-brand-card text-slate-300 hover:text-white border border-brand-border transition-all">
-          🕊️ Mevlid & Hayır Menüsü
-        </button>
-        <button onclick="switchMenu('doner')" id="tab-doner" class="menu-tab-btn px-6 py-2.5 rounded-full text-sm font-semibold bg-brand-card text-slate-300 hover:text-white border border-brand-border transition-all">
-          🔥 Yaprak Döner & Izgara Menüsü
-        </button>
-      </div>
-
-      <!-- Tab Content Area -->
-      <div id="menuContent" class="max-w-4xl mx-auto">
-
-        <!-- 1. Çorum Beşlisi Tab Content -->
-        <div id="content-corum" class="menu-panel bg-brand-card rounded-3xl p-6 sm:p-10 border border-brand-gold/40 shadow-2xl">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-6 mb-6 gap-4">
-            <div>
-              <span class="text-xs text-brand-gold font-bold uppercase tracking-wider">Geleneksel Cemiyet Klasiği</span>
-              <h3 class="text-2xl sm:text-3xl font-serif font-bold text-white">Asırlık Çorum Beşlisi Ziyafeti</h3>
-            </div>
-            <div class="text-left sm:text-right">
-              <span class="text-xs text-slate-400 block">Kişi Sayısına Göre</span>
-              <span class="text-lg font-semibold text-brand-gold">Özel Fiyatlandırma</span>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-3">
-              <h4 class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Menü İçeriği:</h4>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">1.</span>
-                <div><strong>Terbiyeli Düğün Çorbası</strong> (Naneli & Tereyağlı sos ile)</div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">2.</span>
-                <div><strong>Geleneksel Kazan Kavurması</strong> (Kendi suyunda ağır ateşte pişmiş dana eti)</div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">3.</span>
-                <div><strong>Tereyağlı Şehriyeli Pirinç Pilavı</strong> (Gönen Baldo Pirinç)</div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">4.</span>
-                <div><strong>El Açması Su Böreği</strong> veya <strong>Zeytinyağlı Sarma</strong></div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">5.</span>
-                <div><strong>Şerbetli Fıstıklı İrmik Helvası</strong> veya <strong>Cevizli Baklava</strong></div>
-              </div>
-            </div>
-
-            <div class="bg-black/30 rounded-2xl p-5 border border-slate-800/80 flex flex-col justify-between">
-              <div>
-                <h4 class="text-xs uppercase text-slate-400 font-semibold tracking-wider mb-2">Pakete Dahil Olanlar:</h4>
-                <p class="text-xs text-slate-300 leading-relaxed mb-3">
-                  Tandır somun ekmeği, kapalı bardak su, ambalajlı ayran, ıslak mendil, çatal-kaşık seti ve tuz-karabiber poşetleri dahil eksiksiz teslim edilir.
-                </p>
-                <div class="text-[11px] text-amber-300 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
-                  ⚡ <strong>Tavsiye:</strong> Düğün ve sünnet törenlerinin açık ara en çok tercih edilen, en yüksek beğeni alan prestij menüsüdür.
-                </div>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-800">
-                <button onclick="prefillCalculator('corum')" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs tracking-wide transition-colors">
-                  Bu Menüyü Hesaplayıcıya Aktar
+    <!-- LOGIN / CONNECT SCREEN -->
+    <div id="login-screen">
+        <div class="card">
+            <h1>P2P İletişim</h1>
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">Merkezi sunucu olmadan doğrudan bağlanın.</p>
+            
+            <div id="loading-peer">Bağlantı hazırlanıyor...</div>
+            
+            <div id="connection-panel" style="display:none;">
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">Sizin ID'niz:</p>
+                <div class="id-box" id="my-id">Bekleniyor...</div>
+                
+                <button class="btn" onclick="copyInviteLink()">
+                    <i class="fa-solid fa-link"></i> Davet Linki Kopyala
                 </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. Düğün & Nişan Menüsü -->
-        <div id="content-dugun" class="menu-panel hidden bg-brand-card rounded-3xl p-6 sm:p-10 border border-brand-border shadow-2xl">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-6 mb-6 gap-4">
-            <div>
-              <span class="text-xs text-brand-gold font-bold uppercase tracking-wider">Modern Ziyafet</span>
-              <h3 class="text-2xl sm:text-3xl font-serif font-bold text-white">Altın Düğün & Nişan Menüsü</h3>
-            </div>
-            <div class="text-left sm:text-right">
-              <span class="text-xs text-slate-400 block">Zengin Garnitür</span>
-              <span class="text-lg font-semibold text-brand-gold">VIP Servis</span>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-3">
-              <h4 class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Menü İçeriği:</h4>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">1.</span>
-                <div><strong>Süzme Mercimek</strong> veya <strong>Yayla Çorbası</strong></div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">2.</span>
-                <div><strong>Fırında Dana Rosto / Tas Kebabı</strong> (Karamelize soğan ve patates püresi eşliğinde)</div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">3.</span>
-                <div><strong>Bademli & Şehriyeli Pirinç Pilavı</strong></div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">4.</span>
-                <div><strong>Mevsim Salata</strong> (Zeytinyağı ve nar ekşisi sosu)</div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">5.</span>
-                <div><strong>Trileçe / Fıstıklı Baklava</strong> + Meşrubat</div>
-              </div>
-            </div>
-
-            <div class="bg-black/30 rounded-2xl p-5 border border-slate-800/80 flex flex-col justify-between">
-              <div>
-                <h4 class="text-xs uppercase text-slate-400 font-semibold tracking-wider mb-2">Pakete Dahil Olanlar:</h4>
-                <p class="text-xs text-slate-300 leading-relaxed mb-3">
-                  Porselen tabak sunumu, cam bardak servisi, masa örtüleri ve deneyimli garson kadrosu opsiyonuyla organizasyon salonlarına eksiksiz uyumludur.
-                </p>
-                <div class="text-[11px] text-emerald-300 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">
-                  ✨ <strong>Salon & Kır Bahçesi:</strong> Şık servis gerektiren salon düğünleri için en ideal alternatiftir.
-                </div>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-800">
-                <button onclick="prefillCalculator('dugun')" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs tracking-wide transition-colors">
-                  Bu Menüyü Hesaplayıcıya Aktar
+                
+                <div class="divider">VEYA</div>
+                
+                <input type="text" id="target-id" placeholder="Karşı Tarafın ID'sini Girin">
+                <button class="btn" onclick="connectToPeer()">
+                    <i class="fa-solid fa-right-to-bracket"></i> Odaya Bağlan
                 </button>
-              </div>
             </div>
-          </div>
         </div>
-
-        <!-- 3. Mevlid & Hayır Menüsü -->
-        <div id="content-mevlid" class="menu-panel hidden bg-brand-card rounded-3xl p-6 sm:p-10 border border-brand-border shadow-2xl">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-6 mb-6 gap-4">
-            <div>
-              <span class="text-xs text-brand-gold font-bold uppercase tracking-wider">Hızlı & Bereketli İkram</span>
-              <h3 class="text-2xl sm:text-3xl font-serif font-bold text-white">Geleneksel Mevlid & Taziye Menüsü</h3>
-            </div>
-            <div class="text-left sm:text-right">
-              <span class="text-xs text-slate-400 block">Sıcak & Pratik</span>
-              <span class="text-lg font-semibold text-brand-gold">Ekonomik ve Doyurucu</span>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-3">
-              <h4 class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Menü İçeriği:</h4>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">1.</span>
-                <div><strong>Kavurmalı / Tavuklu Nohutlu Pilav</strong> (Bol etli ve tereyağlı)</div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">2.</span>
-                <div><strong>Zeytinyağlı Yaprak Sarma</strong></div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">3.</span>
-                <div><strong>Geleneksel Un veya İrmik Helvası</strong></div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">4.</span>
-                <div><strong>Büyük Boy Kapalı Ayran & Bardak Su</strong></div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">5.</span>
-                <div><strong>Tırnak Pide / Somun Ekmek</strong></div>
-              </div>
-            </div>
-
-            <div class="bg-black/30 rounded-2xl p-5 border border-slate-800/80 flex flex-col justify-between">
-              <div>
-                <h4 class="text-xs uppercase text-slate-400 font-semibold tracking-wider mb-2">Pakete Dahil Olanlar:</h4>
-                <p class="text-xs text-slate-300 leading-relaxed mb-3">
-                  Bölmeli sıcak tutan kapaklı kutularda el değmeden paketlenir. Cami, taziye evi veya ev mevlidlerinde anında dağıtıma hazırdır.
-                </p>
-                <div class="text-[11px] text-blue-300 bg-blue-500/10 p-2.5 rounded-lg border border-blue-500/20">
-                  🕊️ <strong>Sıfır Zahmet:</strong> Dağıtması en kolay, dökülme yapmayan özel ambalajlı mevlid menüsü.
-                </div>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-800">
-                <button onclick="prefillCalculator('mevlid')" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs tracking-wide transition-colors">
-                  Bu Menüyü Hesaplayıcıya Aktar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4. Yaprak Döner & Izgara Menüsü -->
-        <div id="content-doner" class="menu-panel hidden bg-brand-card rounded-3xl p-6 sm:p-10 border border-brand-border shadow-2xl">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-6 mb-6 gap-4">
-            <div>
-              <span class="text-xs text-brand-gold font-bold uppercase tracking-wider">Yerinde Sıcak Kesim</span>
-              <h3 class="text-2xl sm:text-3xl font-serif font-bold text-white">Özel Yaprak Et Döner Menüsü</h3>
-            </div>
-            <div class="text-left sm:text-right">
-              <span class="text-xs text-slate-400 block">Etkinlik Alanında</span>
-              <span class="text-lg font-semibold text-brand-gold">Taze ve Sıcak</span>
-            </div>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-3">
-              <h4 class="text-xs uppercase text-slate-400 font-semibold tracking-wider">Menü İçeriği:</h4>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">1.</span>
-                <div><strong>Yerli Dana Yaprak Döner</strong> (Porsiyon veya tombik pide)</div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">2.</span>
-                <div><strong>Tereyağlı Şehriyeli Pirinç Pilavı</strong></div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">3.</span>
-                <div><strong>Patates Tava & Közlenmiş Biber-Domates</strong></div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">4.</span>
-                <div><strong>Sütaş Ayran & Kutu Meşrubat</strong></div>
-              </div>
-              <div class="flex items-start gap-3 text-sm text-slate-200">
-                <span class="text-amber-400 font-bold">5.</span>
-                <div><strong>Fıstıklı Baklava</strong> (2 Dilim)</div>
-              </div>
-            </div>
-
-            <div class="bg-black/30 rounded-2xl p-5 border border-slate-800/80 flex flex-col justify-between">
-              <div>
-                <h4 class="text-xs uppercase text-slate-400 font-semibold tracking-wider mb-2">Pakete Dahil Olanlar:</h4>
-                <p class="text-xs text-slate-300 leading-relaxed mb-3">
-                  Mobil döner ocağımız ve usta dönercimiz cemiyet alanınıza gelir, misafirlerinizin gözü önünde taze kesim yaparak sıcak ikram eder.
-                </p>
-                <div class="text-[11px] text-amber-300 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
-                  🔥 <strong>Göz Alıcı Şov:</strong> Açık hava ve geniş katılımlı sünnet-düğün davetleri için yüksek ilgi görür.
-                </div>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-800">
-                <button onclick="prefillCalculator('doner')" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs tracking-wide transition-colors">
-                  Bu Menüyü Hesaplayıcıya Aktar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
     </div>
-  </section>
 
-  <!-- Hızlı Teklif & Fiyat Hesaplayıcı -->
-  <section id="hesaplayici" class="py-20 relative bg-gradient-to-b from-[#0B0F17] via-[#101726] to-[#0B0F17]">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center mb-12">
-        <span class="text-brand-gold text-xs uppercase tracking-[0.25em] font-semibold">Anında Ön Bilgi & WhatsApp Teklifi</span>
-        <h2 class="text-3xl sm:text-5xl font-serif font-bold text-white mt-2 mb-4">Etkinlik Fiyat Hesaplayıcı</h2>
-        <div class="w-20 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent mx-auto mb-6"></div>
-        <p class="text-slate-300 text-sm sm:text-base">
-          Tören türünüzü ve tahmini misafir sayınızı seçin; saniyeler içinde yaklaşık bütçeyi görün ve tek tıkla resmi WhatsApp teklifinizi alın.
-        </p>
-      </div>
-
-      <!-- Calculator Card -->
-      <div class="bg-brand-card rounded-3xl p-6 sm:p-10 border border-brand-gold/40 shadow-2xl relative">
-        <div class="space-y-8">
-          
-          <!-- 1. Tören Türü -->
-          <div>
-            <label class="block text-sm font-medium text-slate-300 mb-3">1. Etkinlik / Tören Türü Seçiniz:</label>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="eventTypeSelector">
-              <button type="button" onclick="selectEvent('Düğün & Nişan')" class="event-type-btn active py-3 px-4 rounded-xl border border-brand-gold bg-amber-500/20 text-white font-medium text-xs sm:text-sm text-center transition-all">
-                💍 Düğün & Nişan
-              </button>
-              <button type="button" onclick="selectEvent('Mevlid & Hayır')" class="event-type-btn py-3 px-4 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-300 font-medium text-xs sm:text-sm text-center hover:border-brand-gold/50 transition-all">
-                🕊️ Mevlid & Hayır
-              </button>
-              <button type="button" onclick="selectEvent('Sünnet Töreni')" class="event-type-btn py-3 px-4 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-300 font-medium text-xs sm:text-sm text-center hover:border-brand-gold/50 transition-all">
-                👑 Sünnet Töreni
-              </button>
-              <button type="button" onclick="selectEvent('Kurumsal / Diğer')" class="event-type-btn py-3 px-4 rounded-xl border border-slate-700 bg-slate-900/60 text-slate-300 font-medium text-xs sm:text-sm text-center hover:border-brand-gold/50 transition-all">
-                🏢 Kurumsal Davet
-              </button>
+    <!-- MAIN CHAT SCREEN -->
+    <div id="chat-screen">
+        <!-- Header -->
+        <div class="header">
+            <div class="user-info">
+                <div class="avatar">
+                    <i class="fa-solid fa-user"></i>
+                    <div class="status-dot"></div>
+                </div>
+                <div class="details">
+                    <div class="peer-name">Bağlı Kişi</div>
+                    <div class="typing-status" id="typing-indicator"></div>
+                </div>
             </div>
-          </div>
-
-          <!-- 2. Kişi Sayısı Slider -->
-          <div>
-            <div class="flex justify-between items-center mb-3">
-              <label for="guestRange" class="text-sm font-medium text-slate-300">2. Tahmini Misafir Sayısı:</label>
-              <span class="text-2xl font-serif font-bold text-brand-gold" id="guestCountDisplay">300 Kişi</span>
+            <div class="call-actions">
+                <button onclick="startCall(false)" title="Sesli Arama"><i class="fa-solid fa-phone"></i></button>
+                <button onclick="startCall(true)" title="Görüntülü Arama"><i class="fa-solid fa-video"></i></button>
             </div>
-            <input type="range" id="guestRange" min="50" max="2500" step="25" value="300" 
-              class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
-              oninput="updateCalculation()">
-            <div class="flex justify-between text-[11px] text-slate-500 mt-2 font-mono">
-              <span>50 Kişi</span>
-              <span>500 Kişi</span>
-              <span>1.000 Kişi</span>
-              <span>1.500 Kişi</span>
-              <span>2.500+ Kişi</span>
-            </div>
-          </div>
+        </div>
 
-          <!-- 3. Menü Seçimi -->
-          <div>
-            <label class="block text-sm font-medium text-slate-300 mb-3">3. Menü Tercihi:</label>
-            <select id="menuSelect" onchange="updateCalculation()" class="w-full bg-slate-900 border border-brand-border rounded-xl px-4 py-3.5 text-white text-sm focus:outline-none focus:border-brand-gold">
-              <option value="corum" selected>⭐ Meşhur Çorum Beşlisi Menüsü (En Popüler)</option>
-              <option value="dugun">💍 Altın Düğün Menüsü (Rosto / Tas Kebabı)</option>
-              <option value="mevlid">🕊️ Geleneksel Mevlid Menüsü (Kavurmalı Pilav)</option>
-              <option value="doner">🔥 Yaprak Et Döner Menüsü (Yerinde Sıcak Kesim)</option>
-            </select>
-          </div>
+        <!-- Messages -->
+        <div class="chat-area" id="chat-area">
+            <div class="system-message">Uçtan uca şifreli P2P bağlantı kuruldu.</div>
+        </div>
 
-          <!-- 4. Ekstra Hizmetler -->
-          <div>
-            <label class="block text-sm font-medium text-slate-300 mb-3">4. Ek Hizmet Tercihleri:</label>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" id="extraWaiter" onchange="updateCalculation()" class="w-4 h-4 rounded accent-amber-500">
-                <span class="text-xs text-slate-300">Garson & Servis Elemanı Desteği</span>
-              </label>
-              <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800 cursor-pointer hover:border-slate-700">
-                <input type="checkbox" id="extraPorcelain" onchange="updateCalculation()" class="w-4 h-4 rounded accent-amber-500">
-                <span class="text-xs text-slate-300">Porselen Tabak & Cam Bardak Takımı</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Result Summary Box -->
-          <div class="p-6 rounded-2xl bg-slate-950 border border-brand-gold/30 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div>
-              <span class="text-xs text-slate-400 block uppercase tracking-wider">Tahmini Bütçe Aralığı</span>
-              <div class="text-2xl sm:text-3xl font-serif font-bold text-white mt-1">
-                <span id="estimatedPrice">Hesaplanıyor...</span>
-              </div>
-              <p class="text-[11px] text-slate-400 mt-1">
-                * Kesin fiyat seçilen et gramajı, mesafe ve net tarihe göre teyit edilir.
-              </p>
+        <!-- Input -->
+        <div class="input-area">
+            <input type="file" id="file-input" onchange="handleFileSelect(event)">
+            <button class="action-btn" onclick="document.getElementById('file-input').click()">
+                <i class="fa-solid fa-paperclip"></i>
+            </button>
+            
+            <div class="text-input-wrapper">
+                <textarea id="msg-input" placeholder="Mesaj yazın..." rows="1" oninput="autoResize(this); handleTyping();" onkeydown="handleEnter(event)"></textarea>
             </div>
             
-            <button type="button" onclick="sendWhatsAppQuote()" class="w-full sm:w-auto px-7 py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 transition-all transform hover:scale-[1.02]">
-              <span class="text-xl">💬</span>
-              <span>WhatsApp İle Bu Teklifi İste</span>
+            <button class="action-btn" id="mic-btn" onmousedown="startRecording()" onmouseup="stopRecording()" ontouchstart="startRecording()" ontouchend="stopRecording()">
+                <i class="fa-solid fa-microphone"></i>
             </button>
-          </div>
-
+            
+            <button id="send-btn" onclick="sendTextMessage()" style="display:none;">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
         </div>
-      </div>
-
     </div>
-  </section>
 
-  <!-- Sayılarla Yiğit Yemekçilik -->
-  <section class="py-16 border-b border-brand-border bg-slate-950/40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+    <!-- VIDEO CALL OVERLAY -->
+    <div id="video-overlay">
+        <div class="video-container">
+            <video id="remote-video" autoplay playsinline></video>
+            <video id="local-video" autoplay playsinline muted></video>
+            
+            <div class="call-controls">
+                <button class="call-btn call-toggle" onclick="toggleAudio()" id="btn-toggle-audio"><i class="fa-solid fa-microphone"></i></button>
+                <button class="call-btn call-toggle" onclick="toggleVideo()" id="btn-toggle-video"><i class="fa-solid fa-video"></i></button>
+                <button class="call-btn call-end" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMOJI PICKER -->
+    <div id="emoji-picker">
+        <span class="emoji-option" onclick="sendReaction('👍')">👍</span>
+        <span class="emoji-option" onclick="sendReaction('❤️')">❤️</span>
+        <span class="emoji-option" onclick="sendReaction('😂')">😂</span>
+        <span class="emoji-option" onclick="sendReaction('😮')">😮</span>
+        <span class="emoji-option" onclick="sendReaction('😢')">😢</span>
+    </div>
+
+    <!-- FULLSCREEN IMAGE VIEWER -->
+    <div id="fs-image-viewer">
+        <i class="fa-solid fa-xmark close-fs" onclick="closeImageViewer()"></i>
+        <img id="fs-img-el" src="" alt="Tam ekran">
+    </div>
+
+    <script>
+        /**
+         * P2P Core Logic & State
+         */
+        let peer = null;
+        let conn = null;
+        let currentCall = null;
+        let localStream = null;
         
-        <div class="p-6 rounded-2xl bg-brand-card/50 border border-slate-800/80">
-          <div class="text-3xl sm:text-5xl font-serif font-bold gold-gradient-text mb-2">850+</div>
-          <div class="text-xs sm:text-sm text-slate-300 font-medium">Başarılı Düğün & Tören</div>
-          <div class="text-[11px] text-slate-500 mt-1">Eksiksiz ziyafet sofraları</div>
-        </div>
-
-        <div class="p-6 rounded-2xl bg-brand-card/50 border border-slate-800/80">
-          <div class="text-3xl sm:text-5xl font-serif font-bold gold-gradient-text mb-2">650.000+</div>
-          <div class="text-xs sm:text-sm text-slate-300 font-medium">Misafir Ağırlama</div>
-          <div class="text-[11px] text-slate-500 mt-1">Doyurucu ve bereketli</div>
-        </div>
-
-        <div class="p-6 rounded-2xl bg-brand-card/50 border border-slate-800/80">
-          <div class="text-3xl sm:text-5xl font-serif font-bold gold-gradient-text mb-2">%99.8</div>
-          <div class="text-xs sm:text-sm text-slate-300 font-medium">Müşteri Memnuniyeti</div>
-          <div class="text-[11px] text-slate-500 mt-1">Tavsiye edilen güven</div>
-        </div>
-
-        <div class="p-6 rounded-2xl bg-brand-card/50 border border-slate-800/80">
-          <div class="text-3xl sm:text-5xl font-serif font-bold gold-gradient-text mb-2">15+ Yıl</div>
-          <div class="text-xs sm:text-sm text-slate-300 font-medium">Sektörel Tecrübe</div>
-          <div class="text-[11px] text-slate-500 mt-1">Usta aşçı kadrosu</div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Referanslar & Müşteri Yorumları -->
-  <section id="referanslar" class="py-20 relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-brand-gold text-xs uppercase tracking-[0.25em] font-semibold">Mutlu Cemiyet Sahipleri</span>
-        <h2 class="text-3xl sm:text-5xl font-serif font-bold text-white mt-2 mb-4">Referanslarımız Ne Diyor?</h2>
-        <div class="w-20 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent mx-auto mb-6"></div>
-        <p class="text-slate-300 text-sm sm:text-base">
-          Bizim için en büyük gurur, tören sonunda misafirlerinizin sofradan tebessümle ve dua ile ayrılmasıdır.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        let messages = {}; // Store messages by ID to update read receipts / reactions
+        let myPeerId = null;
         
-        <!-- Yorum 1 -->
-        <div class="bg-brand-card rounded-2xl p-7 border border-brand-border flex flex-col justify-between">
-          <div>
-            <div class="flex text-amber-400 gap-1 text-sm mb-4">
-              ★★★★★
-            </div>
-            <p class="text-slate-300 text-sm italic leading-relaxed mb-6">
-              "Oğlumuzun 1.200 kişilik sünnet mevlidinde Çorum Beşlisi menüsünü ikram ettik. Yemekler kazanlardan yeni inmiş gibi sıcacıktı. Kavurmanın yumuşaklığı ve helvanın tadı davetliler tarafından hala konuşuluyor. Elinize sağlık Yiğit Yemekçilik!"
-            </p>
-          </div>
-          <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
-            <div class="w-10 h-10 rounded-full bg-amber-500/20 text-brand-gold font-bold flex items-center justify-center font-serif">
-              M.Ö
-            </div>
-            <div>
-              <h4 class="text-sm font-semibold text-white">Murat Özdemir</h4>
-              <p class="text-xs text-slate-400">Sünnet Töreni Organizasyonu</p>
-            </div>
-          </div>
-        </div>
+        // Chunking variables
+        const CHUNK_SIZE = 64 * 1024; // 64KB per chunk for WebRTC stability
+        let incomingFiles = {};
 
-        <!-- Yorum 2 -->
-        <div class="bg-brand-card rounded-2xl p-7 border border-brand-border flex flex-col justify-between">
-          <div>
-            <div class="flex text-amber-400 gap-1 text-sm mb-4">
-              ★★★★★
-            </div>
-            <p class="text-slate-300 text-sm italic leading-relaxed mb-6">
-              "Köyümüzde gerçekleştirdiğimiz düğün için 800 kişilik yemek anlaşması yaptık. Servis ekibinin hızı, güler yüzü ve termoboxların intizamı hayran bıraktı. Hiçbir aksaklık yaşanmadı. Güvenle tercih edebilirsiniz."
-            </p>
-          </div>
-          <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
-            <div class="w-10 h-10 rounded-full bg-amber-500/20 text-brand-gold font-bold flex items-center justify-center font-serif">
-              H.Y
-            </div>
-            <div>
-              <h4 class="text-sm font-semibold text-white">Halil Yılmaz</h4>
-              <p class="text-xs text-slate-400">Düğün Cemiyeti</p>
-            </div>
-          </div>
-        </div>
+        // Recording state
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
 
-        <!-- Yorum 3 -->
-        <div class="bg-brand-card rounded-2xl p-7 border border-brand-border flex flex-col justify-between">
-          <div>
-            <div class="flex text-amber-400 gap-1 text-sm mb-4">
-              ★★★★★
-            </div>
-            <p class="text-slate-300 text-sm italic leading-relaxed mb-6">
-              "Fabrikamızın 10. yıl açılış merasiminde protokol dahil 500 misafirimize sıcak ikram sundular. Hijyen belgeleri, resmi faturalandırma ve sunum kalitesi kusursuzdu. Kurumsal davetlerimizde tek tercihimiz."
-            </p>
-          </div>
-          <div class="flex items-center gap-3 pt-4 border-t border-slate-800">
-            <div class="w-10 h-10 rounded-full bg-amber-500/20 text-brand-gold font-bold flex items-center justify-center font-serif">
-              A.K
-            </div>
-            <div>
-              <h4 class="text-sm font-semibold text-white">Ahmet Karahan</h4>
-              <p class="text-xs text-slate-400">Sanayi Kuruluşu Fabrika Müdürü</p>
-            </div>
-          </div>
-        </div>
+        // Interaction state
+        let selectedMsgIdForReaction = null;
+        let typingTimeout = null;
+        let isTabActive = true;
 
-      </div>
+        // Initialize PeerJS
+        function initPeer() {
+            peer = new Peer({ debug: 2 });
+            
+            peer.on('open', (id) => {
+                myPeerId = id;
+                document.getElementById('loading-peer').style.display = 'none';
+                document.getElementById('connection-panel').style.display = 'block';
+                document.getElementById('my-id').innerText = id;
+                
+                checkUrlForInvite();
+            });
 
-    </div>
-  </section>
+            // Handle incoming data connection
+            peer.on('connection', (c) => {
+                if (conn) {
+                    c.close(); // Only allow one connection at a time
+                    return;
+                }
+                setupConnection(c);
+            });
 
-  <!-- Sıkça Sorulan Sorular -->
-  <section class="py-16 bg-slate-950/60 border-t border-brand-border">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center mb-12">
-        <span class="text-brand-gold text-xs uppercase tracking-[0.25em] font-semibold">Merak Edilenler</span>
-        <h2 class="text-3xl sm:text-4xl font-serif font-bold text-white mt-2 mb-4">Sıkça Sorulan Sorular</h2>
-        <div class="w-16 h-1 bg-brand-gold mx-auto mb-4"></div>
-      </div>
+            // Handle incoming media call
+            peer.on('call', (call) => {
+                const accept = confirm("Gelen arama... Kabul edilsin mi?");
+                if(accept) {
+                    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                        .then((stream) => {
+                            localStream = stream;
+                            document.getElementById('local-video').srcObject = stream;
+                            call.answer(stream);
+                            setupCallEvents(call);
+                            document.getElementById('video-overlay').style.display = 'flex';
+                        }).catch(err => alert("Kamera/Mikrofon erişimi reddedildi."));
+                } else {
+                    call.close();
+                }
+            });
 
-      <div class="space-y-4" id="faqAccordion">
-        
-        <!-- Soru 1 -->
-        <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden">
-          <button onclick="toggleFaq(1)" class="w-full px-6 py-4 text-left flex items-center justify-between text-white font-medium text-sm sm:text-base focus:outline-none">
-            <span>Yemekler etkinlik alanına nasıl ulaştırılıyor ve sıcak kalıyor mu?</span>
-            <span id="faq-icon-1" class="text-brand-gold text-xl transition-transform">+</span>
-          </button>
-          <div id="faq-content-1" class="hidden px-6 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            Yemeklerimiz mutfağımızda pişer pişmez özel gıda tipi çift cidarlı poliüretan Termobox kaplara alınır. Bu kaplar 6 ila 8 saat boyunca yemeği 75°C üzerinde sıcak tutar. Asla lezzet ve tazelik kaybı yaşanmaz.
-          </div>
-        </div>
-
-        <!-- Soru 2 -->
-        <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden">
-          <button onclick="toggleFaq(2)" class="w-full px-6 py-4 text-left flex items-center justify-between text-white font-medium text-sm sm:text-base focus:outline-none">
-            <span>Çorum Beşlisi menüsünde değişiklik veya ekleme yapabilir miyiz?</span>
-            <span id="faq-icon-2" class="text-brand-gold text-xl transition-transform">+</span>
-          </button>
-          <div id="faq-content-2" class="hidden px-6 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            Elbette! Geleneksel Çorum Beşlisi reçetemizi temel alarak çorba çeşidini, tatlı tercihini (helva, baklava ya da tulumba) veya börek/sarma oranlarını davet sahibinin isteğine göre kolaylıkla revize edebiliyoruz.
-          </div>
-        </div>
-
-        <!-- Soru 3 -->
-        <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden">
-          <button onclick="toggleFaq(3)" class="w-full px-6 py-4 text-left flex items-center justify-between text-white font-medium text-sm sm:text-base focus:outline-none">
-            <span>Kaç gün önceden rezervasyon yaptırmamız gerekiyor?</span>
-            <span id="faq-icon-3" class="text-brand-gold text-xl transition-transform">+</span>
-          </button>
-          <div id="faq-content-3" class="hidden px-6 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            Özellikle yaz sezonundaki düğün, sünnet ve yoğun hafta sonu merasimleri için en az 2-3 hafta öncesinden rezervasyon öneriyoruz. Ani mevlid ve taziye yemekleri için ise 24 saat öncesinde haber verilmesi durumunda hızlı aksiyon alabiliyoruz.
-          </div>
-        </div>
-
-        <!-- Soru 4 -->
-        <div class="bg-brand-card rounded-2xl border border-brand-border overflow-hidden">
-          <button onclick="toggleFaq(4)" class="w-full px-6 py-4 text-left flex items-center justify-between text-white font-medium text-sm sm:text-base focus:outline-none">
-            <span>Etleriniz nereden temin ediliyor, helal sertifikanız var mı?</span>
-            <span id="faq-icon-4" class="text-brand-gold text-xl transition-transform">+</span>
-          </button>
-          <div id="faq-content-4" class="hidden px-6 pb-5 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/60 pt-3">
-            Tüm et ürünlerimiz Tarım ve Orman Bakanlığı denetimindeki yerel kombinalardan, veteriner hekim onaylı ve %100 yerli besi dana/kuzulardan temin edilmektedir. İslami usullere göre helal kesim sertifikamız mevcuttur.
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- İletişim & Rezervasyon Bölümü -->
-  <section id="iletisim" class="py-20 relative">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="text-brand-gold text-xs uppercase tracking-[0.25em] font-semibold">Bizimle İletişime Geçin</span>
-        <h2 class="text-3xl sm:text-5xl font-serif font-bold text-white mt-2 mb-4">Sofranız İçin Hazırız</h2>
-        <div class="w-20 h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent mx-auto mb-6"></div>
-        <p class="text-slate-300 text-sm sm:text-base">
-          Tarih ve kişi sayısı bilgilerinizi iletin, size özel hazırlanmış detaylı teklif dosyamızı hemen gönderelim.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        <!-- Contact Information (5 Cols) -->
-        <div class="lg:col-span-5 space-y-6">
-          <div class="bg-brand-card rounded-3xl p-7 border border-brand-border space-y-6">
-            <h3 class="text-2xl font-serif font-bold text-white">İletişim Bilgileri</h3>
-            <p class="text-slate-300 text-sm leading-relaxed">
-              Her türlü soru, randevu ve tadım talepleriniz için müşteri temsilcimizle doğrudan görüşebilirsiniz.
-            </p>
-
-            <div class="space-y-4 text-sm">
-              <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-lg text-brand-gold shrink-0">
-                  📍
-                </div>
-                <div>
-                  <span class="text-xs text-slate-400 block">Merkez Mutfak & Ofis:</span>
-                  <span class="text-slate-200 font-medium leading-relaxed">Gazi Caddesi No: 42, Merkez / Çorum (Tüm çevre il ve ilçelere lojistik servisimiz vardır)</span>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-lg text-brand-gold shrink-0">
-                  📞
-                </div>
-                <div>
-                  <span class="text-xs text-slate-400 block">Doğrudan Sipariş Hattı:</span>
-                  <a href="tel:+905550000000" class="text-brand-gold hover:underline font-bold text-base">0 (555) 000 00 00</a>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-lg text-brand-gold shrink-0">
-                  💬
-                </div>
-                <div>
-                  <span class="text-xs text-slate-400 block">7/24 WhatsApp Destek:</span>
-                  <a href="https://wa.me/905550000000" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:underline font-medium">WhatsApp İle Mesaj Gönder</a>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-4">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-brand-gold/30 flex items-center justify-center text-lg text-brand-gold shrink-0">
-                  ✉️
-                </div>
-                <div>
-                  <span class="text-xs text-slate-400 block">E-Posta:</span>
-                  <span class="text-slate-200">info@yigityemekcilik.com</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Working Hours -->
-            <div class="pt-4 border-t border-slate-800 text-xs text-slate-400 flex justify-between items-center">
-              <span>📅 Haftanın 7 Günü Açık</span>
-              <span class="text-emerald-400 font-semibold">07:00 - 23:00 Hizmet</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Booking Form (7 Cols) -->
-        <div class="lg:col-span-7">
-          <div class="bg-brand-card rounded-3xl p-7 sm:p-9 border border-brand-gold/30 shadow-2xl">
-            <h3 class="text-2xl font-serif font-bold text-white mb-2">Hızlı Teklif Formu</h3>
-            <p class="text-xs sm:text-sm text-slate-400 mb-6">Formu doldurun, 15 dakika içinde detaylı menü teklifimizle arayalım.</p>
-
-            <form id="contactForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1.5">Adınız Soyad��nız *</label>
-                  <input type="text" id="formName" required placeholder="Örn: Ahmet Yılmaz" 
-                    class="w-full bg-slate-900 border border-brand-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-brand-gold">
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1.5">Telefon Numaranız *</label>
-                  <input type="tel" id="formPhone" required placeholder="Örn: 0555 123 45 67" 
-                    class="w-full bg-slate-900 border border-brand-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-brand-gold">
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1.5">Tören Türü</label>
-                  <select id="formEventType" class="w-full bg-slate-900 border border-brand-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-brand-gold">
-                    <option>Düğün Ziyafeti</option>
-                    <option>Mevlid & Hayır Yemeği</option>
-                    <option>Sünnet Töreni</option>
-                    <option>Nişan / Kına</option>
-                    <option>Kurumsal Davet & Açılış</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-slate-300 mb-1.5">Tahmini Tarih & Kişi Sayısı</label>
-                  <input type="text" id="formData" placeholder="Örn: 15 Ekim - 500 Kişi" 
-                    class="w-full bg-slate-900 border border-brand-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-brand-gold">
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-xs font-medium text-slate-300 mb-1.5">İstekleriniz & Notlarınız</label>
-                <textarea id="formMessage" rows="3" placeholder="Menü tercihleriniz, konum veya özel talepleriniz..." 
-                  class="w-full bg-slate-900 border border-brand-border rounded-xl p-4 text-white text-sm focus:outline-none focus:border-brand-gold resize-none"></textarea>
-              </div>
-
-              <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:brightness-110 text-slate-950 font-bold text-sm tracking-wide shadow-lg shadow-amber-500/20 transition-all">
-                Teklif Talebini Gönder →
-              </button>
-
-              <div id="formSuccessToast" class="hidden p-4 rounded-xl bg-emerald-950/80 border border-emerald-500 text-emerald-300 text-xs flex items-center gap-3">
-                <span class="text-xl">✅</span>
-                <span>Talebiniz başarıyla alındı! Danışmanımız en kısa sürede sizinle iletişime geçecektir.</span>
-              </div>
-            </form>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="bg-black border-t border-brand-border text-slate-400 pt-16 pb-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
-        
-        <!-- Brand Summary -->
-        <div class="md:col-span-2 space-y-4">
-          <div class="flex items-center gap-3">
-            <span class="text-3xl">🍽</span>
-            <span class="font-serif text-2xl font-bold tracking-wider gold-gradient-text">YİĞİT YEMEKÇİLİK</span>
-          </div>
-          <p class="text-xs sm:text-sm text-slate-400 max-w-md leading-relaxed">
-            Mevlid, Düğün, Nişan, Sünnet törenlerinde Çorum Beşlisi ve özel davet menüleriyle binlerce misafire hijyenik, lezzetli ve tam vaktinde sıcak yemek ikramı.
-          </p>
-          <div class="flex items-center gap-2 text-xs text-brand-gold font-medium">
-            <span>🛡️ Helal Kesim Belgeli</span> • <span>♨️ Termobox Sıcak Teslimat</span> • <span>⭐ 15 Yıllık Güven</span>
-          </div>
-        </div>
-
-        <!-- Fast Links -->
-        <div>
-          <h4 class="text-xs uppercase font-bold text-white tracking-wider mb-4">Hızlı Bağlantılar</h4>
-          <ul class="space-y-2 text-xs">
-            <li><a href="#anasayfa" class="hover:text-brand-gold transition-colors">Anasayfa</a></li>
-            <li><a href="#corum-beslisi" class="hover:text-brand-gold transition-colors">Çorum Beşlisi Nedir?</a></li>
-            <li><a href="#hizmetlerimiz" class="hover:text-brand-gold transition-colors">Hizmetlerimiz</a></li>
-            <li><a href="#menuler" class="hover:text-brand-gold transition-colors">Menü Paketleri</a></li>
-            <li><a href="#hesaplayici" class="hover:text-brand-gold transition-colors">Fiyat Hesaplama</a></li>
-            <li><a href="#iletisim" class="hover:text-brand-gold transition-colors">İletişim & Sipariş</a></li>
-          </ul>
-        </div>
-
-        <!-- Operational Reach -->
-        <div>
-          <h4 class="text-xs uppercase font-bold text-white tracking-wider mb-4">Hizmet Bölgeleri</h4>
-          <p class="text-xs text-slate-400 leading-relaxed mb-3">
-            Çorum Merkez başta olmak üzere; Sungurlu, Osmancık, Alaca, İskilip ve tüm çevre illerdeki büyük toplu törenlere tam donanımlı araç filomuzla servis sağlamaktayız.
-          </p>
-          <span class="text-xs text-brand-gold font-semibold">📞 0555 000 00 00</span>
-        </div>
-
-      </div>
-
-      <!-- Copyright -->
-      <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-        <p>© 2026 Yiğit Yemekçilik Organizasyon & Toplu Yemek Ltd. Şti. Tüm Hakları Saklıdır.</p>
-        <p class="text-slate-400 flex items-center gap-1">
-          <span>Gelenekten Gelen Lezzet</span> • <span>🍽 Çorum Beşlisi</span>
-        </p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Fixed Floating WhatsApp Button -->
-  <a href="https://wa.me/905550000000?text=Merhaba%20Yi%C4%9Fit%20Yemek%C3%A7ilik%2C%20t%C3%B6renimiz%20i%C3%A7in%20bilgi%20ve%20teklif%20almak%20istiyorum." 
-     target="_blank" 
-     rel="noopener noreferrer" 
-     aria-label="WhatsApp Canlı Destek" 
-     class="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full shadow-2xl shadow-emerald-600/40 border border-emerald-400/40 hover:scale-105 transition-all duration-300">
-    <span class="text-xl">💬</span>
-    <span class="text-xs font-bold hidden sm:inline">WhatsApp Canlı Teklif</span>
-  </a>
-
-  <script>
-    // State management for calculator
-    let currentEventType = 'Düğün & Nişan';
-
-    // Event Type selection buttons
-    function selectEvent(type) {
-      currentEventType = type;
-      const buttons = document.querySelectorAll('.event-type-btn');
-      buttons.forEach(btn => {
-        if (btn.innerText.includes(type)) {
-          btn.classList.remove('border-slate-700', 'bg-slate-900/60', 'text-slate-300');
-          btn.classList.add('border-brand-gold', 'bg-amber-500/20', 'text-white');
-        } else {
-          btn.classList.remove('border-brand-gold', 'bg-amber-500/20', 'text-white');
-          btn.classList.add('border-slate-700', 'bg-slate-900/60', 'text-slate-300');
+            peer.on('error', (err) => {
+                console.error(err);
+                alert("PeerJS Hatası: " + err.type);
+            });
         }
-      });
-      updateCalculation();
-    }
 
-    // Menu Tab Switching
-    function switchMenu(tabKey) {
-      // Hide all content panels
-      const panels = document.querySelectorAll('.menu-panel');
-      panels.forEach(p => p.classList.add('hidden'));
+        function checkUrlForInvite() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const peerParam = urlParams.get('peer');
+            if(peerParam && peerParam !== myPeerId) {
+                document.getElementById('target-id').value = peerParam;
+                connectToPeer();
+            }
+        }
 
-      // Remove active class from tab buttons
-      const tabBtns = document.querySelectorAll('.menu-tab-btn');
-      tabBtns.forEach(btn => {
-        btn.classList.remove('bg-brand-gold', 'text-slate-950', 'shadow-md');
-        btn.classList.add('bg-brand-card', 'text-slate-300', 'border', 'border-brand-border');
-      });
+        function copyInviteLink() {
+            const link = window.location.origin + window.location.pathname + "?peer=" + myPeerId;
+            navigator.clipboard.writeText(link).then(() => {
+                alert("Davet linki kopyalandı!\nArkadaşınıza gönderin.");
+            });
+        }
 
-      // Show selected panel
-      const targetPanel = document.getElementById('content-' + tabKey);
-      if (targetPanel) {
-        targetPanel.classList.remove('hidden');
-      }
+        function connectToPeer() {
+            const targetId = document.getElementById('target-id').value.trim();
+            if(!targetId) return;
+            
+            const c = peer.connect(targetId, { reliable: true });
+            setupConnection(c);
+        }
 
-      // Highlight active button
-      const targetBtn = document.getElementById('tab-' + tabKey);
-      if (targetBtn) {
-        targetBtn.classList.remove('bg-brand-card', 'text-slate-300', 'border', 'border-brand-border');
-        targetBtn.classList.add('bg-brand-gold', 'text-slate-950', 'shadow-md');
-      }
-    }
+        function setupConnection(c) {
+            conn = c;
+            
+            conn.on('open', () => {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('chat-screen').style.display = 'flex';
+                
+                // Girdiğimizde bekleyen okunmamış mesajlar varsa onlara "read" atalım
+                window.addEventListener('focus', () => {
+                    isTabActive = true;
+                    markAllAsRead();
+                });
+                window.addEventListener('blur', () => { isTabActive = false; });
+            });
 
-    // Prefill calculator from menu button
-    function prefillCalculator(menuKey) {
-      const menuSelect = document.getElementById('menuSelect');
-      if (menuSelect) {
-        menuSelect.value = menuKey;
-        updateCalculation();
-      }
-      const calcSection = document.getElementById('hesaplayici');
-      if (calcSection) {
-        calcSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
+            conn.on('data', (data) => {
+                handleIncomingData(data);
+            });
 
-    // Price Calculation Logic
-    function updateCalculation() {
-      const guestInput = document.getElementById('guestRange');
-      const guestCount = parseInt(guestInput.value, 10);
-      document.getElementById('guestCountDisplay').innerText = guestCount.toLocaleString('tr-TR') + ' Kişi';
+            conn.on('close', () => {
+                alert("Bağlantı koptu.");
+                location.reload();
+            });
+        }
 
-      const menu = document.getElementById('menuSelect').value;
-      const extraWaiter = document.getElementById('extraWaiter').checked;
-      const extraPorcelain = document.getElementById('extraPorcelain').checked;
+        /**
+         * Data Handling (Messages, Chunking, Presence, Receipts)
+         */
+        function handleIncomingData(data) {
+            // Typing Indicator
+            if (data.type === 'typing') {
+                const ind = document.getElementById('typing-indicator');
+                ind.innerText = data.isTyping ? 'Yazıyor...' : '';
+                return;
+            }
 
-      // Base price estimates per person in TL
-      let baseMin = 180;
-      let baseMax = 260;
+            // Read Receipts
+            if (data.type === 'receipt') {
+                const msgEl = document.getElementById(`receipt-${data.msgId}`);
+                if(msgEl) {
+                    if(data.status === 'delivered') msgEl.innerHTML = '<i class="fa-solid fa-check-double receipt-delivered"></i>';
+                    if(data.status === 'read') msgEl.innerHTML = '<i class="fa-solid fa-check-double receipt-read"></i>';
+                }
+                return;
+            }
 
-      if (menu === 'corum') {
-        baseMin = 240;
-        baseMax = 320;
-      } else if (menu === 'dugun') {
-        baseMin = 260;
-        baseMax = 350;
-      } else if (menu === 'mevlid') {
-        baseMin = 140;
-        baseMax = 190;
-      } else if (menu === 'doner') {
-        baseMin = 250;
-        baseMax = 340;
-      }
+            // Reactions
+            if (data.type === 'reaction') {
+                addReactionToDOM(data.msgId, data.emoji);
+                return;
+            }
 
-      if (extraWaiter) {
-        baseMin += 25;
-        baseMax += 35;
-      }
-      if (extraPorcelain) {
-        baseMin += 20;
-        baseMax += 30;
-      }
+            // File Chunking - START
+            if (data.type === 'file-start') {
+                incomingFiles[data.fileId] = {
+                    meta: data.meta,
+                    chunks: new Array(data.meta.totalChunks),
+                    received: 0
+                };
+                renderLoadingMessage(data.fileId, data.meta.msgType);
+                return;
+            }
 
-      // Economies of scale discount for very large crowds (1000+)
-      let multiplier = 1.0;
-      if (guestCount >= 1000) {
-        multiplier = 0.92;
-      } else if (guestCount >= 500) {
-        multiplier = 0.95;
-      }
+            // File Chunking - CHUNK
+            if (data.type === 'file-chunk') {
+                const fileObj = incomingFiles[data.fileId];
+                if(fileObj) {
+                    fileObj.chunks[data.chunkIndex] = data.data;
+                    fileObj.received++;
+                    updateLoadingProgress(data.fileId, (fileObj.received / fileObj.meta.totalChunks) * 100);
+                }
+                return;
+            }
 
-      const totalMin = Math.round((guestCount * baseMin * multiplier) / 500) * 500;
-      const totalMax = Math.round((guestCount * baseMax * multiplier) / 500) * 500;
+            // File Chunking - END
+            if (data.type === 'file-end') {
+                const fileObj = incomingFiles[data.fileId];
+                if(fileObj) {
+                    const blob = new Blob(fileObj.chunks, { type: fileObj.meta.fileType });
+                    const url = URL.createObjectURL(blob);
+                    removeLoadingMessage(data.fileId);
+                    
+                    const msg = {
+                        id: data.fileId,
+                        type: fileObj.meta.msgType,
+                        content: url,
+                        timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    };
+                    renderMessage(msg, 'received');
+                    sendReceipt(data.fileId, isTabActive ? 'read' : 'delivered');
+                    delete incomingFiles[data.fileId];
+                }
+                return;
+            }
 
-      document.getElementById('estimatedPrice').innerText = 
-        totalMin.toLocaleString('tr-TR') + ' ₺ - ' + totalMax.toLocaleString('tr-TR') + ' ₺';
-    }
+            // Standard Text Message
+            if (data.type === 'text') {
+                const msg = {
+                    id: data.id,
+                    type: 'text',
+                    content: data.content,
+                    timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                };
+                renderMessage(msg, 'received');
+                
+                // Gönderene ulaştı bilgisini ilet
+                sendReceipt(data.id, isTabActive ? 'read' : 'delivered');
+            }
+        }
 
-    // Send formatted WhatsApp message
-    function sendWhatsAppQuote() {
-      const guests = document.getElementById('guestRange').value;
-      const menuSelect = document.getElementById('menuSelect');
-      const menuName = menuSelect.options[menuSelect.selectedIndex].text;
-      const extraWaiter = document.getElementById('extraWaiter').checked ? 'Evet' : 'Hayır';
-      const extraPorcelain = document.getElementById('extraPorcelain').checked ? 'Evet' : 'Hayır';
-      const estPrice = document.getElementById('estimatedPrice').innerText;
+        /**
+         * Messaging Functions
+         */
+        function sendTextMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if(!text || !conn) return;
 
-      const message = 
-        `Merhaba Yiğit Yemekçilik,%0A%0A` +
-        `Web siteniz üzerinden etkinlik teklifi almak istiyorum:%0A` +
-        `• Tören Türü: ${encodeURIComponent(currentEventType)}%0A` +
-        `• Kişi Sayısı: ${guests} Kişi%0A` +
-        `• Menü: ${encodeURIComponent(menuName)}%0A` +
-        `• Garson Hizmeti: ${extraWaiter}%0A` +
-        `• Porselen Takımı: ${extraPorcelain}%0A` +
-        `• Hesaplanan Tahmini Tutar: ${encodeURIComponent(estPrice)}%0A%0A` +
-        `Müsaitlik durumu ve kesin teklifinizi iletebilir misiniz? Teşekkürler.`;
+            const msgId = generateId();
+            const payload = { type: 'text', id: msgId, content: text };
+            
+            conn.send(payload);
+            
+            renderMessage({
+                id: msgId,
+                type: 'text',
+                content: text,
+                timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            }, 'sent');
 
-      window.open(`https://wa.me/905550000000?text=${message}`, '_blank');
-    }
+            input.value = '';
+            input.style.height = 'auto';
+            toggleSendBtn();
+            conn.send({ type: 'typing', isTyping: false });
+        }
 
-    // Mobile hamburger menu toggle
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-    mobileMenuBtn.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if(!file || !conn) return;
 
-    // Close mobile menu on click
-    document.querySelectorAll('.mobile-nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.add('hidden');
-      });
-    });
+            let msgType = 'file';
+            if (file.type.startsWith('image/')) msgType = 'image';
+            else if (file.type.startsWith('video/')) msgType = 'video';
 
-    // FAQ Accordion Toggle
-    function toggleFaq(index) {
-      const content = document.getElementById('faq-content-' + index);
-      const icon = document.getElementById('faq-icon-' + index);
-      if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.innerText = '−';
-      } else {
-        content.classList.add('hidden');
-        icon.innerText = '+';
-      }
-    }
+            await sendFileChunked(file, msgType);
+            event.target.value = ''; // reset
+        }
 
-    // Contact Form submission mock
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      const toast = document.getElementById('formSuccessToast');
-      toast.classList.remove('hidden');
-      
-      // Reset form
-      document.getElementById('contactForm').reset();
-      
-      // Auto hide toast after 6 seconds
-      setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 6000);
-    }
+        async function sendFileChunked(file, msgType) {
+            const fileId = generateId();
+            const arrayBuffer = await file.arrayBuffer();
+            const totalChunks = Math.ceil(arrayBuffer.byteLength / CHUNK_SIZE);
+            
+            // Render local representation first (loading state)
+            const localUrl = URL.createObjectURL(file);
+            renderMessage({
+                id: fileId, type: msgType, content: localUrl, timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            }, 'sent');
 
-    // Initialize calculation on page load
-    window.addEventListener('DOMContentLoaded', () => {
-      updateCalculation();
-    });
-  </script>
+            // Metadata info
+            conn.send({
+                type: 'file-start',
+                fileId: fileId,
+                meta: { name: file.name, size: file.size, fileType: file.type, totalChunks: totalChunks, msgType: msgType }
+            });
+
+            // Send chunks
+            for (let i = 0; i < totalChunks; i++) {
+                const chunk = arrayBuffer.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+                conn.send({ type: 'file-chunk', fileId: fileId, chunkIndex: i, data: chunk });
+                // Küçük bir bekleme süresi eklenebilir eğer WebRTC buffer şişerse (setTimeout vb.)
+            }
+
+            // Finish
+            conn.send({ type: 'file-end', fileId: fileId });
+        }
+
+        /**
+         * Voice Recording
+         */
+        function startRecording() {
+            if(!conn || isRecording) return;
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    isRecording = true;
+                    document.getElementById('mic-btn').classList.add('recording');
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    audioChunks = [];
+                    mediaRecorder.addEventListener("dataavailable", event => {
+                        audioChunks.push(event.data);
+                    });
+                }).catch(err => alert("Mikrofon izni alınamadı."));
+        }
+
+        function stopRecording() {
+            if(!isRecording || !mediaRecorder) return;
+            isRecording = false;
+            document.getElementById('mic-btn').classList.remove('recording');
+            mediaRecorder.stop();
+            
+            mediaRecorder.addEventListener("stop", () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                // Convert to File object to reuse chunking logic
+                const audioFile = new File([audioBlob], "voice.webm", { type: 'audio/webm' });
+                sendFileChunked(audioFile, 'audio');
+                
+                // Stop tracks
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            });
+        }
+
+        /**
+         * UI Rendering & Helpers
+         */
+        function renderMessage(msg, direction) {
+            messages[msg.id] = { ...msg, direction, isRead: false };
+            
+            const chatArea = document.getElementById('chat-area');
+            const row = document.createElement('div');
+            row.className = `message-row ${direction}`;
+            row.id = `row-${msg.id}`;
+
+            let contentHtml = '';
+            if(msg.type === 'text') {
+                // Escape HTML
+                const safeText = document.createElement('div');
+                safeText.innerText = msg.content;
+                contentHtml = safeText.innerHTML.replace(/\n/g, '<br>');
+            } else if(msg.type === 'image') {
+                contentHtml = `<div class="message-media"><img src="${msg.content}" onclick="openImageViewer('${msg.content}')"></div>`;
+            } else if(msg.type === 'video') {
+                contentHtml = `<div class="message-media"><video src="${msg.content}" controls></video></div>`;
+            } else if(msg.type === 'audio') {
+                contentHtml = `<audio class="message-audio" src="${msg.content}" controls></audio>`;
+            }
+
+            const receiptHtml = direction === 'sent' 
+                ? `<span class="read-receipt" id="receipt-${msg.id}"><i class="fa-solid fa-check receipt-sent"></i></span>` 
+                : '';
+
+            row.innerHTML = `
+                <div class="message-bubble" oncontextmenu="showReactions(event, '${msg.id}')" onmousedown="startLongPress(event, '${msg.id}')" onmouseup="cancelLongPress()" ontouchstart="startLongPress(event, '${msg.id}')" ontouchend="cancelLongPress()">
+                    ${contentHtml}
+                    <div class="message-meta">
+                        <span>${msg.timestamp}</span>
+                        ${receiptHtml}
+                    </div>
+                    <div class="reactions-container" id="reactions-${msg.id}" style="display:none;"></div>
+                </div>
+            `;
+            
+            chatArea.appendChild(row);
+            scrollToBottom();
+        }
+
+        function renderLoadingMessage(id, type) {
+            const chatArea = document.getElementById('chat-area');
+            const row = document.createElement('div');
+            row.className = `message-row received`;
+            row.id = `load-${id}`;
+            row.innerHTML = `
+                <div class="message-bubble">
+                    <div style="font-size:12px; color:var(--text-muted);"><i class="fa-solid fa-download"></i> ${type} alınıyor...</div>
+                    <div class="file-loading"><div class="file-progress" id="prog-${id}"></div></div>
+                </div>
+            `;
+            chatArea.appendChild(row);
+            scrollToBottom();
+        }
+
+        function updateLoadingProgress(id, percent) {
+            const el = document.getElementById(`prog-${id}`);
+            if(el) el.style.width = percent + '%';
+        }
+
+        function removeLoadingMessage(id) {
+            const el = document.getElementById(`load-${id}`);
+            if(el) el.remove();
+        }
+
+        // Typing Indicator Logic
+        function handleTyping() {
+            toggleSendBtn();
+            if(!conn) return;
+            conn.send({ type: 'typing', isTyping: true });
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                conn.send({ type: 'typing', isTyping: false });
+            }, 2000);
+        }
+
+        function toggleSendBtn() {
+            const val = document.getElementById('msg-input').value.trim();
+            document.getElementById('mic-btn').style.display = val ? 'none' : 'flex';
+            document.getElementById('send-btn').style.display = val ? 'flex' : 'none';
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight < 100 ? textarea.scrollHeight : 100) + 'px';
+        }
+
+        function handleEnter(e) {
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendTextMessage();
+            }
+        }
+
+        function scrollToBottom() {
+            const chat = document.getElementById('chat-area');
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // Read Receipts Logic
+        function sendReceipt(msgId, status) {
+            if(conn) conn.send({ type: 'receipt', msgId, status });
+        }
+        
+        function markAllAsRead() {
+            if(!conn) return;
+            for(let id in messages) {
+                if(messages[id].direction === 'received' && !messages[id].isRead) {
+                    messages[id].isRead = true;
+                    sendReceipt(id, 'read');
+                }
+            }
+        }
+
+        /**
+         * Reactions (Long Press / Right Click)
+         */
+        let longPressTimer;
+        function startLongPress(e, msgId) {
+            longPressTimer = setTimeout(() => {
+                showReactions(e, msgId);
+            }, 500); // 500ms for long press
+        }
+        function cancelLongPress() {
+            clearTimeout(longPressTimer);
+        }
+
+        function showReactions(e, msgId) {
+            e.preventDefault(); // Prevent default context menu
+            cancelLongPress();
+            selectedMsgIdForReaction = msgId;
+            const picker = document.getElementById('emoji-picker');
+            picker.style.display = 'flex';
+            
+            // Basic positioning logic avoiding screen edges
+            let x = e.clientX || (e.touches && e.touches[0].clientX);
+            let y = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            if(x + 200 > window.innerWidth) x = window.innerWidth - 200;
+            if(y - 60 < 0) y = 60;
+
+            picker.style.left = x + 'px';
+            picker.style.top = (y - 50) + 'px';
+        }
+
+        // Hide picker when clicked outside
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('#emoji-picker') && !e.target.closest('.message-bubble')) {
+                document.getElementById('emoji-picker').style.display = 'none';
+            }
+        });
+
+        function sendReaction(emoji) {
+            document.getElementById('emoji-picker').style.display = 'none';
+            if(!selectedMsgIdForReaction || !conn) return;
+
+            addReactionToDOM(selectedMsgIdForReaction, emoji);
+            conn.send({ type: 'reaction', msgId: selectedMsgIdForReaction, emoji });
+            selectedMsgIdForReaction = null;
+        }
+
+        function addReactionToDOM(msgId, emoji) {
+            const container = document.getElementById(`reactions-${msgId}`);
+            if(container) {
+                container.style.display = 'flex';
+                // Simple append (can be expanded to count similar emojis)
+                const span = document.createElement('span');
+                span.innerText = emoji;
+                container.appendChild(span);
+            }
+        }
+
+        /**
+         * Audio / Video Calls
+         */
+        function startCall(isVideo) {
+            if(!conn) return;
+            const targetId = conn.peer;
+            navigator.mediaDevices.getUserMedia({ video: isVideo, audio: true })
+                .then((stream) => {
+                    localStream = stream;
+                    document.getElementById('local-video').srcObject = stream;
+                    document.getElementById('video-overlay').style.display = 'flex';
+                    
+                    const call = peer.call(targetId, stream);
+                    setupCallEvents(call);
+                }).catch(err => alert("Kamera/Mikrofon erişimi reddedildi."));
+        }
+
+        function setupCallEvents(call) {
+            currentCall = call;
+            call.on('stream', (remoteStream) => {
+                document.getElementById('remote-video').srcObject = remoteStream;
+            });
+            call.on('close', () => {
+                cleanupCall();
+            });
+        }
+
+        function toggleAudio() {
+            if(localStream) {
+                const track = localStream.getAudioTracks()[0];
+                track.enabled = !track.enabled;
+                const btn = document.getElementById('btn-toggle-audio');
+                btn.innerHTML = track.enabled ? '<i class="fa-solid fa-microphone"></i>' : '<i class="fa-solid fa-microphone-slash"></i>';
+                btn.style.color = track.enabled ? 'white' : 'var(--danger)';
+            }
+        }
+
+        function toggleVideo() {
+            if(localStream && localStream.getVideoTracks().length > 0) {
+                const track = localStream.getVideoTracks()[0];
+                track.enabled = !track.enabled;
+                const btn = document.getElementById('btn-toggle-video');
+                btn.innerHTML = track.enabled ? '<i class="fa-solid fa-video"></i>' : '<i class="fa-solid fa-video-slash"></i>';
+                btn.style.color = track.enabled ? 'white' : 'var(--danger)';
+            }
+        }
+
+        function endCall() {
+            if(currentCall) {
+                currentCall.close();
+            }
+            cleanupCall();
+        }
+
+        function cleanupCall() {
+            if(localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            document.getElementById('video-overlay').style.display = 'none';
+            document.getElementById('remote-video').srcObject = null;
+            document.getElementById('local-video').srcObject = null;
+        }
+
+        /**
+         * Utilities
+         */
+        function generateId() {
+            return Math.random().toString(36).substr(2, 9);
+        }
+
+        function openImageViewer(src) {
+            document.getElementById('fs-img-el').src = src;
+            document.getElementById('fs-image-viewer').style.display = 'flex';
+        }
+        function closeImageViewer() {
+            document.getElementById('fs-image-viewer').style.display = 'none';
+        }
+
+        // INIT
+        window.addEventListener('load', initPeer);
+
+    </script>
 </body>
 </html>
