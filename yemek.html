@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#09090b">
     <title>Secure P2P Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,11 +15,11 @@
             --bg-panel: #18181b;
             --text-main: #f4f4f5;
             --text-muted: #a1a1aa;
-            --accent: #10b981; /* WhatsApp-like green */
-            --accent-hover: #059669;
-            --msg-sent: #10b981;
-            --msg-received: #27272a;
-            --success: #10b981;
+            --accent: #3b82f6; /* Premium Blue */
+            --accent-hover: #2563eb;
+            --msg-sent: #1e293b; /* Dark Slate for premium dark look */
+            --msg-received: #18181b; /* Darker grey */
+            --border-color: rgba(255,255,255,0.08);
             --danger: #ef4444;
         }
 
@@ -27,8 +28,8 @@
 
         /* ----- LOGIN SCREEN ----- */
         #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; text-align: center; background: radial-gradient(circle at top center, #18181b 0%, #09090b 100%); z-index: 100; }
-        .card { background: rgba(24, 24, 27, 0.7); backdrop-filter: blur(10px); padding: 40px 30px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); max-width: 400px; width: 100%; border: 1px solid rgba(255,255,255,0.08); }
-        .card i.logo-icon { font-size: 50px; color: var(--accent); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4)); }
+        .card { background: rgba(24, 24, 27, 0.7); backdrop-filter: blur(10px); padding: 40px 30px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); max-width: 400px; width: 100%; border: 1px solid var(--border-color); }
+        .card i.logo-icon { font-size: 50px; color: var(--accent); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4)); }
         h1 { margin-bottom: 10px; font-size: 26px; font-weight: 600; letter-spacing: -0.5px; }
         .desc { color: var(--text-muted); margin-bottom: 30px; font-size: 15px; line-height: 1.5; }
         .btn { background: var(--accent); color: white; border: none; padding: 16px 20px; border-radius: 12px; font-size: 16px; cursor: pointer; width: 100%; font-weight: 500; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -36,12 +37,12 @@
         .btn:active { transform: translateY(1px); opacity: 0.9; }
 
         /* ----- CHAT SCREEN ----- */
-        #chat-screen { display: none; flex-direction: column; height: 100%; position: relative; }
+        #chat-screen { display: none; flex-direction: column; height: 100%; position: relative; overflow: hidden; }
         
-        .header { background: var(--bg-panel); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 10; padding-top: max(15px, env(safe-area-inset-top)); }
+        .header { background: var(--bg-panel); padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); z-index: 10; flex-shrink: 0; padding-top: max(15px, env(safe-area-inset-top)); }
         .user-info { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent), #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; position: relative; }
-        .status-dot { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background-color: var(--success); border-radius: 50%; border: 2px solid var(--bg-panel); }
+        .avatar { width: 42px; height: 42px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; position: relative; }
+        .status-dot { position: absolute; bottom: 0; right: 0; width: 12px; height: 12px; background-color: var(--accent); border-radius: 50%; border: 2px solid var(--bg-panel); }
         .details { display: flex; flex-direction: column; }
         .peer-name { font-weight: 600; font-size: 16px; }
         .typing-status { font-size: 12px; color: var(--accent); min-height: 15px; font-weight: 500; }
@@ -52,35 +53,35 @@
         .header-actions button.danger:hover { color: var(--danger); }
 
         /* Chat Area */
-        .chat-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: var(--bg-dark); scroll-behavior: smooth; }
+        .chat-area { flex: 1 1 auto; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: var(--bg-dark); scroll-behavior: smooth; }
         .message-row { display: flex; width: 100%; margin-bottom: 5px; position: relative; }
         .message-row.sent { justify-content: flex-end; }
         .message-row.received { justify-content: flex-start; }
-        .message-bubble { max-width: 75%; padding: 10px 14px; border-radius: 18px; font-size: 15px; line-height: 1.4; position: relative; word-break: break-word; user-select: none; }
-        .message-row.sent .message-bubble { background: var(--msg-sent); color: white; border-bottom-right-radius: 4px; }
-        .message-row.received .message-bubble { background: var(--msg-received); color: white; border-bottom-left-radius: 4px; }
+        .message-bubble { max-width: 75%; padding: 12px 16px; border-radius: 20px; font-size: 15px; line-height: 1.4; position: relative; word-break: break-word; user-select: none; border: 1px solid var(--border-color); }
+        .message-row.sent .message-bubble { background: var(--msg-sent); color: var(--text-main); border-bottom-right-radius: 4px; border-color: rgba(255,255,255,0.05); }
+        .message-row.received .message-bubble { background: var(--msg-received); color: var(--text-main); border-bottom-left-radius: 4px; }
         
         .message-media img, .message-media video { max-width: 100%; border-radius: 12px; margin-top: 5px; cursor: pointer; }
         .message-audio { width: 240px; max-width: 100%; height: 44px; margin-top: 5px; }
-        .message-meta { display: flex; align-items: center; justify-content: flex-end; gap: 5px; font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+        .message-meta { display: flex; align-items: center; justify-content: flex-end; gap: 5px; font-size: 11px; color: var(--text-muted); margin-top: 6px; }
         
         .read-receipt { font-size: 12px; }
-        .receipt-sent { color: rgba(255,255,255,0.7); }
-        .receipt-delivered { color: white; }
-        .receipt-read { color: #60a5fa; } 
+        .receipt-sent { color: var(--text-muted); }
+        .receipt-delivered { color: var(--text-main); }
+        .receipt-read { color: var(--accent); } 
 
-        .reactions-container { position: absolute; bottom: -12px; display: flex; gap: 4px; background: var(--bg-panel); padding: 4px 8px; border-radius: 16px; font-size: 13px; border: 1px solid rgba(255,255,255,0.1); z-index: 2; }
+        .reactions-container { position: absolute; bottom: -12px; display: flex; gap: 4px; background: var(--bg-panel); padding: 4px 8px; border-radius: 16px; font-size: 13px; border: 1px solid var(--border-color); z-index: 2; }
         .message-row.sent .reactions-container { right: 10px; }
         .message-row.received .reactions-container { left: 10px; }
 
         /* Input Area */
-        .input-area { background: var(--bg-panel); padding: 12px 15px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+        .input-area { background: var(--bg-panel); padding: 12px 15px; flex-shrink: 0; padding-bottom: max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border-color); }
         
         .input-row { display: flex; align-items: flex-end; gap: 10px; width: 100%; }
         .action-btn { background: transparent; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; padding: 10px; border-radius: 50%; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .action-btn:hover { color: var(--accent); background: rgba(255,255,255,0.05); }
         
-        .text-input-wrapper { flex: 1; background: rgba(255,255,255,0.05); border-radius: 24px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .text-input-wrapper { flex: 1; background: rgba(255,255,255,0.05); border-radius: 24px; display: flex; align-items: center; padding: 5px 15px; border: 1px solid var(--border-color); }
         textarea { width: 100%; background: transparent; border: none; color: white; font-size: 15px; font-family: inherit; resize: none; max-height: 100px; padding: 10px 0; outline: none; }
         
         .send-btn-circle { background: var(--accent); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; font-size: 18px; transition: transform 0.2s; }
@@ -94,14 +95,11 @@
 
         /* FULLSCREEN CALL UI */
         #fullscreen-call { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index: 500; display: none; flex-direction: column; }
-        
-        /* Video Classes for Swap */
         .fs-main-video { position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; z-index: 1; }
         .fs-pip-video { position: absolute; bottom: 120px; right: 20px; width: 110px; aspect-ratio: 3/4; object-fit: cover; border-radius: 12px; z-index: 2; box-shadow: 0 4px 20px rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.3s ease; }
         
-        /* Audio Call Background */
         .audio-call-bg { position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(180deg, #18181b 0%, #09090b 100%); z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .audio-call-avatar { width: 120px; height: 120px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; margin-bottom: 20px; box-shadow: 0 0 40px rgba(16, 185, 129, 0.2); }
+        .audio-call-avatar { width: 120px; height: 120px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 50px; margin-bottom: 20px; box-shadow: 0 0 40px rgba(59, 130, 246, 0.2); }
         .audio-call-name { font-size: 24px; font-weight: 600; margin-bottom: 10px; }
         .audio-call-time { font-size: 16px; color: var(--text-muted); }
 
@@ -112,33 +110,33 @@
 
         /* INCOMING CALL MODAL */
         #incoming-call-modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 600; display: none; align-items: center; justify-content: center; }
-        .call-modal-content { background: var(--bg-panel); padding: 30px; border-radius: 24px; text-align: center; width: 90%; max-width: 320px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        .call-modal-content { background: var(--bg-panel); padding: 30px; border-radius: 24px; text-align: center; width: 90%; max-width: 320px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border-color); }
         .ring-icon { font-size: 40px; color: var(--accent); margin-bottom: 20px; animation: ring 1s infinite ease-in-out; }
         @keyframes ring { 0% { transform: rotate(0); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-15deg); } 30% { transform: rotate(15deg); } 40% { transform: rotate(-15deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } }
         .call-modal-content h3 { margin-bottom: 30px; font-weight: 500; font-size: 18px; }
         .modal-actions { display: flex; justify-content: space-around; }
         .modal-btn { width: 60px; height: 60px; border-radius: 50%; border: none; color: white; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .modal-btn.accept { background: var(--success); }
+        .modal-btn.accept { background: var(--accent); }
         .modal-btn.decline { background: var(--danger); }
         .modal-btn:active { transform: scale(0.9); }
 
         /* Modals & Utils */
-        #emoji-picker { position: fixed; display: none; background: var(--bg-panel); padding: 10px 15px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); gap: 15px; z-index: 300; }
+        #emoji-picker { position: fixed; display: none; background: var(--bg-panel); padding: 10px 15px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 1px solid var(--border-color); gap: 15px; z-index: 300; }
         .emoji-option { font-size: 24px; cursor: pointer; transition: transform 0.2s; }
         .emoji-option:hover { transform: scale(1.3); }
         .system-message { text-align: center; font-size: 12px; color: var(--text-muted); margin: 10px 0; background: rgba(255,255,255,0.03); padding: 6px 12px; border-radius: 12px; align-self: center; }
         
         #archive-modal { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg-dark); z-index: 200; display: none; flex-direction: column; }
-        .archive-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); border-bottom: 1px solid rgba(255,255,255,0.05); padding-top: max(20px, env(safe-area-inset-top)); }
+        .archive-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); border-bottom: 1px solid var(--border-color); padding-top: max(20px, env(safe-area-inset-top)); }
         .archive-grid { flex:1; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-        .archive-item { width: 100%; aspect-ratio: 1; border-radius: 8px; object-fit: cover; cursor: pointer; background: #000; border: 1px solid rgba(255,255,255,0.1); }
+        .archive-item { width: 100%; aspect-ratio: 1; border-radius: 8px; object-fit: cover; cursor: pointer; background: #000; border: 1px solid var(--border-color); }
 
         #fs-viewer { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 400; display: none; justify-content: center; align-items: center; flex-direction: column; }
         #fs-content { max-width: 95%; max-height: 95%; object-fit: contain; }
         .close-fs { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; cursor: pointer; }
         #file-input { display: none; }
         .file-loading { width: 100%; height: 4px; background: rgba(0,0,0,0.3); border-radius: 2px; margin-top: 5px; overflow: hidden; }
-        .file-progress { height: 100%; background: var(--success); width: 0%; transition: width 0.1s; }
+        .file-progress { height: 100%; background: var(--accent); width: 0%; transition: width 0.1s; }
     </style>
 </head>
 <body>
@@ -146,7 +144,7 @@
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
         <div class="card">
-            <i class="fa-solid fa-brands fa-whatsapp logo-icon"></i>
+            <i class="fa-solid fa-shield-halved logo-icon"></i>
             <h1 id="login-title">Secure Chat</h1>
             <p class="desc" id="login-desc">End-to-end encrypted connection.</p>
             
@@ -176,9 +174,11 @@
             </div>
             <div class="header-actions">
                 <button onclick="openArchive()" title="Media Archive"><i class="fa-solid fa-images"></i></button>
-                <button onclick="requestClearChat()" title="Clear Chat" class="danger"><i class="fa-solid fa-trash-can"></i></button>
+                <button onclick="requestClearChat()" title="Clear Chat"><i class="fa-solid fa-eraser"></i></button>
                 <button onclick="startCall(false)" title="Audio Call"><i class="fa-solid fa-phone"></i></button>
                 <button onclick="startCall(true)" title="Video Call"><i class="fa-solid fa-video"></i></button>
+                <!-- NEW LOGOUT BUTTON -->
+                <button onclick="logoutSession()" title="End Session" class="danger"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </div>
 
@@ -189,7 +189,6 @@
         <div class="input-area">
             <input type="file" id="file-input" onchange="handleFileSelect(event)">
             
-            <!-- Default Input UI -->
             <div class="input-row" id="default-ui">
                 <button class="action-btn" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-paperclip"></i></button>
                 <div class="text-input-wrapper">
@@ -199,7 +198,6 @@
                 <button class="send-btn-circle" id="send-btn" onclick="sendTextMessage()" style="display:none;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
 
-            <!-- Active Recording UI -->
             <div id="record-ui">
                 <button class="action-btn" style="color:var(--danger);" onclick="cancelRecording()"><i class="fa-solid fa-trash-can"></i></button>
                 <div class="record-info">
@@ -225,18 +223,13 @@
 
     <!-- FULLSCREEN CALL UI -->
     <div id="fullscreen-call">
-        <!-- Audio Call Placeholder (Hidden in Video Call) -->
         <div class="audio-call-bg" id="fs-audio-bg">
             <div class="audio-call-avatar"><i class="fa-solid fa-user"></i></div>
             <div class="audio-call-name">Connected Peer</div>
             <div class="audio-call-time" id="fs-call-time">00:00</div>
         </div>
-
-        <!-- Video Elements (Toggled via CSS classes) -->
         <video id="video1" muted playsinline autoplay class="fs-pip-video" onclick="togglePiP()"></video>
         <video id="video2" playsinline autoplay class="fs-main-video" onclick="togglePiP()"></video>
-
-        <!-- Controls -->
         <div class="call-controls-overlay">
             <button class="call-btn" onclick="toggleAudioCallMute()" id="btn-mute"><i class="fa-solid fa-microphone"></i></button>
             <button class="call-btn" onclick="switchCamera()" id="btn-switch-cam"><i class="fa-solid fa-camera-rotate"></i></button>
@@ -278,6 +271,7 @@
         let typingTimeout = null;
         let isTabActive = true;
         let selectedMsgIdForReaction = null;
+        let sessionTerminated = false;
 
         const CHUNK_SIZE = 64 * 1024;
         let incomingFiles = {};
@@ -297,7 +291,7 @@
         let callSeconds = 0;
         let isVideoCallActive = false;
         let pendingCall = null;
-        let isLocalMainVideo = false; // Tracks which video is main
+        let isLocalMainVideo = false; 
         let currentFacingMode = 'user';
 
         /** INITIALIZATION **/
@@ -321,12 +315,12 @@
             });
 
             peer.on('connection', (c) => {
-                if (conn) { c.close(); return; }
+                if (conn || sessionTerminated) { c.close(); return; }
                 setupConnection(c);
             });
 
-            // Gelen Arama (Incoming Call UI)
             peer.on('call', (call) => {
+                if(sessionTerminated) { call.close(); return; }
                 pendingCall = call;
                 const isVideo = call.metadata && call.metadata.isVideo;
                 document.getElementById('incoming-call-text').innerText = isVideo ? "Incoming Video Call..." : "Incoming Audio Call...";
@@ -339,8 +333,8 @@
             navigator.clipboard.writeText(link).then(() => {
                 const btn = document.getElementById('link-btn');
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-                btn.style.background = 'var(--success)';
-                setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-link"></i> Copy Invite Link'; btn.style.background = 'var(--accent)'; }, 2000);
+                btn.style.background = 'var(--accent)';
+                setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-link"></i> Copy Invite Link'; }, 2000);
             });
         }
 
@@ -358,7 +352,9 @@
                 window.addEventListener('blur', () => { isTabActive = false; });
             });
             conn.on('data', handleIncomingData);
-            conn.on('close', () => { alert("Connection lost."); location.reload(); });
+            conn.on('close', () => { 
+                if(!sessionTerminated) { alert("Connection lost."); location.reload(); }
+            });
         }
 
         /** DATA PROTOCOL **/
@@ -373,6 +369,7 @@
             } 
             else if (data.type === 'reaction') addReactionToDOM(data.msgId, data.emoji);
             else if (data.type === 'clear-chat') executeClearChat();
+            else if (data.type === 'logout') executeLogout();
             else if (data.type === 'file-start') {
                 incomingFiles[data.fileId] = { meta: data.meta, chunks: new Array(data.meta.totalChunks), received: 0 };
                 renderLoadingMessage(data.fileId, data.meta.msgType);
@@ -445,18 +442,17 @@
             conn.send({ type: 'file-end', fileId });
         }
 
-        /** VOICE RECORDING (FIXED) **/
+        /** VOICE RECORDING **/
         function startRecording() {
             if(!conn || isRecording) return;
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 isRecording = true;
-                localAudioStream = stream; // Keep reference to strictly stop hardware
+                localAudioStream = stream; 
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 mediaRecorder.addEventListener("dataavailable", e => audioChunks.push(e.data));
                 mediaRecorder.start();
                 
-                // UI changes
                 document.getElementById('default-ui').style.display = 'none';
                 document.getElementById('record-ui').style.display = 'flex';
                 
@@ -479,7 +475,7 @@
                     const audioFile = new File([audioBlob], "voice.webm", { type: 'audio/webm' });
                     sendFileChunked(audioFile, 'audio');
                 }
-                hardStopMicrophone(); // Ensure mic is completely off
+                hardStopMicrophone();
             });
             mediaRecorder.stop();
             resetRecordUI();
@@ -488,17 +484,13 @@
         function cancelRecording() {
             if(!isRecording) return;
             if(mediaRecorder.state !== "inactive") mediaRecorder.stop();
-            hardStopMicrophone(); // Turn off mic without sending
+            hardStopMicrophone(); 
             resetRecordUI();
         }
 
         function hardStopMicrophone() {
-            if(localAudioStream) {
-                localAudioStream.getTracks().forEach(track => track.stop());
-                localAudioStream = null;
-            }
-            audioChunks = [];
-            isRecording = false;
+            if(localAudioStream) { localAudioStream.getTracks().forEach(track => track.stop()); localAudioStream = null; }
+            audioChunks = []; isRecording = false;
         }
 
         function resetRecordUI() {
@@ -507,7 +499,7 @@
             document.getElementById('record-ui').style.display = 'none';
         }
 
-        /** CLEAR CHAT **/
+        /** CLEAR CHAT & LOGOUT **/
         function requestClearChat() {
             if(!conn) return;
             if(confirm("Clear chat for both users?")) {
@@ -518,6 +510,34 @@
         function executeClearChat() {
             document.getElementById('chat-area').innerHTML = '<div class="system-message"><i class="fa-solid fa-lock" style="color:var(--accent);"></i> Messages and calls are end-to-end encrypted.</div>';
             messages = {}; sessionMedia = []; document.getElementById('archive-grid').innerHTML = '';
+        }
+
+        function logoutSession() {
+            if(!conn) return;
+            if(confirm("End session for both users? All messages will be deleted and the room will be permanently closed.")) {
+                conn.send({ type: 'logout' });
+                executeLogout();
+            }
+        }
+        
+        function executeLogout() {
+            sessionTerminated = true;
+            if(conn) { conn.close(); conn = null; }
+            if(peer) { peer.destroy(); peer = null; }
+            cleanupCall();
+            hardStopMicrophone();
+            
+            // Remove peer parameter from URL so reloading doesn't reconnect
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Render termination screen
+            document.getElementById('chat-screen').innerHTML = `
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 20px;">
+                    <i class="fa-solid fa-power-off" style="font-size:50px; color:var(--danger); margin-bottom:20px;"></i>
+                    <h2 style="font-size:22px; font-weight:600; margin-bottom:10px;">Session Terminated</h2>
+                    <p style="color:var(--text-muted); font-size:15px; max-width:300px;">This P2P session has been permanently closed and all local data is cleared.</p>
+                </div>
+            `;
         }
 
         /** UI RENDERING **/
@@ -575,7 +595,7 @@
         function sendReaction(emoji) { document.getElementById('emoji-picker').style.display = 'none'; if(!selectedMsgIdForReaction || !conn) return; addReactionToDOM(selectedMsgIdForReaction, emoji); conn.send({ type: 'reaction', msgId: selectedMsgIdForReaction, emoji }); selectedMsgIdForReaction = null; }
         function addReactionToDOM(msgId, emoji) { const container = document.getElementById(`reactions-${msgId}`); if(container) { container.style.display = 'flex'; const span = document.createElement('span'); span.innerText = emoji; container.appendChild(span); } }
 
-        /** FULLSCREEN CALL LOGIC (FIXED) **/
+        /** FULLSCREEN CALL LOGIC **/
         function startCall(isVideo) {
             if(!conn) return;
             navigator.mediaDevices.getUserMedia({ video: isVideo, audio: true }).then((stream) => {
@@ -585,7 +605,6 @@
             }).catch(err => alert("Camera/Microphone access denied."));
         }
 
-        // Modaldan Kabul Et
         function acceptCall() {
             if(!pendingCall) return;
             const isVideo = pendingCall.metadata && pendingCall.metadata.isVideo;
@@ -603,7 +622,6 @@
             });
         }
 
-        // Modaldan Reddet
         function declineCall() {
             if(pendingCall) { pendingCall.close(); pendingCall = null; }
             document.getElementById('incoming-call-modal').style.display = 'none';
@@ -613,13 +631,10 @@
             currentCall = call;
             isVideoCallActive = isVideo;
             
-            // Video Element Setup (video1 = local, video2 = remote)
             const vidLocal = document.getElementById('video1');
             const vidRemote = document.getElementById('video2');
             
             vidLocal.srcObject = localCallStream;
-            
-            // Reset Layout classes
             vidRemote.className = 'fs-main-video';
             vidLocal.className = 'fs-pip-video';
             isLocalMainVideo = false;
@@ -632,20 +647,17 @@
                 vidLocal.style.display = 'block';
                 vidRemote.style.display = 'block';
             } else {
-                // Audio Only - Hide videos, show avatar screen
                 document.getElementById('fs-audio-bg').style.display = 'flex';
                 document.getElementById('btn-switch-cam').style.display = 'none';
                 vidLocal.style.display = 'none';
-                vidRemote.style.display = 'none'; // Remote stream still plays audio even if hidden
+                vidRemote.style.display = 'none'; 
             }
             
             startCallTimer();
-
             call.on('stream', (remoteStream) => { vidRemote.srcObject = remoteStream; });
             call.on('close', cleanupCall);
         }
 
-        // Toggling PiP (Swap classes)
         function togglePiP() {
             if(!isVideoCallActive) return;
             const vidLocal = document.getElementById('video1');
@@ -694,7 +706,6 @@
                 if(oldTrack) { oldTrack.stop(); localCallStream.removeTrack(oldTrack); }
                 localCallStream.addTrack(newVideoTrack);
                 
-                // Update local video element
                 document.getElementById('video1').srcObject = new MediaStream([newVideoTrack, localCallStream.getAudioTracks()[0]]);
             } catch (err) { console.error("Camera switch failed:", err); }
         }
