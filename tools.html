@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1115">
+<title>Araç Kutusu</title>
+<style>
+:root{
+  --bg:#0f1115; --card:#181c22; --card2:#21262e; --fg:#e6e9ee; --muted:#8b95a5;
+  --accent:#4f9cf9; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+  --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:16px; line-height:1.45;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.top{
+  padding:calc(env(safe-area-inset-top) + 10px) 16px 8px;
+  display:flex;align-items:center;gap:8px;
+}
+.top h1{font-size:1.15rem;margin:0;font-weight:700;letter-spacing:.3px}
+.tabs{
+  display:flex;gap:8px;overflow-x:auto;white-space:nowrap;
+  padding:8px 12px 12px;position:sticky;top:0;z-index:20;
+  background:linear-gradient(var(--bg) 70%,rgba(15,17,21,.85));
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;background:var(--card);color:var(--muted);border:1px solid #262c36;
+  padding:8px 14px;border-radius:999px;font-size:.85rem;font-weight:600;
+  cursor:pointer;transition:.2s;
+}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+main{padding:0 12px 40px}
+.panel{display:none;animation:fade .18s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.card{
+  background:var(--card);border:1px solid #232932;border-radius:var(--radius);
+  padding:16px;margin-bottom:12px;
+}
+.card h2{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 12px;font-weight:700}
+label{display:block;font-size:.78rem;color:var(--muted);margin:10px 0 5px;font-weight:600}
+input,select,textarea,button{font-family:inherit;font-size:1rem}
+input[type=text],input[type=number],select,textarea{
+  width:100%;background:var(--card2);border:1px solid #2d3540;color:var(--fg);
+  padding:11px 12px;border-radius:10px;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:110px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem}
+button{
+  background:var(--card2);color:var(--fg);border:1px solid #2d3540;
+  padding:11px 16px;border-radius:10px;font-weight:600;cursor:pointer;transition:.15s;
+}
+button:active{transform:scale(.97)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+button.ok{background:var(--ok);border-color:var(--ok);color:#04210f}
+button:disabled{opacity:.45}
+.row{display:flex;gap:8px}
+.row>*{flex:1;min-width:0}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btns button{flex:1;min-width:110px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.muted{color:var(--muted);font-size:.8rem;margin-top:10px;line-height:1.5}
+.big{font-size:2.6rem;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.center{text-align:center}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:.72rem;font-weight:700;background:var(--card2);color:var(--muted)}
+.badge.ok{background:rgba(34,197,94,.15);color:#4ade80}
+.badge.warn{background:rgba(245,158,11,.15);color:#fbbf24}
+.badge.bad{background:rgba(239,68,68,.15);color:#f87171}
+input[type=range]{width:100%;-webkit-appearance:none;background:transparent;padding:0;margin:8px 0}
+input[type=range]::-webkit-slider-runnable-track{height:6px;background:#2d3540;border-radius:3px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--accent);margin-top:-9px;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+input[type=range]::-moz-range-track{height:6px;background:#2d3540;border-radius:3px}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border:0;border-radius:50%;background:var(--accent)}
+.chk{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:.92rem;color:var(--fg)}
+.chk input{width:20px;height:20px;accent-color:var(--accent);flex:0 0 auto}
+.progress{height:8px;background:#2d3540;border-radius:4px;overflow:hidden;margin:14px 0}
+.progress>div{height:100%;width:0;background:var(--accent);transition:width .25s linear}
+.modebar{display:flex;gap:6px;background:var(--card2);padding:5px;border-radius:12px;margin-bottom:16px}
+.modebar button{flex:1;background:transparent;border:0;padding:9px 4px;border-radius:9px;font-size:.82rem;color:var(--muted)}
+.modebar button.active{background:var(--accent);color:#fff}
+/* video */
+video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius:12px;display:block}
+/* memory */
+#mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.mcard{padding:0;border:0;background:none;aspect-ratio:1/1;perspective:700px}
+.mcard .inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .35s;display:block}
+.mcard.flipped .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:11px;font-size:1.7rem}
+.front{background:linear-gradient(135deg,#2a3140,#1d222b);border:1px solid #333b48;color:#3d4757;font-size:1.2rem}
+.back{background:linear-gradient(135deg,#2b4a7a,#1e3557);border:1px solid #3a5c8f;transform:rotateY(180deg)}
+.mcard.matched .back{background:linear-gradient(135deg,#166534,#14532d);border-color:#22c55e}
+/* sound */
+#snd-bar{height:26px;background:#2d3540;border-radius:8px;overflow:hidden;margin-top:8px}
+#snd-fill{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#f59e0b 65%,#ef4444);transition:width .08s linear}
+/* compass */
+.rose-wrap{width:min(78vw,300px);aspect-ratio:1;margin:14px auto;position:relative}
+.rose{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 50%,#1b2029,#12161c);border:2px solid #2d3540;transition:transform .12s linear}
+.rose span{position:absolute;font-weight:800;font-size:1rem;transform:translate(-50%,-50%);color:var(--muted)}
+.rose span.n{color:#ef4444;font-size:1.3rem}
+.rose .dir{position:absolute;left:50%;top:8px;transform:translateX(-50%);font-size:.7rem;color:#4a5567;font-weight:700}
+.needle-mark{position:absolute;left:50%;top:-2px;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:16px solid var(--accent);z-index:5}
+/* ruler */
+.ruler{position:relative;height:64px;background:linear-gradient(#1c2128,#151a20);border:1px solid #2d3540;border-radius:10px;overflow:hidden;margin-top:8px}
+.ruler .tick{position:absolute;bottom:0;width:1px;background:#7c8798;transform:translateX(-.5px)}
+.ruler .tick.major{background:#c9d3e0;width:1.5px}
+.ruler .tlabel{position:absolute;top:3px;font-size:.62rem;color:#9aa6b6;transform:translateX(-50%);font-weight:700}
+.calbox{background:#2d3540;border:1px dashed #5b6879;border-radius:6px;height:52px;margin:10px 0 4px;overflow-x:auto}
+.calbox>div{height:100%;background:linear-gradient(90deg,#3a4657,#2a3441);border-right:2px solid var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="top"><h1>🧰 Araç Kutusu</h1></div>
+
+<nav class="tabs" id="tabs">
+  <button class="tab active" data-tab="conv">📏 Birim</button>
+  <button class="tab" data-tab="qr">📷 QR Okuyucu</button>
+  <button class="tab" data-tab="pomo">🍅 Pomodoro</button>
+  <button class="tab" data-tab="pass">🔑 Şifre</button>
+  <button class="tab" data-tab="b64">🔤 Base64</button>
+  <button class="tab" data-tab="metro">🎵 Metronom</button>
+  <button class="tab" data-tab="mem">🃏 Hafıza</button>
+  <button class="tab" data-tab="sound">🔊 Ses Ölçer</button>
+  <button class="tab" data-tab="compass">🧭 Pusula</button>
+  <button class="tab" data-tab="ruler">📐 Cetvel</button>
+</nav>
+
+<main>
+
+<!-- ============ BİRİM ÇEVİRİCİ ============ -->
+<section class="panel active" id="panel-conv">
+  <div class="card">
+    <h2>Kategori</h2>
+    <select id="uc-cat"></select>
+
+    <label>Değer</label>
+    <div class="row">
+      <input id="uc-val" type="number" inputmode="decimal" value="1" step="any">
+      <select id="uc-from" style="flex:1.1"></select>
+    </div>
+
+    <label>Sonuç</label>
+    <div class="row">
+      <input id="uc-out" type="text" readonly>
+      <select id="uc-to" style="flex:1.1"></select>
+    </div>
+
+    <div class="btns">
+      <button id="uc-swap">⇅ Değiştir</button>
+      <button id="uc-copy">📋 Kopyala</button>
+    </div>
+    <div class="muted" id="uc-all"></div>
+  </div>
+</section>
+
+<!-- ============ QR OKUYUCU ============ -->
+<section class="panel" id="panel-qr">
+  <div class="card">
+    <h2>Kamera ile Tara</h2>
+    <video id="qr-video" playsinline muted></video>
+    <div class="btns">
+      <button id="qr-start" class="primary">▶ Kamerayı Başlat</button>
+      <button id="qr-stop" disabled>■ Durdur</button>
+    </div>
+    <div class="btns">
+      <button id="qr-switch">🔄 Kamerayı Değiştir</button>
+      <label style="margin:0;flex:1;min-width:110px">
+        <input type="file" id="qr-file" accept="image/*" style="display:none">
+        <button style="width:100%" onclick="document.getElementById('qr-file').click()">🖼 Görselden Oku</button>
+      </label>
+    </div>
+    <div class="muted" id="qr-status">Kamera HTTPS veya localhost gerektirir. Görselden okuma her zaman çalışır.</div>
+  </div>
+  <div class="card" id="qr-rescard" style="display:none">
+    <h2>Sonuç</h2>
+    <textarea id="qr-result" readonly></textarea>
+    <div class="btns">
+      <button id="qr-copy">📋 Kopyala</button>
+      <button id="qr-open" class="primary">🔗 Aç</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ POMODORO ============ -->
+<section class="panel" id="panel-pomo">
+  <div class="card">
+    <div class="modebar" id="pomo-modes">
+      <button data-m="work" class="active">Çalışma</button>
+      <button data-m="short">Kısa Mola</button>
+      <button data-m="long">Uzun Mola</button>
+    </div>
+    <div class="big" id="pomo-time">25:00</div>
+    <div class="progress"><div id="pomo-bar"></div></div>
+    <div class="btns">
+      <button id="pomo-start" class="primary">▶ Başlat</button>
+      <button id="pomo-reset">↺ Sıfırla</button>
+      <button id="pomo-skip">⏭ Atla</button>
+    </div>
+    <div class="muted center" id="pomo-info">Tamamlanan tur: 0</div>
+  </div>
+  <div class="card">
+    <h2>Süreler (dakika)</h2>
+    <div class="grid2">
+      <div><label>Çalışma</label><input type="number" id="pomo-d-work" value="25" min="1" max="120"></div>
+      <div><label>Kısa Mola</label><input type="number" id="pomo-d-short" value="5" min="1" max="60"></div>
+      <div><label>Uzun Mola</label><input type="number" id="pomo-d-long" value="15" min="1" max="90"></div>
+      <div><label>Uzun mola sıklığı</label><input type="number" id="pomo-d-every" value="4" min="2" max="10"></div>
+    </div>
+    <div class="chk"><input type="checkbox" id="pomo-auto" checked><span>Otomatik geçiş yap</span></div>
+  </div>
+</section>
+
+<!-- ============ ŞİFRE ÜRETİCİ ============ -->
+<section class="panel" id="panel-pass">
+  <div class="card">
+    <h2>Şifre Oluşturucu</h2>
+    <div id="pass-out" style="background:var(--card2);border:1px solid #2d3540;border-radius:10px;padding:14px;font-family:ui-monospace,monospace;font-size:1rem;word-break:break-all;min-height:56px;line-height:1.5">—</div>
+    <div class="center" style="margin-top:10px"><span class="badge" id="pass-strength">—</span></div>
+
+    <label>Uzunluk: <b id="pass-len-v">16</b></label>
+    <input type="range" id="pass-len" min="4" max="64" value="16">
+
+    <div class="chk"><input type="checkbox" id="pass-lower" checked><span>Küçük harf (a-z)</span></div>
+    <div class="chk"><input type="checkbox" id="pass-upper" checked><span>Büyük harf (A-Z)</span></div>
+    <div class="chk"><input type="checkbox" id="pass-digit" checked><span>Rakam (0-9)</span></div>
+    <div class="chk"><input type="checkbox" id="pass-sym" checked><span>Sembol (!@#$…)</span></div>
+    <div class="chk"><input type="checkbox" id="pass-nosim"><span>Benzer karakterleri çıkar (il1Lo0O)</span></div>
+
+    <div class="btns">
+      <button id="pass-gen" class="primary">🎲 Üret</button>
+      <button id="pass-copy">📋 Kopyala</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BASE64 ============ -->
+<section class="panel" id="panel-b64">
+  <div class="card">
+    <h2>Base64 Kodla / Çöz</h2>
+    <label>Metin / Girdi</label>
+    <textarea id="b64-in" placeholder="Buraya yazın..."></textarea>
+    <label>Sonuç</label>
+    <textarea id="b64-out" readonly placeholder="Sonuç burada görünür"></textarea>
+    <div class="chk"><input type="checkbox" id="b64-url"><span>URL-safe (% - _ kullan)</span></div>
+    <div class="btns">
+      <button id="b64-enc" class="primary">→ Kodla</button>
+      <button id="b64-dec">← Çöz</button>
+      <button id="b64-copy">📋 Kopyala</button>
+      <button id="b64-clear">🗑 Temizle</button>
+    </div>
+    <div class="muted">UTF-8 (Türkçe karakterler) desteklenir. Çözme işlemi geçersiz girdide hata verir.</div>
+  </div>
+</section>
+
+<!-- ============ METRONOM ============ -->
+<section class="panel" id="panel-metro">
+  <div class="card center">
+    <h2>Metronom</h2>
+    <div id="metro-dots" style="display:flex;gap:10px;justify-content:center;margin:18px 0;flex-wrap:wrap"></div>
+    <div class="big"><span id="metro-bpm-v">120</span> <span style="font-size:1rem;color:var(--muted)">BPM</span></div>
+    <input type="range" id="metro-bpm" min="30" max="240" value="120">
+
+    <div class="grid2" style="margin-top:12px">
+      <div><label>Vuruş / Ölçü</label>
+        <select id="metro-beats">
+          <option>1</option><option>2</option><option>3</option>
+          <option selected>4</option><option>5</option><option>6</option>
+          <option>7</option><option>8</option>
+        </select>
+      </div>
+      <div><label>Alt bölme</label>
+        <select id="metro-sub">
+          <option value="1" selected>1 (vuruş)</option>
+          <option value="2">2 (8'lik)</option>
+          <option value="3">3 (triole)</option>
+          <option value="4">4 (16'lık)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button id="metro-start" class="primary">▶ Başlat</button>
+      <button id="metro-tap">👆 Tap Tempo</button>
+    </div>
+    <div class="muted" id="metro-tapinfo">Tap: —</div>
+  </div>
+</section>
+
+<!-- ============ HAFIZA OYUNU ============ -->
+<section class="panel" id="panel-mem">
+  <div class="card">
+    <h2>Kart Hafıza Oyunu</h2>
+    <div class="row" style="text-align:center;margin-bottom:6px">
+      <div><div class="muted">Hamle</div><div style="font-weight:800;font-size:1.2rem" id="mem-moves">0</div></div>
+      <div><div class="muted">Süre</div><div style="font-weight:800;font-size:1.2rem" id="mem-time">0:00</div></div>
+      <div><div class="muted">Eşleşme</div><div style="font-weight:800;font-size:1.2rem" id="mem-pairs">0/8</div></div>
+    </div>
+    <div id="mem-grid"></div>
+    <div class="btns"><button id="mem-new" class="primary">🔄 Yeni Oyun</button></div>
+    <div class="muted center" id="mem-msg">Tüm kart çiftlerini bul!</div>
+  </div>
+</section>
+
+<!-- ============ SES SEVİYESİ ÖLÇER ============ -->
+<section class="panel" id="panel-sound">
+  <div class="card">
+    <h2>Ses Seviyesi Ölçer</h2>
+    <div class="big" id="snd-db">-- <span style="font-size:1rem;color:var(--muted)">dB</span></div>
+    <div id="snd-bar"><div id="snd-fill"></div></div>
+    <div class="row" style="margin-top:12px;text-align:center">
+      <div><div class="muted">Tepe</div><div style="font-weight:700" id="snd-peak">--</div></div>
+      <div><div class="muted">Ortalama</div><div style="font-weight:700" id="snd-avg">--</div></div>
+      <div><div class="muted">Durum</div><div style="font-weight:700" id="snd-state">Kapalı</div></div>
+    </div>
+    <label>Kalibrasyon ofseti: <b id="snd-off-v">100</b> dB</label>
+    <input type="range" id="snd-off" min="70" max="130" value="100">
+    <div class="btns">
+      <button id="snd-start" class="primary">🎤 Başlat</button>
+      <button id="snd-stop" disabled>■ Durdur</button>
+      <button id="snd-reset">↺ Sıfırla</button>
+    </div>
+    <div class="muted">Değerler yaklaşıktır; mikrofon kalibrasyonu olmadığı için mutlak dB SPL değil, göreli ölçüm verir. Ofset ile gerçek cihazlara yaklaştırabilirsiniz.</div>
+  </div>
+</section>
+
+<!-- ============ PUSULA ============ -->
+<section class="panel" id="panel-compass">
+  <div class="card center">
+    <h2>Pusula</h2>
+    <div class="rose-wrap">
+      <div class="needle-mark"></div>
+      <div class="rose" id="rose">
+        <span class="n" style="left:50%;top:14%">N</span>
+        <span style="left:86%;top:50%">E</span>
+        <span style="left:50%;top:86%">S</span>
+        <span style="left:14%;top:50%">W</span>
+        <span style="left:72%;top:22%">NE</span>
+        <span style="left:78%;top:72%">SE</span>
+        <span style="left:22%;top:72%">SW</span>
+        <span style="left:28%;top:22%">NW</span>
+      </div>
+    </div>
+    <div class="big" id="cmp-deg">--°</div>
+    <div style="font-size:1.1rem;font-weight:700;color:var(--accent)" id="cmp-dir">—</div>
+    <div class="btns">
+      <button id="cmp-start" class="primary">🧭 Başlat</button>
+      <button id="cmp-stop" disabled>■ Durdur</button>
+    </div>
+    <div class="muted" id="cmp-status">iOS'ta izin istemeniz gerekir. Telefonu düz tutun ve 8 çizer gibi hareket ettirerek kalibre edin.</div>
+  </div>
+</section>
+
+<!-- ============ CETVEL ============ -->
+<section class="panel" id="panel-ruler">
+  <div class="card">
+    <h2>Kalibrasyon</h2>
+    <div class="muted" style="margin-top:0">Aşağıdaki çubuğu gerçek bir kredi kartının <b>kısa kenarına (53,98 mm)</b> denk getirene kadar kaydırıcıyı ayarlayın.</div>
+    <div class="calbox"><div id="cal-ref"></div></div>
+    <input type="range" id="cal" min="2.5" max="7.5" step="0.005" value="3.7795">
+    <div class="muted">Şu an: <b id="cal-v">3.78</b> px/mm</div>
+    <div class="btns"><button id="cal-reset">↺ Varsayılana Dön</button></div>
+  </div>
+  <div class="card">
+    <h2>Santimetre</h2>
+    <div class="ruler" id="ruler-cm"></div>
+  </div>
+  <div class="card">
+    <h2>İnç</h2>
+    <div class="ruler" id="ruler-in"></div>
+  </div>
+  <div class="muted">Kalibrasyon cihazınıza kaydedilir. Doğru ölçüm için kalibrasyonu bir kez yapmanız yeterlidir.</div>
+</section>
+
+</main>
+
+<script>
+/* ==========================================================
+   SEKME YÖNETİMİ
+   ========================================================== */
+const tabs = document.querySelectorAll('.tab');
+const panels = document.querySelectorAll('.panel');
+
+function showTab(id){
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  panels.forEach(p => p.classList.toggle('active', p.id === 'panel-' + id));
+  // Sekmeden çıkınca kaynakları serbest bırak
+  if (id !== 'qr') qrStop();
+  if (id !== 'sound') soundStop();
+  if (id !== 'metro') metroStop();
+  if (id !== 'compass') compassStop();
+  if (id === 'ruler') buildRulers();
+  const active = document.querySelector('.tab.active');
+  if (active) active.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
+}
+tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+
+/* Yardımcılar */
+function copyText(txt, btn){
+  const done = () => { if(!btn) return; const o = btn.textContent; btn.textContent='✓ Kopyalandı'; setTimeout(()=>btn.textContent=o,1200); };
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>fallback());
+  } else fallback();
+  function fallback(){
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); done(); }catch(e){ alert('Kopyalanamadı'); }
+    document.body.removeChild(ta);
+  }
+}
+
+let beepCtx = null;
+function beep(times = 3, freq = 880){
+  try{
+    beepCtx = beepCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (beepCtx.state === 'suspended') beepCtx.resume();
+    for (let i = 0; i < times; i++){
+      const t = beepCtx.currentTime + i * 0.28;
+      const o = beepCtx.createOscillator(), g = beepCtx.createGain();
+      o.type = 'sine';
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.45, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+      o.connect(g).connect(beepCtx.destination);
+      o.start(t); o.stop(t + 0.22);
+    }
+  }catch(e){}
+}
+
+/* ==========================================================
+   1) BİRİM ÇEVİRİCİ
+   ========================================================== */
+const UC_DATA = {
+  length: { ad:'Uzunluk', u:{ 'Milimetre (mm)':0.001, 'Santimetre (cm)':0.01, 'Metre (m)':1, 'Kilometre (km)':1000, 'İnç (in)':0.0254, 'Fit (ft)':0.3048, 'Yarda (yd)':0.9144, 'Mil (mi)':1609.344, 'Deniz mili':1852 } },
+  mass:   { ad:'Ağırlık', u:{ 'Miligram (mg)':1e-6, 'Gram (g)':0.001, 'Kilogram (kg)':1, 'Ton (t)':1000, 'Ons (oz)':0.028349523125, 'Pound (lb)':0.45359237, 'Taş (st)':6.35029318 } },
+  area:   { ad:'Alan', u:{ 'mm²':1e-6, 'cm²':1e-4, 'm²':1, 'km²':1e6, 'Hektar (ha)':10000, 'Dönüm':1000, 'Acre':4046.8564224, 'ft²':0.09290304, 'in²':0.00064516 } },
+  volume: { ad:'Hacim', u:{ 'Mililitre (ml)':0.001, 'Litre (L)':1, 'm³':1000, 'Galon (US)':3.785411784, 'Quart (US)':0.946352946, 'Pint (US)':0.473176473, 'Fl oz (US)':0.0295735295625, 'Su bardağı (US)':0.2365882365 } },
+  speed:  { ad:'Hız', u:{ 'm/s':1, 'km/sa':0.2777777778, 'mph':0.44704, 'Knot':0.5144444444, 'ft/s':0.3048 } },
+  time:   { ad:'Zaman', u:{ 'Milisaniye':0.001, 'Saniye':1, 'Dakika':60, 'Saat':3600, 'Gün':86400, 'Hafta':604800, 'Yıl (365g)':31536000 } },
+  data:   { ad:'Veri', u:{ 'Bit':0.125, 'Bayt (B)':1, 'Kilobayt (KB)':1024, 'Megabayt (MB)':1048576, 'Gigabayt (GB)':1073741824, 'Terabayt (TB)':1099511627776, 'Kibibit':128, 'Mebibit':131072 } },
+  pressure:{ ad:'Basınç', u:{ 'Pascal (Pa)':1, 'Kilopascal (kPa)':1000, 'Bar':100000, 'Atmosfer (atm)':101325, 'PSI':6894.757293168, 'mmHg':133.322387415, 'mbar':100 } },
+  energy: { ad:'Enerji', u:{ 'Joule (J)':1, 'Kilojoule (kJ)':1000, 'Kalori (cal)':4.184, 'Kilokalori (kcal)':4184, 'Watt-saat (Wh)':3600, 'Kilowatt-saat (kWh)':3600000 } },
+  temp:   { ad:'Sıcaklık', u:{ 'Celsius (°C)':1, 'Fahrenheit (°F)':1, 'Kelvin (K)':1 } }
+};
+
+const ucCat = document.getElementById('uc-cat');
+const ucFrom = document.getElementById('uc-from');
+const ucTo = document.getElementById('uc-to');
+const ucVal = document.getElementById('uc-val');
+const ucOut = document.getElementById('uc-out');
+const ucAll = document.getElementById('uc-all');
+
+Object.keys(UC_DATA).forEach(k => {
+  const o = document.createElement('option');
+  o.value = k; o.textContent = UC_DATA[k].ad;
+  ucCat.appendChild(o);
+});
+
+function ucFillUnits(){
+  const cat = ucCat.value;
+  const units = Object.keys(UC_DATA[cat].u);
+  ucFrom.innerHTML = ''; ucTo.innerHTML = '';
+  units.forEach(u => {
+    ucFrom.appendChild(new Option(u, u));
+    ucTo.appendChild(new Option(u, u));
+  });
+  ucTo.selectedIndex = Math.min(1, units.length - 1);
+  ucCompute();
+}
+
+function ucConvert(v, from, to, cat){
+  if (cat === 'temp'){
+    let c;
+    if (from.startsWith('Celsius')) c = v;
+    else if (from.startsWith('Fahrenheit')) c = (v - 32) * 5 / 9;
+    else c = v - 273.15;
+    if (to.startsWith('Celsius')) return c;
+    if (to.startsWith('Fahrenheit')) return c * 9 / 5 + 32;
+    return c + 273.15;
+  }
+  const u = UC_DATA[cat].u;
+  return v * u[from] / u[to];
+}
+
+function fmt(n){
+  if (!isFinite(n)) return '—';
+  if (n === 0) return '0';
+  const a = Math.abs(n);
+  if (a >= 1e15 || a < 1e-9) return n.toExponential(6);
+  let s = n.toPrecision(10);
+  if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  return s;
+}
+
+function ucCompute(){
+  const cat = ucCat.value;
+  const v = parseFloat(ucVal.value);
+  if (isNaN(v)){ ucOut.value = ''; ucAll.textContent = ''; return; }
+  const from = ucFrom.value, to = ucTo.value;
+  const r = ucConvert(v, from, to, cat);
+  ucOut.value = fmt(r);
+
+  // Tüm birimlerde gösterim
+  const units = Object.keys(UC_DATA[cat].u);
+  const lines = units
+    .filter(u => u !== from)
+    .map(u => `1 ${from.split(' (')[0]} = <b>${fmt(ucConvert(1, from, u, cat))}</b> ${u.split(' (')[0]}`)
+    .slice(0, 8);
+  ucAll.innerHTML = lines.join('<br>');
+}
+
+ucCat.addEventListener('change', ucFillUnits);
+[ucVal, ucFrom, ucTo].forEach(el => el.addEventListener('input', ucCompute));
+ucFrom.addEventListener('change', ucCompute);
+ucTo.addEventListener('change', ucCompute);
+document.getElementById('uc-swap').addEventListener('click', () => {
+  const a = ucFrom.value; ucFrom.value = ucTo.value; ucTo.value = a;
+  ucCompute();
+});
+document.getElementById('uc-copy').addEventListener('click', e => copyText(ucOut.value, e.target));
+ucFillUnits();
+
+/* ==========================================================
+   2) QR OKUYUCU
+   ========================================================== */
+const qrVideo = document.getElementById('qr-video');
+const qrStatus = document.getElementById('qr-status');
+const qrResCard = document.getElementById('qr-rescard');
+const qrResult = document.getElementById('qr-result');
+let qrStream = null, qrRAF = null, qrDetector = null, qrLib = null, qrFacing = 'environment', qrLastScan = 0;
+
+function loadScript(src){
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+async function qrStart(){
+  if (qrStream) return;
+  qrStatus.textContent = 'Kamera başlatılıyor…';
+  try{
+    qrStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: qrFacing }, width: { ideal: 1280 }, height: { ideal: 1280 } },
+      audio: false
+    });
+  }catch(err){
+    qrStatus.textContent = '❌ Kamera açılamadı: ' + err.message + ' — HTTPS gerekebilir. Görselden okumayı deneyin.';
+    return;
+  }
+  qrVideo.srcObject = qrStream;
+  await qrVideo.play().catch(()=>{});
+
+  // Tarayıcı yerel desteği
+  qrDetector = null;
+  if ('BarcodeDetector' in window){
+    try{
+      const sup = await window.BarcodeDetector.getSupportedFormats();
+      if (sup.includes('qr_code')) qrDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
+    }catch(e){ qrDetector = null; }
+  }
+  // Yedek: jsQR
+  if (!qrDetector && !window.jsQR){
+    qrStatus.textContent = 'Tarama kütüphanesi yükleniyor…';
+    try{ await loadScript('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'); }
+    catch(e){ qrStatus.textContent = '❌ Tarama kütüphanesi yüklenemedi (çevrimdışı). Görselden okumayı kullanın.'; }
+  }
+
+  document.getElementById('qr-start').disabled = true;
+  document.getElementById('qr-stop').disabled = false;
+  qrStatus.textContent = '🔍 QR kod aranıyor… Kodu çerçeveye getirin.';
+  qrLastScan = 0;
+  qrLoop();
+}
+
+function qrStop(){
+  if (qrRAF){ cancelAnimationFrame(qrRAF); qrRAF = null; }
+  if (qrStream){ qrStream.getTracks().forEach(t => t.stop()); qrStream = null; }
+  qrVideo.srcObject = null;
+  const s = document.getElementById('qr-start'), t = document.getElementById('qr-stop');
+  if (s) s.disabled = false;
+  if (t) t.disabled = true;
+  if (qrStatus && qrStatus.textContent.startsWith('🔍')) qrStatus.textContent = 'Durduruldu.';
+}
+
+const qrCanvas = document.createElement('canvas');
+const qrCtx = qrCanvas.getContext('2d', { willReadFrequently: true });
+
+function qrLoop(){
+  qrRAF = requestAnimationFrame(qrLoop);
+  const now = performance.now();
+  if (now - qrLastScan < 180) return;
+  qrLastScan = now;
+  if (!qrVideo.videoWidth) return;
+
+  (async () => {
+    try{
+      let code = null;
+      if (qrDetector){
+        const codes = await qrDetector.detect(qrVideo);
+        if (codes && codes.length) code = codes[0].rawValue;
+      } else if (window.jsQR){
+        qrCanvas.width = qrVideo.videoWidth;
+        qrCanvas.height = qrVideo.videoHeight;
+        qrCtx.drawImage(qrVideo, 0, 0, qrCanvas.width, qrCanvas.height);
+        const img = qrCtx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+        const r = window.jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+        if (r && r.data) code = r.data;
+      }
+      if (code) qrShow(code, true);
+    }catch(e){ /* yoksay */ }
+  })();
+}
+
+function qrShow(text, vibrate){
+  qrResult.value = text;
+  qrResCard.style.display = 'block';
+  qrStatus.textContent = '✅ QR kod okundu!';
+  if (vibrate && navigator.vibrate) navigator.vibrate(60);
+  beep(1, 1200);
+  qrStop();
+}
+
+async function qrDecodeImage(file){
+  const img = new Image();
+  img.onload = async () => {
+    let code = null;
+    if (qrDetector){
+      try{ const c = await qrDetector.detect(img); if (c && c.length) code = c[0].rawValue; }catch(e){}
+    }
+    if (!code){
+      if (!window.jsQR){
+        try{ await loadScript('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'); }catch(e){}
+      }
+      if (window.jsQR){
+        const maxS = 1400;
+        let w = img.width, h = img.height;
+        const sc = Math.min(1, maxS / Math.max(w, h));
+        w = Math.round(w * sc); h = Math.round(h * sc);
+        const cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        const cx = cv.getContext('2d', { willReadFrequently: true });
+        cx.drawImage(img, 0, 0, w, h);
+        const d = cx.getImageData(0, 0, w, h);
+        const r = window.jsQR(d.data, w, h);
+        if (r && r.data) code = r.data;
+      }
+    }
+    if (code) qrShow(code, false);
+    else { qrStatus.textContent = '❌ Görselde QR kod bulunamadı.'; }
+    URL.revokeObjectURL(img.src);
+  };
+  img.onerror = () => { qrStatus.textContent = '❌ Görsel yüklenemedi.'; };
+  img.src = URL.createObjectURL(file);
+}
+
+document.getElementById('qr-start').addEventListener('click', qrStart);
+document.getElementById('qr-stop').addEventListener('click', qrStop);
+document.getElementById('qr-switch').addEventListener('click', () => {
+  qrFacing = qrFacing === 'environment' ? 'user' : 'environment';
+  qrStop();
+  setTimeout(qrStart, 250);
+});
+document.getElementById('qr-file').addEventListener('change', e => {
+  if (e.target.files[0]) qrDecodeImage(e.target.files[0]);
+  e.target.value = '';
+});
+document.getElementById('qr-copy').addEventListener('click', e => copyText(qrResult.value, e.target));
+document.getElementById('qr-open').addEventListener('click', () => {
+  const t = qrResult.value.trim();
+  if (/^https?:\/\//i.test(t)) window.open(t, '_blank');
+  else alert('Bu bir bağlantı değil.');
+});
+
+/* ==========================================================
+   3) POMODORO
+   ========================================================== */
+const POMO = { work: 25, short: 5, long: 15, every: 4, auto: true };
+let pomoMode = 'work', pomoLeft = 25 * 60, pomoTotal = 25 * 60, pomoRunning = false, pomoEnd = 0, pomoTimer = null, pomoRound = 0;
+
+const pomoTimeEl = document.getElementById('pomo-time');
+const pomoBarEl = document.getElementById('pomo-bar');
+const pomoInfoEl = document.getElementById('pomo-info');
+const pomoStartBtn = document.getElementById('pomo-start');
+
+function pomoDur(m){
+  return (POMO[m] || 25) * 60;
+}
+function pomoRender(){
+  const m = Math.floor(pomoLeft / 60), s = Math.floor(pomoLeft % 60);
+  pomoTimeEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const pct = pomoTotal ? ((pomoTotal - pomoLeft) / pomoTotal) * 100 : 0;
+  pomoBarEl.style.width = Math.min(100, Math.max(0, pct)) + '%';
+  pomoInfoEl.textContent = 'Tamamlanan tur: ' + pomoRound;
+}
+function pomoSetMode(m, run){
+  pomoMode = m;
+  pomoTotal = pomoDur(m);
+  pomoLeft = pomoTotal;
+  document.querySelectorAll('#pomo-modes button').forEach(b => b.classList.toggle('active', b.dataset.m === m));
+  pomoRender();
+  if (run) pomoStart(); else pomoPause();
+}
+function pomoStart(){
+  if (pomoRunning) return;
+  pomoRunning = true;
+  pomoEnd = Date.now() + pomoLeft * 1000;
+  pomoStartBtn.textContent = '⏸ Duraklat';
+  pomoStartBtn.classList.remove('primary');
+  clearInterval(pomoTimer);
+  pomoTimer = setInterval(() => {
+    pomoLeft = Math.max(0, (pomoEnd - Date.now()) / 1000);
+    pomoRender();
+    if (pomoLeft <= 0){ clearInterval(pomoTimer); pomoFinish(); }
+  }, 200);
+}
+function pomoPause(){
+  pomoRunning = false;
+  clearInterval(pomoTimer);
+  pomoStartBtn.textContent = '▶ Başlat';
+  pomoStartBtn.classList.add('primary');
+}
+function pomoReset(){
+  pomoPause();
+  pomoTotal = pomoDur(pomoMode);
+  pomoLeft = pomoTotal;
+  pomoRender();
+}
+function pomoFinish(){
+  pomoRunning = false;
+  clearInterval(pomoTimer);
+  pomoStartBtn.textContent = '▶ Başlat';
+  pomoStartBtn.classList.add('primary');
+  beep(3, 880);
+  if (navigator.vibrate) navigator.vibrate([200,100,200,100,200]);
+
+  let next;
+  if (pomoMode === 'work'){
+    pomoRound++;
+    next = (pomoRound % POMO.every === 0) ? 'long' : 'short';
+  } else {
+    next = 'work';
+  }
+  pomoSetMode(next, false);
+  pomoInfoEl.textContent = `Tur ${pomoRound} tamamlandı → ${next === 'work' ? 'Çalışma' : next === 'short' ? 'Kısa mola' : 'Uzun mola'}`;
+  if (POMO.auto) setTimeout(pomoStart, 800);
+}
+
+pomoStartBtn.addEventListener('click', () => pomoRunning ? pomoPause() : pomoStart());
+document.getElementById('pomo-reset').addEventListener('click', pomoReset);
+document.getElementById('pomo-skip').addEventListener('click', () => { clearInterval(pomoTimer); pomoFinish(); });
+document.querySelectorAll('#pomo-modes button').forEach(b => {
+  b.addEventListener('click', () => pomoSetMode(b.dataset.m, false));
+});
+function pomoReadDurations(){
+  POMO.work  = Math.max(1, +document.getElementById('pomo-d-work').value || 25);
+  POMO.short = Math.max(1, +document.getElementById('pomo-d-short').value || 5);
+  POMO.long  = Math.max(1, +document.getElementById('pomo-d-long').value || 15);
+  POMO.every = Math.max(2, +document.getElementById('pomo-d-every').value || 4);
+  POMO.auto  = document.getElementById('pomo-auto').checked;
+  if (!pomoRunning){ pomoTotal = pomoDur(pomoMode); pomoLeft = pomoTotal; pomoRender(); }
+}
+['pomo-d-work','pomo-d-short','pomo-d-long','pomo-d-every'].forEach(id =>
+  document.getElementById(id).addEventListener('change', pomoReadDurations));
+document.getElementById('pomo-auto').addEventListener('change', pomoReadDurations);
+pomoRender();
+
+/* ==========================================================
+   4) ŞİFRE ÜRETİCİ
+   ========================================================== */
+const PASS_SETS = {
+  lower: 'abcdefghijklmnopqrstuvwxyz',
+  upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  digit: '0123456789',
+  sym:   '!@#$%^&*()-_=+[]{};:,.?/~'
+};
+const SIMILAR = /[il1Lo0O]/g;
+
+const passOut = document.getElementById('pass-out');
+const passStrength = document.getElementById('pass-strength');
+const passLen = document.getElementById('pass-len');
+const passLenV = document.getElementById('pass-len-v');
+
+passLen.addEventListener('input', () => { passLenV.textContent = passLen.value; });
+
+function randInt(max){
+  const a = new Uint32Array(1);
+  const limit = Math.floor(0xFFFFFFFF / max) * max;
+  let v;
+  do { crypto.getRandomValues(a); v = a[0]; } while (v >= limit);
+  return v % max;
+}
+
+function genPassword(){
+  const len = +passLen.value;
+  const noSim = document.getElementById('pass-nosim').checked;
+  const active = [];
+  if (document.getElementById('pass-lower').checked) active.push('lower');
+  if (document.getElementById('pass-upper').checked) active.push('upper');
+  if (document.getElementById('pass-digit').checked) active.push('digit');
+  if (document.getElementById('pass-sym').checked)   active.push('sym');
+
+  if (!active.length){
+    passOut.textContent = '⚠️ En az bir karakter seti seçin';
+    passStrength.textContent = '—';
+    passStrength.className = 'badge';
+    return;
+  }
+
+  let sets = active.map(k => noSim ? PASS_SETS[k].replace(SIMILAR, '') : PASS_SETS[k]);
+  const all = sets.join('');
+  const chars = [];
+  // Her setten en az bir karakter
+  sets.forEach(s => { if (chars.length < len) chars.push(s[randInt(s.length)]); });
+  while (chars.length < len) chars.push(all[randInt(all.length)]);
+  // Karıştır
+  for (let i = chars.length - 1; i > 0; i--){
+    const j = randInt(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  const pwd = chars.join('');
+  passOut.textContent = pwd;
+
+  // Entropi
+  const entropy = len * Math.log2(all.length);
+  let label, cls;
+  if (entropy < 45) { label = 'Zayıf (' + Math.round(entropy) + ' bit)'; cls = 'badge bad'; }
+  else if (entropy < 70) { label = 'Orta (' + Math.round(entropy) + ' bit)'; cls = 'badge warn'; }
+  else if (entropy < 100) { label = 'Güçlü (' + Math.round(entropy) + ' bit)'; cls = 'badge ok'; }
+  else { label = 'Çok güçlü (' + Math.round(entropy) + ' bit)'; cls = 'badge ok'; }
+  passStrength.textContent = label;
+  passStrength.className = cls;
+}
+
+document.getElementById('pass-gen').addEventListener('click', genPassword);
+document.getElementById('pass-copy').addEventListener('click', e => {
+  const t = passOut.textContent;
+  if (t && t !== '—') copyText(t, e.target);
+});
+['pass-lower','pass-upper','pass-digit','pass-sym','pass-nosim'].forEach(id =>
+  document.getElementById(id).addEventListener('change', genPassword));
+genPassword();
+
+/* ==========================================================
+   5) BASE64
+   ========================================================== */
+const b64In = document.getElementById('b64-in');
+const b64Out = document.getElementById('b64-out');
+const b64Url = document.getElementById('b64-url');
+
+function b64Encode(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  bytes.forEach(b => bin += String.fromCharCode(b));
+  let r = btoa(bin);
+  if (b64Url.checked) r = r.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  return r;
+}
+function b64Decode(str){
+  let s = str.trim().replace(/\s+/g,'');
+  if (b64Url.checked || /[-_]/.test(s)){
+    s = s.replace(/-/g,'+').replace(/_/g,'/');
+  }
+  while (s.length % 4) s += '=';
+  const bin = atob(s);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+}
+
+document.getElementById('b64-enc').addEventListener('click', () => {
+  try{ b64Out.value = b64Encode(b64In.value); }
+  catch(e){ b64Out.value = 'Hata: ' + e.message; }
+});
+document.getElementById('b64-dec').addEventListener('click', () => {
+  try{ b64Out.value = b64Decode(b64In.value); }
+  catch(e){ b64Out.value = '⚠️ Geçersiz Base64 girdisi'; }
+});
+document.getElementById('b64-copy').addEventListener('click', e => copyText(b64Out.value, e.target));
+document.getElementById('b64-clear').addEventListener('click', () => { b64In.value=''; b64Out.value=''; });
+
+/* ==========================================================
+   6) METRONOM
+   ========================================================== */
+let mCtx = null, mRunning = false, mNext = 0, mBeat = 0, mTimer = null;
+let mBpm = 120, mBeats = 4, mSub = 1;
+const LOOKAHEAD = 25, SCHEDULE_AHEAD = 0.12;
+
+const metroDots = document.getElementById('metro-dots');
+const metroBpmV = document.getElementById('metro-bpm-v');
+const metroBpmS = document.getElementById('metro-bpm');
+const metroTapInfo = document.getElementById('metro-tapinfo');
+
+function metroBuildDots(){
+  metroDots.innerHTML = '';
+  for (let i = 0; i < mBeats; i++){
+    const d = document.createElement('div');
+    d.style.cssText = 'width:18px;height:18px;border-radius:50%;background:#2d3540;transition:.1s';
+    metroDots.appendChild(d);
+  }
+}
+function metroPulse(beat){
+  const dots = metroDots.children;
+  for (let i = 0; i < dots.length; i++){
+    dots[i].style.background = i === beat ? (beat === 0 ? '#4f9cf9' : '#22c55e') : '#2d3540';
+    dots[i].style.transform = i === beat ? 'scale(1.45)' : 'scale(1)';
+  }
+}
+function metroClick(time, beat, isSub){
+  const o = mCtx.createOscillator();
+  const g = mCtx.createGain();
+  o.type = 'square';
+  o.frequency.value = isSub ? 500 : (beat === 0 ? 1100 : 800);
+  const vol = isSub ? 0.12 : (beat === 0 ? 0.42 : 0.26);
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(vol, time + 0.002);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + 0.05);
+  o.connect(g).connect(mCtx.destination);
+  o.start(time); o.stop(time + 0.07);
+}
+function metroScheduler(){
+  const interval = 60 / mBpm / mSub;
+  while (mNext < mCtx.currentTime + SCHEDULE_AHEAD){
+    const subIdx = Math.round((mNext - (mNext)) * 0); // placeholder
+    const beat = Math.floor(mBeatGlobal / mSub) % mBeats;
+    const isSub = (mBeatGlobal % mSub) !== 0;
+    metroClick(mNext, beat, isSub);
+    if (!isSub){
+      const delay = Math.max(0, (mNext - mCtx.currentTime) * 1000);
+      const b = beat;
+      setTimeout(() => { if (mRunning) metroPulse(b); }, delay);
+    }
+    mNext += interval;
+    mBeatGlobal++;
+  }
+}
+let mBeatGlobal = 0;
+
+function metroStart(){
+  if (mRunning) return;
+  mCtx = mCtx || new (window.AudioContext || window.webkitAudioContext)();
+  if (mCtx.state === 'suspended') mCtx.resume();
+  mRunning = true;
+  mBeatGlobal = 0;
+  mNext = mCtx.currentTime + 0.08;
+  clearInterval(mTimer);
+  mTimer = setInterval(metroScheduler, LOOKAHEAD);
+  document.getElementById('metro-start').textContent = '⏸ Durdur';
+  document.getElementById('metro-start').classList.remove('primary');
+}
+function metroStop(){
+  mRunning = false;
+  clearInterval(mTimer);
+  const b = document.getElementById('metro-start');
+  if (b){ b.textContent = '▶ Başlat'; b.classList.add('primary'); }
+  if (metroDots) [...metroDots.children].forEach(d => { d.style.background = '#2d3540'; d.style.transform = 'scale(1)'; });
+}
+document.getElementById('metro-start').addEventListener('click', () => mRunning ? metroStop() : metroStart());
+
+metroBpmS.addEventListener('input', () => { mBpm = +metroBpmS.value; metroBpmV.textContent = mBpm; });
+document.getElementById('metro-beats').addEventListener('change', e => { mBeats = +e.target.value; metroBuildDots(); });
+document.getElementById('metro-sub').addEventListener('change', e => { mSub = +e.target.value; });
+
+let tapTimes = [];
+document.getElementById('metro-tap').addEventListener('click', () => {
+  const now = performance.now();
+  tapTimes = tapTimes.filter(t => now - t < 2500);
+  tapTimes.push(now);
+  if (tapTimes.length >= 2){
+    let sum = 0;
+    for (let i = 1; i < tapTimes.length; i++) sum += tapTimes[i] - tapTimes[i-1];
+    const avg = sum / (tapTimes.length - 1);
+    let bpm = Math.round(60000 / avg);
+    bpm = Math.max(30, Math.min(240, bpm));
+    mBpm = bpm;
+    metroBpmS.value = bpm;
+    metroBpmV.textContent = bpm;
+    metroTapInfo.textContent = 'Tap: ' + bpm + ' BPM (' + tapTimes.length + ' vuruş)';
+  }
+});
+metroBuildDots();
+
+/* ==========================================================
+   7) KART HAFIZA OYUNU
+   ========================================================== */
+const MEM_EMOJI = ['🍎','🍌','🍇','🍓','🍑','🍍','🥝','🍒'];
+let memDeck = [], memFlipped = [], memMatched = 0, memMoves = 0, memLock = false, memTimerId = null, memStartTime = 0, memStarted = false;
+
+const memGrid = document.getElementById('mem-grid');
+const memMovesEl = document.getElementById('mem-moves');
+const memTimeEl = document.getElementById('mem-time');
+const memPairsEl = document.getElementById('mem-pairs');
+const memMsg = document.getElementById('mem-msg');
+
+function memShuffle(a){
+  for (let i = a.length - 1; i > 0; i--){
+    const j = randInt(i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function memTick(){
+  const s = Math.floor((Date.now() - memStartTime) / 1000);
+  memTimeEl.textContent = Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+}
+function memNew(){
+  clearInterval(memTimerId);
+  memStarted = false; memMoves = 0; memMatched = 0; memFlipped = []; memLock = false;
+  memMovesEl.textContent = '0';
+  memTimeEl.textContent = '0:00';
+  memPairsEl.textContent = '0/8';
+  memMsg.textContent = 'Tüm kart çiftlerini bul!';
+  memDeck = memShuffle([...MEM_EMOJI, ...MEM_EMOJI].map((e, i) => ({ id: i, emoji: e })));
+  memGrid.innerHTML = '';
+  memDeck.forEach((c, idx) => {
+    const b = document.createElement('button');
+    b.className = 'mcard';
+    b.dataset.idx = idx;
+    b.innerHTML = `<span class="inner"><span class="face front">❓</span><span class="face back">${c.emoji}</span></span>`;
+    b.addEventListener('click', () => memClick(idx, b));
+    memGrid.appendChild(b);
+  });
+}
+function memClick(idx, el){
+  if (memLock || el.classList.contains('flipped') || el.classList.contains('matched')) return;
+  if (!memStarted){
+    memStarted = true;
+    memStartTime = Date.now();
+    memTimerId = setInterval(memTick, 500);
+  }
+  el.classList.add('flipped');
+  memFlipped.push({ idx, el, emoji: memDeck[idx].emoji });
+
+  if (memFlipped.length === 2){
+    memMoves++;
+    memMovesEl.textContent = memMoves;
+    const [a, b] = memFlipped;
+    if (a.emoji === b.emoji){
+      a.el.classList.add('matched');
+      b.el.classList.add('matched');
+      memMatched++;
+      memPairsEl.textContent = memMatched + '/8';
+      memFlipped = [];
+      beep(1, 1400);
+      if (memMatched === 8){
+        clearInterval(memTimerId);
+        memMsg.textContent = `🎉 Tebrikler! ${memMoves} hamlede ${memTimeEl.textContent} sürede bitirdiniz.`;
+        beep(3, 1000);
+        if (navigator.vibrate) navigator.vibrate([100,60,100,60,200]);
+      }
+    } else {
+      memLock = true;
+      setTimeout(() => {
+        a.el.classList.remove('flipped');
+        b.el.classList.remove('flipped');
+        memFlipped = [];
+        memLock = false;
+      }, 750);
+    }
+  }
+}
+document.getElementById('mem-new').addEventListener('click', memNew);
+memNew();
+
+/* ==========================================================
+   8) SES SEVİYESİ ÖLÇER
+   ========================================================== */
+let sStream = null, sCtx = null, sAnalyser = null, sBuf = null, sRAF = null;
+let sPeak = 0, sSum = 0, sCount = 0, sOffset = 100;
+
+const sndDb = document.getElementById('snd-db');
+const sndFill = document.getElementById('snd-fill');
+const sndPeakEl = document.getElementById('snd-peak');
+const sndAvgEl = document.getElementById('snd-avg');
+const sndState = document.getElementById('snd-state');
+
+async function soundStart(){
+  if (sStream) return;
+  sndState.textContent = 'Başlatılıyor…';
+  try{
+    sStream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+    });
+  }catch(e){
+    sndState.textContent = '❌ Reddedildi';
+    alert('Mikrofon erişimi gerekli. HTTPS bağlantısı gerektirebilir.');
+    return;
+  }
+  sCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (sCtx.state === 'suspended') await sCtx.resume();
+  const src = sCtx.createMediaStreamSource(sStream);
+  sAnalyser = sCtx.createAnalyser();
+  sAnalyser.fftSize = 2048;
+  sAnalyser.smoothingTimeConstant = 0.3;
+  sBuf = new Float32Array(sAnalyser.fftSize);
+  src.connect(sAnalyser);
+
+  document.getElementById('snd-start').disabled = true;
+  document.getElementById('snd-stop').disabled = false;
+  sndState.textContent = '🟢 Ölçülüyor';
+  sPeak = 0; sSum = 0; sCount = 0;
+  sLoop();
+}
+function sLoop(){
+  sRAF = requestAnimationFrame(sLoop);
+  sAnalyser.getFloatTimeDomainData(sBuf);
+  let sum = 0;
+  for (let i = 0; i < sBuf.length; i++) sum += sBuf[i] * sBuf[i];
+  const rms = Math.sqrt(sum / sBuf.length);
+  const dbfs = rms > 0 ? 20 * Math.log10(rms) : -100;
+  let db = dbfs + sOffset;
+  if (db < 0) db = 0;
+  if (db > 140) db = 140;
+
+  sSum += db; sCount++;
+  if (db > sPeak) sPeak = db;
+  else sPeak = Math.max(0, sPeak - 0.15);
+
+  sndDb.innerHTML = db.toFixed(1) + ' <span style="font-size:1rem;color:var(--muted)">dB</span>';
+  sndFill.style.width = Math.min(100, Math.max(0, (db - 25) / 95 * 100)) + '%';
+  sndPeakEl.textContent = sPeak.toFixed(1) + ' dB';
+  sndAvgEl.textContent = (sSum / sCount).toFixed(1) + ' dB';
+}
+function soundStop(){
+  if (sRAF){ cancelAnimationFrame(sRAF); sRAF = null; }
+  if (sStream){ sStream.getTracks().forEach(t => t.stop()); sStream = null; }
+  if (sCtx){ try{ sCtx.close(); }catch(e){} sCtx = null; }
+  sAnalyser = null;
+  const a = document.getElementById('snd-start'), b = document.getElementById('snd-stop');
+  if (a){ a.disabled = false; b.disabled = true; }
+  if (sndState) sndState.textContent = 'Kapalı';
+  if (sndFill) sndFill.style.width = '0%';
+}
+document.getElementById('snd-start').addEventListener('click', soundStart);
+document.getElementById('snd-stop').addEventListener('click', soundStop);
+document.getElementById('snd-reset').addEventListener('click', () => { sPeak = 0; sSum = 0; sCount = 0; });
+const sndOffS = document.getElementById('snd-off');
+sndOffS.addEventListener('input', () => {
+  sOffset = +sndOffS.value;
+  document.getElementById('snd-off-v').textContent = sOffset;
+});
+
+/* ==========================================================
+   9) PUSULA
+   ========================================================== */
+let cmpRunning = false, cmpHeading = null, cmpTarget = 0, cmpRAF = null;
+
+const rose = document.getElementById('rose');
+const cmpDeg = document.getElementById('cmp-deg');
+const cmpDir = document.getElementById('cmp-dir');
+const cmpStatus = document.getElementById('cmp-status');
+
+function cmpDirName(h){
+  const dirs = ['K','KKD','KD','DKD','D','DGD','GD','GGD','G','GGB','GB','BGB','B','BKB','KB','KKB'];
+  return dirs[Math.round(((h % 360) / 22.5)) % 16];
+}
+function cmpHandler(e){
+  let h = null;
+  if (typeof e.webkitCompassHeading === 'number' && !isNaN(e.webkitCompassHeading)){
+    h = e.webkitCompassHeading;           // iOS: zaten saat yönünde
+  } else if (e.alpha !== null && e.alpha !== undefined){
+    h = 360 - e.alpha;                    // Android yaklaşık
+    if (h >= 360) h -= 360;
+  }
+  if (h === null || isNaN(h)) return;
+  cmpHeading = h;
+}
+function cmpLoop(){
+  cmpRAF = requestAnimationFrame(cmpLoop);
+  if (cmpHeading === null) return;
+  // Yumuşatma (açı sarma)
+  let diff = cmpHeading - cmpTarget;
+  while (diff > 180) diff -= 360;
+  while (diff < -180) diff += 360;
+  cmpTarget += diff * 0.22;
+  const norm = ((cmpTarget % 360) + 360) % 360;
+  rose.style.transform = `rotate(${-norm}deg)`;
+  cmpDeg.textContent = Math.round(((cmpHeading % 360) + 360) % 360) + '°';
+  cmpDir.textContent = cmpDirName(cmpHeading);
+}
+async function compassStart(){
+  if (cmpRunning) return;
+  if (typeof DeviceOrientationEvent === 'undefined'){
+    cmpStatus.textContent = '❌ Bu cihaz/tarayıcı pusulayı desteklemiyor.';
+    return;
+  }
+  if (typeof DeviceOrientationEvent.requestPermission === 'function'){
+    try{
+      const p = await DeviceOrientationEvent.requestPermission();
+      if (p !== 'granted'){ cmpStatus.textContent = '❌ İzin verilmedi.'; return; }
+    }catch(e){ cmpStatus.textContent = '❌ İzin alınamadı.'; return; }
+  }
+  window.addEventListener('deviceorientationabsolute', cmpHandler, true);
+  window.addEventListener('deviceorientation', cmpHandler, true);
+  cmpRunning = true;
+  document.getElementById('cmp-start').disabled = true;
+  document.getElementById('cmp-stop').disabled = false;
+  cmpStatus.textContent = '🟢 Aktif — telefonu düz tutun.';
+  cmpLoop();
+}
+function compassStop(){
+  if (!cmpRunning) return;
+  window.removeEventListener('deviceorientationabsolute', cmpHandler, true);
+  window.removeEventListener('deviceorientation', cmpHandler, true);
+  if (cmpRAF){ cancelAnimationFrame(cmpRAF); cmpRAF = null; }
+  cmpRunning = false;
+  const a = document.getElementById('cmp-start'), b = document.getElementById('cmp-stop');
+  if (a){ a.disabled = false; b.disabled = true; }
+  if (cmpStatus) cmpStatus.textContent = 'Durduruldu.';
+}
+document.getElementById('cmp-start').addEventListener('click', compassStart);
+document.getElementById('cmp-stop').addEventListener('click', compassStop);
+
+/* ==========================================================
+   10) CETVEL
+   ========================================================== */
+let pxPerMm = parseFloat(localStorage.getItem('pxPerMm') || '3.7795');
+
+const calSlider = document.getElementById('cal');
+const calV = document.getElementById('cal-v');
+const calRef = document.getElementById('cal-ref');
+
+function updateCal(){
+  pxPerMm = parseFloat(calSlider.value);
+  localStorage.setItem('pxPerMm', pxPerMm);
+  calV.textContent = pxPerMm.toFixed(3);
+  calRef.style.width = (53.98 * pxPerMm) + 'px';   // kredi kartı kısa kenarı
+  buildRulers();
+}
+
+function buildRulers(){
+  const cmEl = document.getElementById('ruler-cm');
+  const inEl = document.getElementById('ruler-in');
+  if (!cmEl || !cmEl.offsetWidth) return;
+  const w = cmEl.clientWidth;
+  const ppm = pxPerMm;
+
+  // --- cm cetveli ---
+  const maxMm = Math.floor(w / ppm);
+  let html = '';
+  for (let i = 0; i <= maxMm; i++){
+    const x = i * ppm;
+    const isCm = i % 10 === 0;
+    const isHalf = i % 5 === 0;
+    const h = isCm ? 100 : isHalf ? 58 : 32;
+    html += `<div class="tick${isCm ? ' major' : ''}" style="left:${x.toFixed(2)}px;height:${h}%"></div>`;
+    if (isCm) html += `<div class="tlabel" style="left:${x.toFixed(2)}px">${i / 10}</div>`;
+  }
+  cmEl.innerHTML = html;
+
+  // --- inç cetveli ---
+  const inWidth = inEl.clientWidth;
+  const unit = 25.4 / 16 * ppm; // 1/16 inç
+  const maxT = Math.floor(inWidth / unit);
+  let h2 = '';
+  for (let i = 0; i <= maxT; i++){
+    const x = i * unit;
+    const isIn = i % 16 === 0;
+    const isHalf = i % 8 === 0;
+    const isQ = i % 4 === 0;
+    const hh = isIn ? 100 : isHalf ? 70 : isQ ? 48 : 28;
+    h2 += `<div class="tick${isIn ? ' major' : ''}" style="left:${x.toFixed(2)}px;height:${hh}%"></div>`;
+    if (isIn) h2 += `<div class="tlabel" style="left:${x.toFixed(2)}px">${i / 16}</div>`;
+  }
+  inEl.innerHTML = h2;
+}
+
+calSlider.value = pxPerMm;
+calSlider.addEventListener('input', updateCal);
+document.getElementById('cal-reset').addEventListener('click', () => {
+  calSlider.value = 3.7795;
+  updateCal();
+});
+window.addEventListener('resize', () => setTimeout(buildRulers, 120));
+window.addEventListener('orientationchange', () => setTimeout(buildRulers, 300));
+
+updateCal();
+
+/* ==========================================================
+   GENEL
+   ========================================================== */
+// Sayfa gizlenince kamera/mikrofonu kapat
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden){
+    qrStop(); soundStop(); compassStop();
+  }
+});
+</script>
+</body>
+</html>
