@@ -4,136 +4,452 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0f1115">
-<title>Araç Kutusu</title>
+<meta name="theme-color" content="#0b0d12">
+<title>Araç Kutusu Pro</title>
 <style>
 :root{
-  --bg:#0f1115; --card:#181c22; --card2:#21262e; --fg:#e6e9ee; --muted:#8b95a5;
-  --accent:#4f9cf9; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
-  --radius:14px;
+  --bg:#0b0d12; --card:#161b24; --card2:#1e242f; --card3:#252c39;
+  --fg:#eef2f8; --muted:#8892a4; --dim:#5b6675;
+  --accent:#5b9dff; --accent2:#8b5cf6;
+  --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+  --radius:16px; --radius-sm:11px;
+  --shadow:0 8px 32px rgba(0,0,0,.5);
+  --border:#242b36;
+  --appbar-h:56px;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
-  background:var(--bg); color:var(--fg);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:
+    radial-gradient(1100px 600px at -10% 0%, rgba(91,157,255,.09), transparent 55%),
+    radial-gradient(900px 700px at 110% 100%, rgba(139,92,246,.08), transparent 55%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--fg);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",sans-serif;
   font-size:16px; line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
   padding-bottom:env(safe-area-inset-bottom);
 }
-.top{
-  padding:calc(env(safe-area-inset-top) + 10px) 16px 8px;
-  display:flex;align-items:center;gap:8px;
+
+/* ============ APPBAR ============ */
+.appbar{
+  position:sticky; top:0; z-index:40;
+  height:calc(var(--appbar-h) + env(safe-area-inset-top));
+  padding-top:env(safe-area-inset-top);
+  display:flex; align-items:center; gap:8px;
+  padding-left:8px; padding-right:14px;
+  background:rgba(11,13,18,.72);
+  backdrop-filter:saturate(140%) blur(20px);
+  -webkit-backdrop-filter:saturate(140%) blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.05);
 }
-.top h1{font-size:1.15rem;margin:0;font-weight:700;letter-spacing:.3px}
-.tabs{
-  display:flex;gap:8px;overflow-x:auto;white-space:nowrap;
-  padding:8px 12px 12px;position:sticky;top:0;z-index:20;
-  background:linear-gradient(var(--bg) 70%,rgba(15,17,21,.85));
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+.icon-btn{
+  width:42px; height:42px; border-radius:12px;
+  background:transparent; border:0; color:var(--fg);
+  display:grid; place-items:center; cursor:pointer;
+  transition:background .15s;
 }
-.tabs::-webkit-scrollbar{display:none}
-.tab{
-  flex:0 0 auto;background:var(--card);color:var(--muted);border:1px solid #262c36;
-  padding:8px 14px;border-radius:999px;font-size:.85rem;font-weight:600;
-  cursor:pointer;transition:.2s;
+.icon-btn:active{background:rgba(255,255,255,.08)}
+.appbar-title{flex:1; min-width:0}
+.appbar-title h1{
+  margin:0; font-size:1rem; font-weight:700;
+  letter-spacing:-.2px; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis;
 }
-.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
-main{padding:0 12px 40px}
-.panel{display:none;animation:fade .18s ease}
+.appbar-icon{font-size:1.4rem; opacity:.85}
+
+/* ============ DRAWER ============ */
+.scrim{
+  position:fixed; inset:0; z-index:60;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(3px);
+  -webkit-backdrop-filter:blur(3px);
+  opacity:0; pointer-events:none;
+  transition:opacity .25s;
+}
+body.menu-open .scrim{opacity:1; pointer-events:auto}
+
+.drawer{
+  position:fixed; top:0; left:0; bottom:0; z-index:70;
+  width:min(85vw, 320px);
+  background:linear-gradient(180deg,#141922 0%,#0e1219 100%);
+  border-right:1px solid var(--border);
+  transform:translateX(-102%);
+  transition:transform .28s cubic-bezier(.32,.72,.32,1);
+  display:flex; flex-direction:column;
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+  box-shadow:12px 0 40px rgba(0,0,0,.6);
+}
+body.menu-open .drawer{transform:none}
+
+.drawer-head{
+  display:flex; align-items:center; gap:12px;
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--border);
+}
+.logo{
+  width:44px; height:44px; border-radius:13px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:grid; place-items:center; font-size:1.4rem;
+  box-shadow:0 4px 14px rgba(91,157,255,.35);
+}
+.drawer-title{font-weight:800; font-size:1.02rem; letter-spacing:-.2px}
+.drawer-sub{font-size:.72rem; color:var(--muted); margin-top:1px}
+
+.menu{
+  flex:1; overflow-y:auto;
+  padding:12px 10px 24px;
+  -webkit-overflow-scrolling:touch;
+}
+.menu-group{margin-bottom:14px}
+.menu-group-title{
+  font-size:.68rem; font-weight:800;
+  text-transform:uppercase; letter-spacing:1.2px;
+  color:var(--dim); padding:8px 12px 6px;
+}
+.menu-item{
+  display:flex; align-items:center; gap:12px;
+  width:100%; background:transparent; border:0;
+  color:var(--fg); font-family:inherit; font-size:.92rem;
+  padding:11px 12px; border-radius:11px;
+  cursor:pointer; text-align:left; transition:background .13s;
+}
+.menu-item:active{background:rgba(255,255,255,.06)}
+.menu-item.active{
+  background:linear-gradient(90deg, rgba(91,157,255,.18), rgba(91,157,255,.05));
+  color:#fff;
+  box-shadow:inset 0 0 0 1px rgba(91,157,255,.28);
+}
+.menu-item.active .mi-icon{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff; box-shadow:0 3px 10px rgba(91,157,255,.4);
+}
+.mi-icon{
+  width:32px; height:32px; border-radius:9px;
+  background:var(--card2); display:grid; place-items:center;
+  font-size:1rem; flex-shrink:0; transition:all .15s;
+}
+.mi-name{font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis}
+
+.drawer-foot{
+  padding:12px 20px 16px; font-size:.7rem;
+  color:var(--dim); border-top:1px solid var(--border);
+  text-align:center; letter-spacing:.3px;
+}
+
+/* ============ MAIN ============ */
+main{padding:14px 12px 50px; max-width:720px; margin:0 auto}
+.panel{display:none; animation:panelIn .22s cubic-bezier(.32,.72,.32,1)}
 .panel.active{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes panelIn{
+  from{opacity:0; transform:translateY(6px)}
+  to{opacity:1; transform:none}
+}
+
 .card{
-  background:var(--card);border:1px solid #232932;border-radius:var(--radius);
-  padding:16px;margin-bottom:12px;
+  background:linear-gradient(180deg,var(--card),rgba(22,27,36,.85));
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px; margin-bottom:12px;
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 8px 24px rgba(0,0,0,.15);
 }
-.card h2{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 12px;font-weight:700}
-label{display:block;font-size:.78rem;color:var(--muted);margin:10px 0 5px;font-weight:600}
-input,select,textarea,button{font-family:inherit;font-size:1rem}
-input[type=text],input[type=number],select,textarea{
-  width:100%;background:var(--card2);border:1px solid #2d3540;color:var(--fg);
-  padding:11px 12px;border-radius:10px;outline:none;
+.card h2{
+  font-size:.72rem; text-transform:uppercase;
+  letter-spacing:1.3px; color:var(--muted);
+  margin:0 0 12px; font-weight:800;
 }
-input:focus,select:focus,textarea:focus{border-color:var(--accent)}
-textarea{resize:vertical;min-height:110px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem}
+
+label{display:block; font-size:.76rem; color:var(--muted); margin:10px 0 5px; font-weight:700}
+input,select,textarea,button{font-family:inherit; font-size:1rem}
+input[type=text],input[type=number],input[type=password],select,textarea{
+  width:100%; background:var(--card2);
+  border:1px solid #2a323f; color:var(--fg);
+  padding:12px 13px; border-radius:11px; outline:none;
+  transition:border-color .15s, background .15s;
+  font-size:16px;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--accent);
+  background:var(--card3);
+  box-shadow:0 0 0 3px rgba(91,157,255,.12);
+}
+textarea{resize:vertical; min-height:110px; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.85rem; line-height:1.5}
+
 button{
-  background:var(--card2);color:var(--fg);border:1px solid #2d3540;
-  padding:11px 16px;border-radius:10px;font-weight:600;cursor:pointer;transition:.15s;
+  background:var(--card2); color:var(--fg);
+  border:1px solid #2a323f;
+  padding:12px 16px; border-radius:11px;
+  font-weight:600; cursor:pointer;
+  transition:transform .08s, background .15s, border-color .15s;
 }
 button:active{transform:scale(.97)}
-button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-button.danger{background:var(--danger);border-color:var(--danger);color:#fff}
-button.ok{background:var(--ok);border-color:var(--ok);color:#04210f}
-button:disabled{opacity:.45}
-.row{display:flex;gap:8px}
-.row>*{flex:1;min-width:0}
-.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.btns button{flex:1;min-width:110px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.muted{color:var(--muted);font-size:.8rem;margin-top:10px;line-height:1.5}
-.big{font-size:2.6rem;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+button:hover{border-color:#3a4453}
+button.primary{
+  background:linear-gradient(135deg,var(--accent),#4a86e0);
+  border-color:transparent; color:#fff;
+  box-shadow:0 4px 14px rgba(91,157,255,.28);
+}
+button.ok{background:linear-gradient(135deg,#22c55e,#16a34a); border-color:transparent; color:#fff}
+button.danger{background:linear-gradient(135deg,#ef4444,#dc2626); border-color:transparent; color:#fff}
+button:disabled{opacity:.42; cursor:not-allowed}
+button:disabled:active{transform:none}
+
+.row{display:flex; gap:8px}
+.row>*{flex:1; min-width:0}
+.btns{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+.btns button{flex:1; min-width:110px}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+.muted{color:var(--muted); font-size:.78rem; margin-top:10px; line-height:1.55}
+.big{font-size:2.8rem; font-weight:800; text-align:center;
+  font-variant-numeric:tabular-nums; letter-spacing:-1.5px;
+  line-height:1.1; margin:6px 0}
 .center{text-align:center}
-.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:.72rem;font-weight:700;background:var(--card2);color:var(--muted)}
-.badge.ok{background:rgba(34,197,94,.15);color:#4ade80}
-.badge.warn{background:rgba(245,158,11,.15);color:#fbbf24}
-.badge.bad{background:rgba(239,68,68,.15);color:#f87171}
-input[type=range]{width:100%;-webkit-appearance:none;background:transparent;padding:0;margin:8px 0}
-input[type=range]::-webkit-slider-runnable-track{height:6px;background:#2d3540;border-radius:3px}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--accent);margin-top:-9px;box-shadow:0 2px 6px rgba(0,0,0,.5)}
-input[type=range]::-moz-range-track{height:6px;background:#2d3540;border-radius:3px}
-input[type=range]::-moz-range-thumb{width:24px;height:24px;border:0;border-radius:50%;background:var(--accent)}
-.chk{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:.92rem;color:var(--fg)}
-.chk input{width:20px;height:20px;accent-color:var(--accent);flex:0 0 auto}
-.progress{height:8px;background:#2d3540;border-radius:4px;overflow:hidden;margin:14px 0}
-.progress>div{height:100%;width:0;background:var(--accent);transition:width .25s linear}
-.modebar{display:flex;gap:6px;background:var(--card2);padding:5px;border-radius:12px;margin-bottom:16px}
-.modebar button{flex:1;background:transparent;border:0;padding:9px 4px;border-radius:9px;font-size:.82rem;color:var(--muted)}
-.modebar button.active{background:var(--accent);color:#fff}
-/* video */
-video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius:12px;display:block}
-/* memory */
-#mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
-.mcard{padding:0;border:0;background:none;aspect-ratio:1/1;perspective:700px}
-.mcard .inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .35s;display:block}
+.badge{
+  display:inline-block; padding:4px 11px; border-radius:999px;
+  font-size:.7rem; font-weight:800; background:var(--card2); color:var(--muted);
+  letter-spacing:.3px;
+}
+.badge.ok{background:rgba(34,197,94,.14); color:#4ade80}
+.badge.warn{background:rgba(245,158,11,.14); color:#fbbf24}
+.badge.bad{background:rgba(239,68,68,.14); color:#f87171}
+.badge.accent{background:rgba(91,157,255,.14); color:#7db4ff}
+
+/* Range */
+input[type=range]{
+  width:100%; -webkit-appearance:none;
+  background:transparent; padding:0; margin:10px 0;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:6px; background:#2a323f; border-radius:3px;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:24px; height:24px;
+  border-radius:50%; background:var(--accent);
+  margin-top:-9px; box-shadow:0 2px 8px rgba(91,157,255,.5);
+  border:3px solid #0b0d12;
+}
+input[type=range]::-moz-range-track{height:6px; background:#2a323f; border-radius:3px}
+input[type=range]::-moz-range-thumb{
+  width:24px; height:24px; border:3px solid #0b0d12;
+  border-radius:50%; background:var(--accent);
+}
+
+.chk{
+  display:flex; align-items:center; gap:11px;
+  padding:10px 0; font-size:.92rem; color:var(--fg);
+}
+.chk input{width:20px; height:20px; accent-color:var(--accent); flex:0 0 auto}
+.chk span{user-select:none}
+
+.progress{height:8px; background:#2a323f; border-radius:4px; overflow:hidden; margin:14px 0}
+.progress>div{height:100%; width:0; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .25s linear}
+
+.modebar{display:flex; gap:5px; background:var(--card2); padding:5px; border-radius:13px; margin-bottom:16px}
+.modebar button{
+  flex:1; background:transparent; border:0;
+  padding:10px 4px; border-radius:10px;
+  font-size:.8rem; color:var(--muted); font-weight:700;
+}
+.modebar button.active{
+  background:linear-gradient(135deg,var(--accent),#4a86e0); color:#fff;
+  box-shadow:0 4px 12px rgba(91,157,255,.28);
+}
+
+/* QR video */
+video{width:100%; aspect-ratio:1/1; object-fit:cover; background:#000; border-radius:14px; display:block}
+
+/* Memory */
+#mem-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px}
+.mcard{padding:0; border:0; background:none; aspect-ratio:1/1; perspective:700px; box-shadow:none}
+.mcard .inner{position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .35s; display:block}
 .mcard.flipped .inner{transform:rotateY(180deg)}
-.face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:11px;font-size:1.7rem}
-.front{background:linear-gradient(135deg,#2a3140,#1d222b);border:1px solid #333b48;color:#3d4757;font-size:1.2rem}
-.back{background:linear-gradient(135deg,#2b4a7a,#1e3557);border:1px solid #3a5c8f;transform:rotateY(180deg)}
-.mcard.matched .back{background:linear-gradient(135deg,#166534,#14532d);border-color:#22c55e}
-/* sound */
-#snd-bar{height:26px;background:#2d3540;border-radius:8px;overflow:hidden;margin-top:8px}
-#snd-fill{height:100%;width:0;background:linear-gradient(90deg,#22c55e,#f59e0b 65%,#ef4444);transition:width .08s linear}
-/* compass */
-.rose-wrap{width:min(78vw,300px);aspect-ratio:1;margin:14px auto;position:relative}
-.rose{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 50%,#1b2029,#12161c);border:2px solid #2d3540;transition:transform .12s linear}
-.rose span{position:absolute;font-weight:800;font-size:1rem;transform:translate(-50%,-50%);color:var(--muted)}
-.rose span.n{color:#ef4444;font-size:1.3rem}
-.rose .dir{position:absolute;left:50%;top:8px;transform:translateX(-50%);font-size:.7rem;color:#4a5567;font-weight:700}
-.needle-mark{position:absolute;left:50%;top:-2px;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:16px solid var(--accent);z-index:5}
-/* ruler */
-.ruler{position:relative;height:64px;background:linear-gradient(#1c2128,#151a20);border:1px solid #2d3540;border-radius:10px;overflow:hidden;margin-top:8px}
-.ruler .tick{position:absolute;bottom:0;width:1px;background:#7c8798;transform:translateX(-.5px)}
-.ruler .tick.major{background:#c9d3e0;width:1.5px}
-.ruler .tlabel{position:absolute;top:3px;font-size:.62rem;color:#9aa6b6;transform:translateX(-50%);font-weight:700}
-.calbox{background:#2d3540;border:1px dashed #5b6879;border-radius:6px;height:52px;margin:10px 0 4px;overflow-x:auto}
-.calbox>div{height:100%;background:linear-gradient(90deg,#3a4657,#2a3441);border-right:2px solid var(--accent)}
+.face{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:11px; font-size:1.7rem}
+.front{background:linear-gradient(135deg,#252c3a,#1a2029); border:1px solid #333b48; color:#3d4757}
+.back{background:linear-gradient(135deg,#2b4a7a,#1e3557); border:1px solid #3a5c8f; transform:rotateY(180deg)}
+.mcard.matched .back{background:linear-gradient(135deg,#166534,#14532d); border-color:#22c55e}
+
+/* Sound meter */
+#snd-bar{height:26px; background:#2a323f; border-radius:8px; overflow:hidden; margin-top:8px}
+#snd-fill{height:100%; width:0; background:linear-gradient(90deg,#22c55e,#f59e0b 65%,#ef4444); transition:width .08s linear}
+
+/* Compass */
+.rose-wrap{width:min(78vw,300px); aspect-ratio:1; margin:14px auto; position:relative}
+.rose{position:absolute; inset:0; border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,#1b2029,#12161c);
+  border:2px solid #2a323f; transition:transform .12s linear}
+.rose span{position:absolute; font-weight:800; font-size:1rem;
+  transform:translate(-50%,-50%); color:var(--muted)}
+.rose span.n{color:#ef4444; font-size:1.35rem}
+.rose .qibla-mark{
+  position:absolute; left:50%; top:50%; width:2px; height:44%;
+  background:linear-gradient(180deg,#22c55e,#166534);
+  transform-origin:50% 0; border-radius:2px;
+  box-shadow:0 0 12px rgba(34,197,94,.8);
+}
+.rose .qibla-mark::after{
+  content:'🕋'; position:absolute; top:-20px; left:50%;
+  transform:translateX(-50%); font-size:1rem;
+}
+.needle-mark{
+  position:absolute; left:50%; top:-2px; transform:translateX(-50%);
+  width:0; height:0;
+  border-left:9px solid transparent; border-right:9px solid transparent;
+  border-top:16px solid var(--accent); z-index:5;
+}
+
+/* Ruler */
+.ruler{position:relative; height:64px;
+  background:linear-gradient(#1c2128,#151a20);
+  border:1px solid #2a323f; border-radius:11px;
+  overflow:hidden; margin-top:8px}
+.ruler .tick{position:absolute; bottom:0; width:1px; background:#7c8798; transform:translateX(-.5px)}
+.ruler .tick.major{background:#c9d3e0; width:1.5px}
+.ruler .tlabel{position:absolute; top:3px; font-size:.62rem; color:#9aa6b6; transform:translateX(-50%); font-weight:800}
+.calbox{background:#2a323f; border:1px dashed #5b6879; border-radius:6px; height:52px; margin:10px 0 4px; overflow-x:auto}
+.calbox>div{height:100%; background:linear-gradient(90deg,#3a4657,#2a3441); border-right:2px solid var(--accent)}
+
+/* Speedometer */
+.spd-gauge{
+  position:relative; width:min(80vw,300px); aspect-ratio:1;
+  margin:8px auto 16px;
+}
+.spd-gauge svg{width:100%; height:100%; transform:rotate(135deg)}
+.spd-val{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+.spd-val b{font-size:3.2rem; font-weight:800; letter-spacing:-2px; line-height:1}
+.spd-val small{font-size:.85rem; color:var(--muted); letter-spacing:2px; font-weight:700; margin-top:4px}
+
+/* Moon */
+.moon-wrap{
+  text-align:center; padding:20px 0;
+}
+.moon-visual{
+  width:160px; height:160px; margin:0 auto 12px;
+  border-radius:50%; position:relative;
+  background:radial-gradient(circle at 30% 30%, #2a2a35, #1a1a22);
+  box-shadow:inset -14px -14px 30px rgba(0,0,0,.6), 0 0 60px rgba(220,220,255,.06);
+  overflow:hidden;
+}
+.moon-visual .lit{
+  position:absolute; inset:0; border-radius:50%;
+  background:radial-gradient(circle at 40% 40%, #f5f3e8, #cfcbb8);
+  box-shadow:inset -20px -20px 40px rgba(0,0,0,.5);
+}
+.moon-visual .shadow{
+  position:absolute; inset:0; border-radius:50%;
+  background:radial-gradient(circle at 40% 40%, #1a1a22, #0a0a0e);
+  transition:transform .35s;
+}
+.moon-name{font-size:1.15rem; font-weight:800; margin:6px 0}
+.moon-emoji{font-size:2.4rem; line-height:1}
+
+/* Tracker map */
+#trk-canvas{
+  width:100%; aspect-ratio:1/1;
+  background:#0e1219; border:1px solid var(--border);
+  border-radius:14px; display:block; touch-action:none;
+}
+
+/* Vocab */
+.vocab-card{
+  background:var(--card2); border-radius:14px;
+  padding:24px 20px; text-align:center;
+  border:1px solid var(--border);
+}
+.vocab-q{font-size:1.6rem; font-weight:800; margin-bottom:6px; word-break:break-word}
+.vocab-a{font-size:1.15rem; color:var(--accent); font-weight:700; margin-top:12px; min-height:28px}
+.vocab-stats{display:flex; gap:6px; justify-content:center; margin-top:14px; flex-wrap:wrap}
+.vocab-list{max-height:360px; overflow-y:auto; margin-top:12px}
+.vocab-item{
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border-radius:10px;
+  background:var(--card2); margin-bottom:6px;
+  font-size:.9rem;
+}
+.vocab-item .q{font-weight:700; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis}
+.vocab-item .a{color:var(--muted); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; text-align:right}
+.vocab-item button{padding:6px 10px; font-size:.75rem; min-width:0; flex:0 0 auto}
+
+/* OTP */
+.otp-secret-badge{
+  display:inline-block; font-family:ui-monospace,monospace;
+  background:var(--card2); padding:4px 10px; border-radius:8px;
+  font-size:.72rem; color:var(--muted);
+  max-width:180px; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; vertical-align:middle;
+}
+.otp-code{
+  font-size:2.6rem; font-weight:800; letter-spacing:6px;
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+  text-align:center; margin:14px 0 6px;
+  color:var(--accent); user-select:all;
+}
+.otp-timer{
+  height:6px; background:#2a323f; border-radius:3px;
+  overflow:hidden; margin:10px 0 4px;
+}
+.otp-timer>div{
+  height:100%; width:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .25s linear;
+}
+
+/* Noise */
+.noise-visual{
+  display:grid; grid-template-columns:repeat(24,1fr); gap:2px;
+  height:60px; margin:12px 0;
+}
+.noise-visual>span{
+  background:linear-gradient(180deg,var(--accent),transparent);
+  border-radius:2px; height:100%;
+  transform-origin:bottom;
+  animation:noiseBounce .9s ease-in-out infinite alternate;
+}
+@keyframes noiseBounce{
+  from{transform:scaleY(.15)}
+  to{transform:scaleY(1)}
+}
+.noise-preset-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:12px}
+.noise-preset-grid button{padding:14px 8px; font-size:.82rem; display:flex; flex-direction:column; align-items:center; gap:6px}
+.noise-preset-grid button span:first-child{font-size:1.5rem}
+.noise-preset-grid button.active{
+  background:linear-gradient(135deg,rgba(91,157,255,.22),rgba(139,92,246,.22));
+  border-color:rgba(91,157,255,.5);
+}
+
+hr.sep{border:0; border-top:1px solid var(--border); margin:14px 0}
 </style>
 </head>
 <body>
 
-<div class="top"><h1>🧰 Araç Kutusu</h1></div>
+<header class="appbar">
+  <button class="icon-btn" id="menuBtn" aria-label="Menü">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <div class="appbar-title"><h1 id="appbarTitle">Birim Çevirici</h1></div>
+  <div class="appbar-icon" id="appbarIcon">📏</div>
+</header>
 
-<nav class="tabs" id="tabs">
-  <button class="tab active" data-tab="conv">📏 Birim</button>
-  <button class="tab" data-tab="qr">📷 QR Okuyucu</button>
-  <button class="tab" data-tab="pomo">🍅 Pomodoro</button>
-  <button class="tab" data-tab="pass">🔑 Şifre</button>
-  <button class="tab" data-tab="b64">🔤 Base64</button>
-  <button class="tab" data-tab="metro">🎵 Metronom</button>
-  <button class="tab" data-tab="mem">🃏 Hafıza</button>
-  <button class="tab" data-tab="sound">🔊 Ses Ölçer</button>
-  <button class="tab" data-tab="compass">🧭 Pusula</button>
-  <button class="tab" data-tab="ruler">📐 Cetvel</button>
-</nav>
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="logo">🧰</div>
+    <div>
+      <div class="drawer-title">Araç Kutusu Pro</div>
+      <div class="drawer-sub">16 araç · çevrimdışı</div>
+    </div>
+  </div>
+  <nav class="menu" id="menu"></nav>
+  <div class="drawer-foot">v2.0 · local · offline</div>
+</aside>
 
 <main>
 
@@ -142,19 +458,16 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
   <div class="card">
     <h2>Kategori</h2>
     <select id="uc-cat"></select>
-
     <label>Değer</label>
     <div class="row">
       <input id="uc-val" type="number" inputmode="decimal" value="1" step="any">
       <select id="uc-from" style="flex:1.1"></select>
     </div>
-
     <label>Sonuç</label>
     <div class="row">
       <input id="uc-out" type="text" readonly>
       <select id="uc-to" style="flex:1.1"></select>
     </div>
-
     <div class="btns">
       <button id="uc-swap">⇅ Değiştir</button>
       <button id="uc-copy">📋 Kopyala</button>
@@ -174,10 +487,8 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
     </div>
     <div class="btns">
       <button id="qr-switch">🔄 Kamerayı Değiştir</button>
-      <label style="margin:0;flex:1;min-width:110px">
-        <input type="file" id="qr-file" accept="image/*" style="display:none">
-        <button style="width:100%" onclick="document.getElementById('qr-file').click()">🖼 Görselden Oku</button>
-      </label>
+      <button onclick="document.getElementById('qr-file').click()">🖼 Görselden Oku</button>
+      <input type="file" id="qr-file" accept="image/*" style="display:none">
     </div>
     <div class="muted" id="qr-status">Kamera HTTPS veya localhost gerektirir. Görselden okuma her zaman çalışır.</div>
   </div>
@@ -224,18 +535,15 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
 <section class="panel" id="panel-pass">
   <div class="card">
     <h2>Şifre Oluşturucu</h2>
-    <div id="pass-out" style="background:var(--card2);border:1px solid #2d3540;border-radius:10px;padding:14px;font-family:ui-monospace,monospace;font-size:1rem;word-break:break-all;min-height:56px;line-height:1.5">—</div>
+    <div id="pass-out" style="background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;font-family:ui-monospace,monospace;font-size:1rem;word-break:break-all;min-height:60px;line-height:1.5">—</div>
     <div class="center" style="margin-top:10px"><span class="badge" id="pass-strength">—</span></div>
-
     <label>Uzunluk: <b id="pass-len-v">16</b></label>
     <input type="range" id="pass-len" min="4" max="64" value="16">
-
     <div class="chk"><input type="checkbox" id="pass-lower" checked><span>Küçük harf (a-z)</span></div>
     <div class="chk"><input type="checkbox" id="pass-upper" checked><span>Büyük harf (A-Z)</span></div>
     <div class="chk"><input type="checkbox" id="pass-digit" checked><span>Rakam (0-9)</span></div>
     <div class="chk"><input type="checkbox" id="pass-sym" checked><span>Sembol (!@#$…)</span></div>
     <div class="chk"><input type="checkbox" id="pass-nosim"><span>Benzer karakterleri çıkar (il1Lo0O)</span></div>
-
     <div class="btns">
       <button id="pass-gen" class="primary">🎲 Üret</button>
       <button id="pass-copy">📋 Kopyala</button>
@@ -251,14 +559,13 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
     <textarea id="b64-in" placeholder="Buraya yazın..."></textarea>
     <label>Sonuç</label>
     <textarea id="b64-out" readonly placeholder="Sonuç burada görünür"></textarea>
-    <div class="chk"><input type="checkbox" id="b64-url"><span>URL-safe (% - _ kullan)</span></div>
+    <div class="chk"><input type="checkbox" id="b64-url"><span>URL-safe (- _ kullan)</span></div>
     <div class="btns">
       <button id="b64-enc" class="primary">→ Kodla</button>
       <button id="b64-dec">← Çöz</button>
       <button id="b64-copy">📋 Kopyala</button>
       <button id="b64-clear">🗑 Temizle</button>
     </div>
-    <div class="muted">UTF-8 (Türkçe karakterler) desteklenir. Çözme işlemi geçersiz girdide hata verir.</div>
   </div>
 </section>
 
@@ -269,7 +576,6 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
     <div id="metro-dots" style="display:flex;gap:10px;justify-content:center;margin:18px 0;flex-wrap:wrap"></div>
     <div class="big"><span id="metro-bpm-v">120</span> <span style="font-size:1rem;color:var(--muted)">BPM</span></div>
     <input type="range" id="metro-bpm" min="30" max="240" value="120">
-
     <div class="grid2" style="margin-top:12px">
       <div><label>Vuruş / Ölçü</label>
         <select id="metro-beats">
@@ -287,7 +593,6 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
         </select>
       </div>
     </div>
-
     <div class="btns">
       <button id="metro-start" class="primary">▶ Başlat</button>
       <button id="metro-tap">👆 Tap Tempo</button>
@@ -296,7 +601,7 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
   </div>
 </section>
 
-<!-- ============ HAFIZA OYUNU ============ -->
+<!-- ============ KART HAFIZA ============ -->
 <section class="panel" id="panel-mem">
   <div class="card">
     <h2>Kart Hafıza Oyunu</h2>
@@ -311,7 +616,7 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
   </div>
 </section>
 
-<!-- ============ SES SEVİYESİ ÖLÇER ============ -->
+<!-- ============ SES SEVİYESİ ============ -->
 <section class="panel" id="panel-sound">
   <div class="card">
     <h2>Ses Seviyesi Ölçer</h2>
@@ -329,14 +634,14 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
       <button id="snd-stop" disabled>■ Durdur</button>
       <button id="snd-reset">↺ Sıfırla</button>
     </div>
-    <div class="muted">Değerler yaklaşıktır; mikrofon kalibrasyonu olmadığı için mutlak dB SPL değil, göreli ölçüm verir. Ofset ile gerçek cihazlara yaklaştırabilirsiniz.</div>
+    <div class="muted">Değerler yaklaşıktır; mikrofon kalibre olmadığı için göreli ölçüm verir.</div>
   </div>
 </section>
 
-<!-- ============ PUSULA ============ -->
+<!-- ============ PUSULA & KIBLE ============ -->
 <section class="panel" id="panel-compass">
   <div class="card center">
-    <h2>Pusula</h2>
+    <h2>Pusula & Kıble</h2>
     <div class="rose-wrap">
       <div class="needle-mark"></div>
       <div class="rose" id="rose">
@@ -348,15 +653,20 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
         <span style="left:78%;top:72%">SE</span>
         <span style="left:22%;top:72%">SW</span>
         <span style="left:28%;top:22%">NW</span>
+        <div class="qibla-mark" id="qiblaMark" style="display:none"></div>
       </div>
     </div>
     <div class="big" id="cmp-deg">--°</div>
     <div style="font-size:1.1rem;font-weight:700;color:var(--accent)" id="cmp-dir">—</div>
+    <div id="qibla-info" class="muted" style="display:none;margin-top:6px"></div>
     <div class="btns">
       <button id="cmp-start" class="primary">🧭 Başlat</button>
       <button id="cmp-stop" disabled>■ Durdur</button>
     </div>
-    <div class="muted" id="cmp-status">iOS'ta izin istemeniz gerekir. Telefonu düz tutun ve 8 çizer gibi hareket ettirerek kalibre edin.</div>
+    <div class="btns">
+      <button id="cmp-qibla">🕋 Konumdan Kıble</button>
+    </div>
+    <div class="muted" id="cmp-status">iOS'ta izin istenir. Telefonu 8 çizer gibi hareket ettirerek kalibre edin.</div>
   </div>
 </section>
 
@@ -364,7 +674,7 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
 <section class="panel" id="panel-ruler">
   <div class="card">
     <h2>Kalibrasyon</h2>
-    <div class="muted" style="margin-top:0">Aşağıdaki çubuğu gerçek bir kredi kartının <b>kısa kenarına (53,98 mm)</b> denk getirene kadar kaydırıcıyı ayarlayın.</div>
+    <div class="muted" style="margin-top:0">Aşağıdaki çubuğu <b>kredi kartının kısa kenarına (53,98 mm)</b> denk getirene kadar kaydırıcıyı ayarlayın.</div>
     <div class="calbox"><div id="cal-ref"></div></div>
     <input type="range" id="cal" min="2.5" max="7.5" step="0.005" value="3.7795">
     <div class="muted">Şu an: <b id="cal-v">3.78</b> px/mm</div>
@@ -378,47 +688,388 @@ video{width:100%;aspect-ratio:1/1;object-fit:cover;background:#000;border-radius
     <h2>İnç</h2>
     <div class="ruler" id="ruler-in"></div>
   </div>
-  <div class="muted">Kalibrasyon cihazınıza kaydedilir. Doğru ölçüm için kalibrasyonu bir kez yapmanız yeterlidir.</div>
+</section>
+
+<!-- ============ HIZ GÖSTERGESİ ============ -->
+<section class="panel" id="panel-speed">
+  <div class="card">
+    <h2>Hız Göstergesi</h2>
+    <div class="spd-gauge">
+      <svg viewBox="0 0 200 200">
+        <defs>
+          <linearGradient id="spdGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#22c55e"/>
+            <stop offset="50%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#ef4444"/>
+          </linearGradient>
+        </defs>
+        <circle cx="100" cy="100" r="80" fill="none" stroke="#1e242f" stroke-width="12"/>
+        <circle id="spd-arc" cx="100" cy="100" r="80" fill="none"
+                stroke="url(#spdGrad)" stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="377 502" stroke-dashoffset="0"/>
+      </svg>
+      <div class="spd-val">
+        <b id="spd-val">0</b>
+        <small>KM/SA</small>
+      </div>
+    </div>
+
+    <div class="row" style="text-align:center">
+      <div><div class="muted">Maks</div><div style="font-weight:800" id="spd-max">0</div></div>
+      <div><div class="muted">Ort</div><div style="font-weight:800" id="spd-avg">0</div></div>
+      <div><div class="muted">Mesafe</div><div style="font-weight:800" id="spd-dist">0 m</div></div>
+    </div>
+
+    <div class="btns">
+      <button id="spd-start" class="primary">▶ Başlat</button>
+      <button id="spd-stop" disabled>■ Durdur</button>
+      <button id="spd-reset">↺ Sıfırla</button>
+    </div>
+    <div class="muted" id="spd-status">GPS ile hız ölçümü. Açık alanda daha doğru sonuç verir.</div>
+  </div>
+</section>
+
+<!-- ============ AY EVRESİ ============ -->
+<section class="panel" id="panel-moon">
+  <div class="card">
+    <h2>Ay Evresi</h2>
+    <div class="moon-wrap">
+      <div class="moon-visual">
+        <div class="lit" id="moon-lit"></div>
+        <div class="shadow" id="moon-shadow"></div>
+      </div>
+      <div class="moon-emoji" id="moon-emoji">🌕</div>
+      <div class="moon-name" id="moon-name">Dolunay</div>
+      <div class="badge accent" id="moon-pct">%100 aydınlık</div>
+    </div>
+    <div class="row" style="text-align:center">
+      <div><div class="muted">Ay Yaşı</div><div style="font-weight:700" id="moon-age">—</div></div>
+      <div><div class="muted">Sonraki Dolunay</div><div style="font-weight:700" id="moon-next-full">—</div></div>
+      <div><div class="muted">Sonraki Yeni Ay</div><div style="font-weight:700" id="moon-next-new">—</div></div>
+    </div>
+    <label>Tarih Seç (opsiyonel)</label>
+    <input type="date" id="moon-date">
+    <div class="btns">
+      <button id="moon-today" class="primary">📅 Bugüne Dön</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OTP / TOTP ============ -->
+<section class="panel" id="panel-otp">
+  <div class="card">
+    <h2>Aktif Kod</h2>
+    <div class="otp-code" id="otp-code">------</div>
+    <div class="otp-timer"><div id="otp-timer-fill"></div></div>
+    <div class="center muted" id="otp-remain">— saniye kaldı</div>
+    <div class="btns">
+      <button id="otp-copy" class="primary">📋 Kopyala</button>
+      <button id="otp-add-open">➕ Yeni Ekle</button>
+    </div>
+  </div>
+
+  <div class="card" id="otp-add-card" style="display:none">
+    <h2>Yeni Hesap Ekle</h2>
+    <label>Hesap Adı</label>
+    <input type="text" id="otp-name" placeholder="ör. GitHub">
+    <label>Secret (Base32)</label>
+    <input type="text" id="otp-secret" placeholder="JBSWY3DPEHPK3PXP" autocapitalize="characters" autocorrect="off" spellcheck="false">
+    <div class="grid3" style="margin-top:8px">
+      <div><label>Rakam</label>
+        <select id="otp-digits"><option>6</option><option>8</option></select>
+      </div>
+      <div><label>Periyot</label>
+        <select id="otp-period"><option>30</option><option>60</option></select>
+      </div>
+      <div><label>Algoritma</label>
+        <select id="otp-algo"><option>SHA-1</option><option>SHA-256</option><option>SHA-512</option></select>
+      </div>
+    </div>
+    <div class="btns">
+      <button id="otp-save" class="primary">💾 Kaydet</button>
+      <button id="otp-cancel">İptal</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Kayıtlı Hesaplar</h2>
+    <div id="otp-list"></div>
+    <div class="muted">Secret'lar yalnızca bu cihazda tarayıcı deposunda tutulur. Yedeklemek için dışa aktarın.</div>
+    <div class="btns">
+      <button id="otp-export">📤 Dışa Aktar</button>
+      <button id="otp-import">📥 İçe Aktar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BEYAZ GÜRÜLTÜ ============ -->
+<section class="panel" id="panel-noise">
+  <div class="card">
+    <h2>Beyaz Gürültü & Renkler</h2>
+    <div class="noise-visual" id="noise-visual"></div>
+
+    <div class="noise-preset-grid">
+      <button data-noise="white" class="active"><span>⚪</span><span>Beyaz</span></button>
+      <button data-noise="pink"><span>🌸</span><span>Pembe</span></button>
+      <button data-noise="brown"><span>🟤</span><span>Kahverengi</span></button>
+      <button data-noise="rain"><span>🌧️</span><span>Yağmur</span></button>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <label>Hacim: <b id="noise-vol-v">40</b>%</label>
+        <input type="range" id="noise-vol" min="0" max="100" value="40">
+      </div>
+      <div>
+        <label>Uyku Zamanlayıcı</label>
+        <select id="noise-timer">
+          <option value="0">Kapalı</option>
+          <option value="5">5 dk</option>
+          <option value="10">10 dk</option>
+          <option value="15">15 dk</option>
+          <option value="30">30 dk</option>
+          <option value="60">1 saat</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button id="noise-start" class="primary">▶ Çal</button>
+      <button id="noise-stop" disabled>■ Durdur</button>
+    </div>
+    <div class="muted" id="noise-status">Odaklanmak, uyumak veya bebeği sakinleştirmek için ideal.</div>
+  </div>
+</section>
+
+<!-- ============ MESAFE & ALAN ============ -->
+<section class="panel" id="panel-tracker">
+  <div class="card">
+    <h2>Mesafe & Alan Ölçer</h2>
+    <canvas id="trk-canvas" width="600" height="600"></canvas>
+
+    <div class="row" style="margin-top:12px; text-align:center">
+      <div><div class="muted">Mesafe</div><div style="font-weight:800;font-size:1.1rem" id="trk-dist">0 m</div></div>
+      <div><div class="muted">Alan</div><div style="font-weight:800;font-size:1.1rem" id="trk-area">0 m²</div></div>
+      <div><div class="muted">Nokta</div><div style="font-weight:800;font-size:1.1rem" id="trk-pts">0</div></div>
+    </div>
+
+    <div class="btns">
+      <button id="trk-start" class="primary">▶ Yürüyüşü Başlat</button>
+      <button id="trk-stop" disabled>■ Durdur</button>
+    </div>
+    <div class="btns">
+      <button id="trk-add">📍 Nokta Ekle</button>
+      <button id="trk-undo">↶ Geri Al</button>
+      <button id="trk-clear" class="danger">🗑 Temizle</button>
+    </div>
+    <div class="muted" id="trk-status">Başlat: GPS noktalarını otomatik kaydeder · Nokta Ekle: alan ölçümü için köşeleri işaretle.</div>
+  </div>
+</section>
+
+<!-- ============ KELİME EZBERLEYİCİ ============ -->
+<section class="panel" id="panel-vocab">
+  <div class="card">
+    <h2>Alıştırma</h2>
+    <div class="vocab-card">
+      <div class="vocab-q" id="vocab-q">Hazır mısın?</div>
+      <div class="vocab-a" id="vocab-a"></div>
+      <div class="vocab-stats">
+        <span class="badge" id="vocab-progress">0 / 0</span>
+        <span class="badge ok" id="vocab-right">✓ 0</span>
+        <span class="badge bad" id="vocab-wrong">✗ 0</span>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button id="vocab-show" class="primary">👁 Cevabı Göster</button>
+    </div>
+    <div class="btns">
+      <button id="vocab-again" class="danger">😵 Bilemedim</button>
+      <button id="vocab-know" class="ok">😎 Biliyorum</button>
+    </div>
+    <div class="btns">
+      <button id="vocab-skip">⏭ Atla</button>
+      <button id="vocab-shuffle">🔀 Karıştır</button>
+    </div>
+    <div class="muted center" id="vocab-msg">Listeden başlayın veya kendi kelimelerinizi ekleyin.</div>
+  </div>
+
+  <div class="card">
+    <h2>Kelime Ekle</h2>
+    <div class="row">
+      <input type="text" id="vocab-nq" placeholder="Soru (ör. apple)" autocapitalize="off">
+      <input type="text" id="vocab-na" placeholder="Cevap (ör. elma)" autocapitalize="off">
+    </div>
+    <div class="btns">
+      <button id="vocab-add" class="primary">➕ Ekle</button>
+      <button id="vocab-load" class="ok">📚 Örnek Yükle</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Kelime Listesi</h2>
+    <div class="vocab-list" id="vocab-list"></div>
+    <div class="btns">
+      <button id="vocab-export">📤 Dışa Aktar</button>
+      <button id="vocab-import">📥 İçe Aktar</button>
+      <button id="vocab-clear-all" class="danger">🗑 Tümünü Sil</button>
+    </div>
+    <div class="muted" id="vocab-count">0 kelime</div>
+  </div>
 </section>
 
 </main>
 
 <script>
-/* ==========================================================
-   SEKME YÖNETİMİ
-   ========================================================== */
-const tabs = document.querySelectorAll('.tab');
-const panels = document.querySelectorAll('.panel');
+/* ============================================================
+   ARAÇ TANIMLARI + HAMBURGER MENÜ
+   ============================================================ */
+const TOOLS = [
+  // Ölçüm & Sensör
+  {id:'compass', name:'Pusula & Kıble',  icon:'🧭', group:'Ölçüm & Sensör'},
+  {id:'speed',   name:'Hız Göstergesi',  icon:'🏎️', group:'Ölçüm & Sensör'},
+  {id:'tracker', name:'Mesafe & Alan',   icon:'🗺️', group:'Ölçüm & Sensör'},
+  {id:'ruler',   name:'Cetvel',          icon:'📐', group:'Ölçüm & Sensör'},
+  {id:'sound',   name:'Ses Ölçer',       icon:'🔊', group:'Ölçüm & Sensör'},
+  // Zaman & Odak
+  {id:'pomo',    name:'Pomodoro',        icon:'🍅', group:'Zaman & Odak'},
+  {id:'metro',   name:'Metronom',        icon:'🎵', group:'Zaman & Odak'},
+  {id:'noise',   name:'Beyaz Gürültü',   icon:'🎧', group:'Zaman & Odak'},
+  {id:'moon',    name:'Ay Evresi',       icon:'🌙', group:'Zaman & Odak'},
+  // Araçlar
+  {id:'conv',    name:'Birim Çevirici',  icon:'📏', group:'Araçlar'},
+  {id:'pass',    name:'Şifre Oluşturucu',icon:'🔑', group:'Araçlar'},
+  {id:'b64',     name:'Base64',          icon:'🔤', group:'Araçlar'},
+  {id:'otp',     name:'OTP / TOTP',      icon:'🔐', group:'Araçlar'},
+  // Medya & Bağlantı
+  {id:'qr',      name:'QR Okuyucu',      icon:'📷', group:'Medya & Bağlantı'},
+  // Eğlence & Öğrenme
+  {id:'mem',     name:'Kart Hafıza',     icon:'🃏', group:'Eğlence & Öğrenme'},
+  {id:'vocab',   name:'Kelime Ezberleyici',icon:'🧠', group:'Eğlence & Öğrenme'}
+];
+
+const toolMap = Object.fromEntries(TOOLS.map(t => [t.id, t]));
+
+// Menüyü gruplu oluştur
+(function buildMenu(){
+  const menu = document.getElementById('menu');
+  const groups = {};
+  TOOLS.forEach(t => {
+    if (!groups[t.group]) groups[t.group] = [];
+    groups[t.group].push(t);
+  });
+  Object.entries(groups).forEach(([gname, items]) => {
+    const g = document.createElement('div');
+    g.className = 'menu-group';
+    const title = document.createElement('div');
+    title.className = 'menu-group-title';
+    title.textContent = gname;
+    g.appendChild(title);
+    items.forEach(it => {
+      const b = document.createElement('button');
+      b.className = 'menu-item';
+      b.dataset.tab = it.id;
+      b.innerHTML = `<span class="mi-icon">${it.icon}</span><span class="mi-name">${it.name}</span>`;
+      b.addEventListener('click', () => { showTab(it.id); closeDrawer(); });
+      g.appendChild(b);
+    });
+    menu.appendChild(g);
+  });
+})();
+
+/* Drawer kontrol */
+const body = document.body;
+function openDrawer(){ body.classList.add('menu-open'); }
+function closeDrawer(){ body.classList.remove('menu-open'); }
+document.getElementById('menuBtn').addEventListener('click', () => {
+  body.classList.contains('menu-open') ? closeDrawer() : openDrawer();
+});
+document.getElementById('scrim').addEventListener('click', closeDrawer);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+/* ============================================================
+   SEKME GEÇİŞİ
+   ============================================================ */
+let currentTab = 'conv';
 
 function showTab(id){
-  tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === id));
-  panels.forEach(p => p.classList.toggle('active', p.id === 'panel-' + id));
-  // Sekmeden çıkınca kaynakları serbest bırak
-  if (id !== 'qr') qrStop();
-  if (id !== 'sound') soundStop();
-  if (id !== 'metro') metroStop();
-  if (id !== 'compass') compassStop();
-  if (id === 'ruler') buildRulers();
-  const active = document.querySelector('.tab.active');
-  if (active) active.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
-}
-tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+  if (!toolMap[id]) return;
+  // Eski sekmenin kaynaklarını serbest bırak
+  if (currentTab !== id){
+    if (currentTab === 'qr') qrStop();
+    if (currentTab === 'sound') soundStop();
+    if (currentTab === 'metro') metroStop();
+    if (currentTab === 'compass') compassStop();
+    if (currentTab === 'speed') spdStop();
+    if (currentTab === 'tracker') trkStop();
+    if (currentTab === 'noise') noiseStop();
+  }
+  currentTab = id;
 
-/* Yardımcılar */
+  document.querySelectorAll('.panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'panel-' + id);
+  });
+  document.querySelectorAll('.menu-item').forEach(m => {
+    m.classList.toggle('active', m.dataset.tab === id);
+  });
+  document.getElementById('appbarTitle').textContent = toolMap[id].name;
+  document.getElementById('appbarIcon').textContent = toolMap[id].icon;
+  window.scrollTo({top:0, behavior:'instant'});
+
+  // Sekmeye özel init
+  if (id === 'ruler') buildRulers();
+  if (id === 'moon') moonRender();
+  if (id === 'otp') otpRender();
+  if (id === 'vocab') vocabRenderList();
+}
+
+/* ============================================================
+   YARDIMCILAR
+   ============================================================ */
 function copyText(txt, btn){
-  const done = () => { if(!btn) return; const o = btn.textContent; btn.textContent='✓ Kopyalandı'; setTimeout(()=>btn.textContent=o,1200); };
+  if (!txt) return;
+  const done = () => {
+    if (!btn) return;
+    const o = btn.textContent;
+    btn.textContent = '✓ Kopyalandı';
+    setTimeout(() => btn.textContent = o, 1200);
+  };
   if (navigator.clipboard && window.isSecureContext){
-    navigator.clipboard.writeText(txt).then(done).catch(()=>fallback());
+    navigator.clipboard.writeText(txt).then(done).catch(fallback);
   } else fallback();
   function fallback(){
     const ta = document.createElement('textarea');
-    ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); done(); }catch(e){ alert('Kopyalanamadı'); }
+    try { document.execCommand('copy'); done(); } catch(e){ alert('Kopyalanamadı'); }
     document.body.removeChild(ta);
   }
 }
-
+function fmt(n){
+  if (!isFinite(n)) return '—';
+  if (n === 0) return '0';
+  const a = Math.abs(n);
+  if (a >= 1e15 || a < 1e-9) return n.toExponential(6);
+  let s = n.toPrecision(10);
+  if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  return s;
+}
+function fmtDist(m){
+  if (m < 1000) return m.toFixed(m < 10 ? 1 : 0) + ' m';
+  return (m / 1000).toFixed(2) + ' km';
+}
+function fmtArea(m2){
+  if (m2 < 10000) return m2.toFixed(m2 < 100 ? 2 : 0) + ' m²';
+  if (m2 < 1e6) return (m2 / 10000).toFixed(3) + ' ha';
+  return (m2 / 1e6).toFixed(3) + ' km²';
+}
+function randInt(max){
+  const a = new Uint32Array(1);
+  const limit = Math.floor(0xFFFFFFFF / max) * max;
+  let v;
+  do { crypto.getRandomValues(a); v = a[0]; } while (v >= limit);
+  return v % max;
+}
 let beepCtx = null;
 function beep(times = 3, freq = 880){
   try{
@@ -427,8 +1078,7 @@ function beep(times = 3, freq = 880){
     for (let i = 0; i < times; i++){
       const t = beepCtx.currentTime + i * 0.28;
       const o = beepCtx.createOscillator(), g = beepCtx.createGain();
-      o.type = 'sine';
-      o.frequency.value = freq;
+      o.type = 'sine'; o.frequency.value = freq;
       g.gain.setValueAtTime(0.0001, t);
       g.gain.exponentialRampToValueAtTime(0.45, t + 0.012);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
@@ -438,22 +1088,21 @@ function beep(times = 3, freq = 880){
   }catch(e){}
 }
 
-/* ==========================================================
+/* ============================================================
    1) BİRİM ÇEVİRİCİ
-   ========================================================== */
+   ============================================================ */
 const UC_DATA = {
-  length: { ad:'Uzunluk', u:{ 'Milimetre (mm)':0.001, 'Santimetre (cm)':0.01, 'Metre (m)':1, 'Kilometre (km)':1000, 'İnç (in)':0.0254, 'Fit (ft)':0.3048, 'Yarda (yd)':0.9144, 'Mil (mi)':1609.344, 'Deniz mili':1852 } },
-  mass:   { ad:'Ağırlık', u:{ 'Miligram (mg)':1e-6, 'Gram (g)':0.001, 'Kilogram (kg)':1, 'Ton (t)':1000, 'Ons (oz)':0.028349523125, 'Pound (lb)':0.45359237, 'Taş (st)':6.35029318 } },
-  area:   { ad:'Alan', u:{ 'mm²':1e-6, 'cm²':1e-4, 'm²':1, 'km²':1e6, 'Hektar (ha)':10000, 'Dönüm':1000, 'Acre':4046.8564224, 'ft²':0.09290304, 'in²':0.00064516 } },
-  volume: { ad:'Hacim', u:{ 'Mililitre (ml)':0.001, 'Litre (L)':1, 'm³':1000, 'Galon (US)':3.785411784, 'Quart (US)':0.946352946, 'Pint (US)':0.473176473, 'Fl oz (US)':0.0295735295625, 'Su bardağı (US)':0.2365882365 } },
-  speed:  { ad:'Hız', u:{ 'm/s':1, 'km/sa':0.2777777778, 'mph':0.44704, 'Knot':0.5144444444, 'ft/s':0.3048 } },
-  time:   { ad:'Zaman', u:{ 'Milisaniye':0.001, 'Saniye':1, 'Dakika':60, 'Saat':3600, 'Gün':86400, 'Hafta':604800, 'Yıl (365g)':31536000 } },
-  data:   { ad:'Veri', u:{ 'Bit':0.125, 'Bayt (B)':1, 'Kilobayt (KB)':1024, 'Megabayt (MB)':1048576, 'Gigabayt (GB)':1073741824, 'Terabayt (TB)':1099511627776, 'Kibibit':128, 'Mebibit':131072 } },
-  pressure:{ ad:'Basınç', u:{ 'Pascal (Pa)':1, 'Kilopascal (kPa)':1000, 'Bar':100000, 'Atmosfer (atm)':101325, 'PSI':6894.757293168, 'mmHg':133.322387415, 'mbar':100 } },
-  energy: { ad:'Enerji', u:{ 'Joule (J)':1, 'Kilojoule (kJ)':1000, 'Kalori (cal)':4.184, 'Kilokalori (kcal)':4184, 'Watt-saat (Wh)':3600, 'Kilowatt-saat (kWh)':3600000 } },
-  temp:   { ad:'Sıcaklık', u:{ 'Celsius (°C)':1, 'Fahrenheit (°F)':1, 'Kelvin (K)':1 } }
+  length:{ad:'Uzunluk',u:{'Milimetre (mm)':0.001,'Santimetre (cm)':0.01,'Metre (m)':1,'Kilometre (km)':1000,'İnç (in)':0.0254,'Fit (ft)':0.3048,'Yarda (yd)':0.9144,'Mil (mi)':1609.344,'Deniz mili':1852}},
+  mass:{ad:'Ağırlık',u:{'Miligram (mg)':1e-6,'Gram (g)':0.001,'Kilogram (kg)':1,'Ton (t)':1000,'Ons (oz)':0.028349523125,'Pound (lb)':0.45359237,'Taş (st)':6.35029318}},
+  area:{ad:'Alan',u:{'mm²':1e-6,'cm²':1e-4,'m²':1,'km²':1e6,'Hektar (ha)':10000,'Dönüm':1000,'Acre':4046.8564224,'ft²':0.09290304,'in²':0.00064516}},
+  volume:{ad:'Hacim',u:{'Mililitre (ml)':0.001,'Litre (L)':1,'m³':1000,'Galon (US)':3.785411784,'Quart (US)':0.946352946,'Pint (US)':0.473176473,'Fl oz (US)':0.0295735295625,'Su bardağı (US)':0.2365882365}},
+  speed:{ad:'Hız',u:{'m/s':1,'km/sa':0.2777777778,'mph':0.44704,'Knot':0.5144444444,'ft/s':0.3048}},
+  time:{ad:'Zaman',u:{'Milisaniye':0.001,'Saniye':1,'Dakika':60,'Saat':3600,'Gün':86400,'Hafta':604800,'Yıl (365g)':31536000}},
+  data:{ad:'Veri',u:{'Bit':0.125,'Bayt (B)':1,'Kilobayt (KB)':1024,'Megabayt (MB)':1048576,'Gigabayt (GB)':1073741824,'Terabayt (TB)':1099511627776}},
+  pressure:{ad:'Basınç',u:{'Pascal (Pa)':1,'Kilopascal (kPa)':1000,'Bar':100000,'Atmosfer (atm)':101325,'PSI':6894.757293168,'mmHg':133.322387415,'mbar':100}},
+  energy:{ad:'Enerji',u:{'Joule (J)':1,'Kilojoule (kJ)':1000,'Kalori (cal)':4.184,'Kilokalori (kcal)':4184,'Watt-saat (Wh)':3600,'Kilowatt-saat (kWh)':3600000}},
+  temp:{ad:'Sıcaklık',u:{'Celsius (°C)':1,'Fahrenheit (°F)':1,'Kelvin (K)':1}}
 };
-
 const ucCat = document.getElementById('uc-cat');
 const ucFrom = document.getElementById('uc-from');
 const ucTo = document.getElementById('uc-to');
@@ -466,7 +1115,6 @@ Object.keys(UC_DATA).forEach(k => {
   o.value = k; o.textContent = UC_DATA[k].ad;
   ucCat.appendChild(o);
 });
-
 function ucFillUnits(){
   const cat = ucCat.value;
   const units = Object.keys(UC_DATA[cat].u);
@@ -478,7 +1126,6 @@ function ucFillUnits(){
   ucTo.selectedIndex = Math.min(1, units.length - 1);
   ucCompute();
 }
-
 function ucConvert(v, from, to, cat){
   if (cat === 'temp'){
     let c;
@@ -492,34 +1139,17 @@ function ucConvert(v, from, to, cat){
   const u = UC_DATA[cat].u;
   return v * u[from] / u[to];
 }
-
-function fmt(n){
-  if (!isFinite(n)) return '—';
-  if (n === 0) return '0';
-  const a = Math.abs(n);
-  if (a >= 1e15 || a < 1e-9) return n.toExponential(6);
-  let s = n.toPrecision(10);
-  if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
-  return s;
-}
-
 function ucCompute(){
   const cat = ucCat.value;
   const v = parseFloat(ucVal.value);
   if (isNaN(v)){ ucOut.value = ''; ucAll.textContent = ''; return; }
   const from = ucFrom.value, to = ucTo.value;
-  const r = ucConvert(v, from, to, cat);
-  ucOut.value = fmt(r);
-
-  // Tüm birimlerde gösterim
+  ucOut.value = fmt(ucConvert(v, from, to, cat));
   const units = Object.keys(UC_DATA[cat].u);
-  const lines = units
-    .filter(u => u !== from)
+  ucAll.innerHTML = units.filter(u => u !== from).slice(0, 8)
     .map(u => `1 ${from.split(' (')[0]} = <b>${fmt(ucConvert(1, from, u, cat))}</b> ${u.split(' (')[0]}`)
-    .slice(0, 8);
-  ucAll.innerHTML = lines.join('<br>');
+    .join('<br>');
 }
-
 ucCat.addEventListener('change', ucFillUnits);
 [ucVal, ucFrom, ucTo].forEach(el => el.addEventListener('input', ucCompute));
 ucFrom.addEventListener('change', ucCompute);
@@ -531,14 +1161,14 @@ document.getElementById('uc-swap').addEventListener('click', () => {
 document.getElementById('uc-copy').addEventListener('click', e => copyText(ucOut.value, e.target));
 ucFillUnits();
 
-/* ==========================================================
+/* ============================================================
    2) QR OKUYUCU
-   ========================================================== */
+   ============================================================ */
 const qrVideo = document.getElementById('qr-video');
 const qrStatus = document.getElementById('qr-status');
 const qrResCard = document.getElementById('qr-rescard');
 const qrResult = document.getElementById('qr-result');
-let qrStream = null, qrRAF = null, qrDetector = null, qrLib = null, qrFacing = 'environment', qrLastScan = 0;
+let qrStream = null, qrRAF = null, qrDetector = null, qrFacing = 'environment', qrLastScan = 0;
 
 function loadScript(src){
   return new Promise((res, rej) => {
@@ -547,7 +1177,6 @@ function loadScript(src){
     document.head.appendChild(s);
   });
 }
-
 async function qrStart(){
   if (qrStream) return;
   qrStatus.textContent = 'Kamera başlatılıyor…';
@@ -557,34 +1186,29 @@ async function qrStart(){
       audio: false
     });
   }catch(err){
-    qrStatus.textContent = '❌ Kamera açılamadı: ' + err.message + ' — HTTPS gerekebilir. Görselden okumayı deneyin.';
+    qrStatus.textContent = '❌ Kamera açılamadı: ' + err.message;
     return;
   }
   qrVideo.srcObject = qrStream;
   await qrVideo.play().catch(()=>{});
-
-  // Tarayıcı yerel desteği
   qrDetector = null;
   if ('BarcodeDetector' in window){
     try{
       const sup = await window.BarcodeDetector.getSupportedFormats();
       if (sup.includes('qr_code')) qrDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
-    }catch(e){ qrDetector = null; }
+    }catch(e){}
   }
-  // Yedek: jsQR
   if (!qrDetector && !window.jsQR){
     qrStatus.textContent = 'Tarama kütüphanesi yükleniyor…';
     try{ await loadScript('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'); }
-    catch(e){ qrStatus.textContent = '❌ Tarama kütüphanesi yüklenemedi (çevrimdışı). Görselden okumayı kullanın.'; }
+    catch(e){ qrStatus.textContent = '❌ Kütüphane yüklenemedi. Görselden okumayı kullanın.'; }
   }
-
   document.getElementById('qr-start').disabled = true;
   document.getElementById('qr-stop').disabled = false;
-  qrStatus.textContent = '🔍 QR kod aranıyor… Kodu çerçeveye getirin.';
+  qrStatus.textContent = '🔍 QR kod aranıyor…';
   qrLastScan = 0;
   qrLoop();
 }
-
 function qrStop(){
   if (qrRAF){ cancelAnimationFrame(qrRAF); qrRAF = null; }
   if (qrStream){ qrStream.getTracks().forEach(t => t.stop()); qrStream = null; }
@@ -592,19 +1216,15 @@ function qrStop(){
   const s = document.getElementById('qr-start'), t = document.getElementById('qr-stop');
   if (s) s.disabled = false;
   if (t) t.disabled = true;
-  if (qrStatus && qrStatus.textContent.startsWith('🔍')) qrStatus.textContent = 'Durduruldu.';
 }
-
 const qrCanvas = document.createElement('canvas');
 const qrCtx = qrCanvas.getContext('2d', { willReadFrequently: true });
-
 function qrLoop(){
   qrRAF = requestAnimationFrame(qrLoop);
   const now = performance.now();
   if (now - qrLastScan < 180) return;
   qrLastScan = now;
   if (!qrVideo.videoWidth) return;
-
   (async () => {
     try{
       let code = null;
@@ -620,10 +1240,9 @@ function qrLoop(){
         if (r && r.data) code = r.data;
       }
       if (code) qrShow(code, true);
-    }catch(e){ /* yoksay */ }
+    }catch(e){}
   })();
 }
-
 function qrShow(text, vibrate){
   qrResult.value = text;
   qrResCard.style.display = 'block';
@@ -632,7 +1251,6 @@ function qrShow(text, vibrate){
   beep(1, 1200);
   qrStop();
 }
-
 async function qrDecodeImage(file){
   const img = new Image();
   img.onload = async () => {
@@ -659,19 +1277,17 @@ async function qrDecodeImage(file){
       }
     }
     if (code) qrShow(code, false);
-    else { qrStatus.textContent = '❌ Görselde QR kod bulunamadı.'; }
+    else qrStatus.textContent = '❌ Görselde QR kod bulunamadı.';
     URL.revokeObjectURL(img.src);
   };
   img.onerror = () => { qrStatus.textContent = '❌ Görsel yüklenemedi.'; };
   img.src = URL.createObjectURL(file);
 }
-
 document.getElementById('qr-start').addEventListener('click', qrStart);
 document.getElementById('qr-stop').addEventListener('click', qrStop);
 document.getElementById('qr-switch').addEventListener('click', () => {
   qrFacing = qrFacing === 'environment' ? 'user' : 'environment';
-  qrStop();
-  setTimeout(qrStart, 250);
+  qrStop(); setTimeout(qrStart, 250);
 });
 document.getElementById('qr-file').addEventListener('change', e => {
   if (e.target.files[0]) qrDecodeImage(e.target.files[0]);
@@ -684,20 +1300,19 @@ document.getElementById('qr-open').addEventListener('click', () => {
   else alert('Bu bir bağlantı değil.');
 });
 
-/* ==========================================================
+/* ============================================================
    3) POMODORO
-   ========================================================== */
-const POMO = { work: 25, short: 5, long: 15, every: 4, auto: true };
-let pomoMode = 'work', pomoLeft = 25 * 60, pomoTotal = 25 * 60, pomoRunning = false, pomoEnd = 0, pomoTimer = null, pomoRound = 0;
+   ============================================================ */
+const POMO = { work:25, short:5, long:15, every:4, auto:true };
+let pomoMode = 'work', pomoLeft = 1500, pomoTotal = 1500;
+let pomoRunning = false, pomoEnd = 0, pomoTimer = null, pomoRound = 0;
 
 const pomoTimeEl = document.getElementById('pomo-time');
 const pomoBarEl = document.getElementById('pomo-bar');
 const pomoInfoEl = document.getElementById('pomo-info');
 const pomoStartBtn = document.getElementById('pomo-start');
 
-function pomoDur(m){
-  return (POMO[m] || 25) * 60;
-}
+function pomoDur(m){ return (POMO[m] || 25) * 60; }
 function pomoRender(){
   const m = Math.floor(pomoLeft / 60), s = Math.floor(pomoLeft % 60);
   pomoTimeEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
@@ -745,19 +1360,13 @@ function pomoFinish(){
   pomoStartBtn.classList.add('primary');
   beep(3, 880);
   if (navigator.vibrate) navigator.vibrate([200,100,200,100,200]);
-
   let next;
-  if (pomoMode === 'work'){
-    pomoRound++;
-    next = (pomoRound % POMO.every === 0) ? 'long' : 'short';
-  } else {
-    next = 'work';
-  }
+  if (pomoMode === 'work'){ pomoRound++; next = (pomoRound % POMO.every === 0) ? 'long' : 'short'; }
+  else next = 'work';
   pomoSetMode(next, false);
   pomoInfoEl.textContent = `Tur ${pomoRound} tamamlandı → ${next === 'work' ? 'Çalışma' : next === 'short' ? 'Kısa mola' : 'Uzun mola'}`;
   if (POMO.auto) setTimeout(pomoStart, 800);
 }
-
 pomoStartBtn.addEventListener('click', () => pomoRunning ? pomoPause() : pomoStart());
 document.getElementById('pomo-reset').addEventListener('click', pomoReset);
 document.getElementById('pomo-skip').addEventListener('click', () => { clearInterval(pomoTimer); pomoFinish(); });
@@ -777,32 +1386,21 @@ function pomoReadDurations(){
 document.getElementById('pomo-auto').addEventListener('change', pomoReadDurations);
 pomoRender();
 
-/* ==========================================================
+/* ============================================================
    4) ŞİFRE ÜRETİCİ
-   ========================================================== */
+   ============================================================ */
 const PASS_SETS = {
-  lower: 'abcdefghijklmnopqrstuvwxyz',
-  upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  digit: '0123456789',
-  sym:   '!@#$%^&*()-_=+[]{};:,.?/~'
+  lower:'abcdefghijklmnopqrstuvwxyz',
+  upper:'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  digit:'0123456789',
+  sym:'!@#$%^&*()-_=+[]{};:,.?/~'
 };
 const SIMILAR = /[il1Lo0O]/g;
-
 const passOut = document.getElementById('pass-out');
 const passStrength = document.getElementById('pass-strength');
 const passLen = document.getElementById('pass-len');
 const passLenV = document.getElementById('pass-len-v');
-
 passLen.addEventListener('input', () => { passLenV.textContent = passLen.value; });
-
-function randInt(max){
-  const a = new Uint32Array(1);
-  const limit = Math.floor(0xFFFFFFFF / max) * max;
-  let v;
-  do { crypto.getRandomValues(a); v = a[0]; } while (v >= limit);
-  return v % max;
-}
-
 function genPassword(){
   const len = +passLen.value;
   const noSim = document.getElementById('pass-nosim').checked;
@@ -811,39 +1409,29 @@ function genPassword(){
   if (document.getElementById('pass-upper').checked) active.push('upper');
   if (document.getElementById('pass-digit').checked) active.push('digit');
   if (document.getElementById('pass-sym').checked)   active.push('sym');
-
   if (!active.length){
-    passOut.textContent = '⚠️ En az bir karakter seti seçin';
-    passStrength.textContent = '—';
-    passStrength.className = 'badge';
-    return;
+    passOut.textContent = '⚠️ En az bir set seçin';
+    passStrength.textContent = '—'; passStrength.className = 'badge'; return;
   }
-
-  let sets = active.map(k => noSim ? PASS_SETS[k].replace(SIMILAR, '') : PASS_SETS[k]);
+  const sets = active.map(k => noSim ? PASS_SETS[k].replace(SIMILAR, '') : PASS_SETS[k]);
   const all = sets.join('');
   const chars = [];
-  // Her setten en az bir karakter
   sets.forEach(s => { if (chars.length < len) chars.push(s[randInt(s.length)]); });
   while (chars.length < len) chars.push(all[randInt(all.length)]);
-  // Karıştır
   for (let i = chars.length - 1; i > 0; i--){
     const j = randInt(i + 1);
     [chars[i], chars[j]] = [chars[j], chars[i]];
   }
-  const pwd = chars.join('');
-  passOut.textContent = pwd;
-
-  // Entropi
+  passOut.textContent = chars.join('');
   const entropy = len * Math.log2(all.length);
   let label, cls;
-  if (entropy < 45) { label = 'Zayıf (' + Math.round(entropy) + ' bit)'; cls = 'badge bad'; }
-  else if (entropy < 70) { label = 'Orta (' + Math.round(entropy) + ' bit)'; cls = 'badge warn'; }
-  else if (entropy < 100) { label = 'Güçlü (' + Math.round(entropy) + ' bit)'; cls = 'badge ok'; }
+  if (entropy < 45){ label = 'Zayıf (' + Math.round(entropy) + ' bit)'; cls = 'badge bad'; }
+  else if (entropy < 70){ label = 'Orta (' + Math.round(entropy) + ' bit)'; cls = 'badge warn'; }
+  else if (entropy < 100){ label = 'Güçlü (' + Math.round(entropy) + ' bit)'; cls = 'badge ok'; }
   else { label = 'Çok güçlü (' + Math.round(entropy) + ' bit)'; cls = 'badge ok'; }
   passStrength.textContent = label;
   passStrength.className = cls;
 }
-
 document.getElementById('pass-gen').addEventListener('click', genPassword);
 document.getElementById('pass-copy').addEventListener('click', e => {
   const t = passOut.textContent;
@@ -853,13 +1441,12 @@ document.getElementById('pass-copy').addEventListener('click', e => {
   document.getElementById(id).addEventListener('change', genPassword));
 genPassword();
 
-/* ==========================================================
+/* ============================================================
    5) BASE64
-   ========================================================== */
+   ============================================================ */
 const b64In = document.getElementById('b64-in');
 const b64Out = document.getElementById('b64-out');
 const b64Url = document.getElementById('b64-url');
-
 function b64Encode(str){
   const bytes = new TextEncoder().encode(str);
   let bin = '';
@@ -870,34 +1457,28 @@ function b64Encode(str){
 }
 function b64Decode(str){
   let s = str.trim().replace(/\s+/g,'');
-  if (b64Url.checked || /[-_]/.test(s)){
-    s = s.replace(/-/g,'+').replace(/_/g,'/');
-  }
+  if (b64Url.checked || /[-_]/.test(s)) s = s.replace(/-/g,'+').replace(/_/g,'/');
   while (s.length % 4) s += '=';
   const bin = atob(s);
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
 }
-
 document.getElementById('b64-enc').addEventListener('click', () => {
-  try{ b64Out.value = b64Encode(b64In.value); }
-  catch(e){ b64Out.value = 'Hata: ' + e.message; }
+  try{ b64Out.value = b64Encode(b64In.value); } catch(e){ b64Out.value = 'Hata: ' + e.message; }
 });
 document.getElementById('b64-dec').addEventListener('click', () => {
-  try{ b64Out.value = b64Decode(b64In.value); }
-  catch(e){ b64Out.value = '⚠️ Geçersiz Base64 girdisi'; }
+  try{ b64Out.value = b64Decode(b64In.value); } catch(e){ b64Out.value = '⚠️ Geçersiz Base64'; }
 });
 document.getElementById('b64-copy').addEventListener('click', e => copyText(b64Out.value, e.target));
 document.getElementById('b64-clear').addEventListener('click', () => { b64In.value=''; b64Out.value=''; });
 
-/* ==========================================================
+/* ============================================================
    6) METRONOM
-   ========================================================== */
-let mCtx = null, mRunning = false, mNext = 0, mBeat = 0, mTimer = null;
-let mBpm = 120, mBeats = 4, mSub = 1;
+   ============================================================ */
+let mCtx = null, mRunning = false, mNext = 0, mTimer = null;
+let mBpm = 120, mBeats = 4, mSub = 1, mBeatGlobal = 0;
 const LOOKAHEAD = 25, SCHEDULE_AHEAD = 0.12;
-
 const metroDots = document.getElementById('metro-dots');
 const metroBpmV = document.getElementById('metro-bpm-v');
 const metroBpmS = document.getElementById('metro-bpm');
@@ -907,20 +1488,19 @@ function metroBuildDots(){
   metroDots.innerHTML = '';
   for (let i = 0; i < mBeats; i++){
     const d = document.createElement('div');
-    d.style.cssText = 'width:18px;height:18px;border-radius:50%;background:#2d3540;transition:.1s';
+    d.style.cssText = 'width:18px;height:18px;border-radius:50%;background:#2a323f;transition:.1s';
     metroDots.appendChild(d);
   }
 }
 function metroPulse(beat){
   const dots = metroDots.children;
   for (let i = 0; i < dots.length; i++){
-    dots[i].style.background = i === beat ? (beat === 0 ? '#4f9cf9' : '#22c55e') : '#2d3540';
+    dots[i].style.background = i === beat ? (beat === 0 ? '#5b9dff' : '#22c55e') : '#2a323f';
     dots[i].style.transform = i === beat ? 'scale(1.45)' : 'scale(1)';
   }
 }
 function metroClick(time, beat, isSub){
-  const o = mCtx.createOscillator();
-  const g = mCtx.createGain();
+  const o = mCtx.createOscillator(), g = mCtx.createGain();
   o.type = 'square';
   o.frequency.value = isSub ? 500 : (beat === 0 ? 1100 : 800);
   const vol = isSub ? 0.12 : (beat === 0 ? 0.42 : 0.26);
@@ -933,7 +1513,6 @@ function metroClick(time, beat, isSub){
 function metroScheduler(){
   const interval = 60 / mBpm / mSub;
   while (mNext < mCtx.currentTime + SCHEDULE_AHEAD){
-    const subIdx = Math.round((mNext - (mNext)) * 0); // placeholder
     const beat = Math.floor(mBeatGlobal / mSub) % mBeats;
     const isSub = (mBeatGlobal % mSub) !== 0;
     metroClick(mNext, beat, isSub);
@@ -946,14 +1525,11 @@ function metroScheduler(){
     mBeatGlobal++;
   }
 }
-let mBeatGlobal = 0;
-
 function metroStart(){
   if (mRunning) return;
   mCtx = mCtx || new (window.AudioContext || window.webkitAudioContext)();
   if (mCtx.state === 'suspended') mCtx.resume();
-  mRunning = true;
-  mBeatGlobal = 0;
+  mRunning = true; mBeatGlobal = 0;
   mNext = mCtx.currentTime + 0.08;
   clearInterval(mTimer);
   mTimer = setInterval(metroScheduler, LOOKAHEAD);
@@ -965,14 +1541,12 @@ function metroStop(){
   clearInterval(mTimer);
   const b = document.getElementById('metro-start');
   if (b){ b.textContent = '▶ Başlat'; b.classList.add('primary'); }
-  if (metroDots) [...metroDots.children].forEach(d => { d.style.background = '#2d3540'; d.style.transform = 'scale(1)'; });
+  if (metroDots) [...metroDots.children].forEach(d => { d.style.background = '#2a323f'; d.style.transform = 'scale(1)'; });
 }
 document.getElementById('metro-start').addEventListener('click', () => mRunning ? metroStop() : metroStart());
-
 metroBpmS.addEventListener('input', () => { mBpm = +metroBpmS.value; metroBpmV.textContent = mBpm; });
 document.getElementById('metro-beats').addEventListener('change', e => { mBeats = +e.target.value; metroBuildDots(); });
 document.getElementById('metro-sub').addEventListener('change', e => { mSub = +e.target.value; });
-
 let tapTimes = [];
 document.getElementById('metro-tap').addEventListener('click', () => {
   const now = performance.now();
@@ -992,12 +1566,12 @@ document.getElementById('metro-tap').addEventListener('click', () => {
 });
 metroBuildDots();
 
-/* ==========================================================
-   7) KART HAFIZA OYUNU
-   ========================================================== */
+/* ============================================================
+   7) KART HAFIZA
+   ============================================================ */
 const MEM_EMOJI = ['🍎','🍌','🍇','🍓','🍑','🍍','🥝','🍒'];
-let memDeck = [], memFlipped = [], memMatched = 0, memMoves = 0, memLock = false, memTimerId = null, memStartTime = 0, memStarted = false;
-
+let memDeck = [], memFlipped = [], memMatched = 0, memMoves = 0, memLock = false;
+let memTimerId = null, memStartTime = 0, memStarted = false;
 const memGrid = document.getElementById('mem-grid');
 const memMovesEl = document.getElementById('mem-moves');
 const memTimeEl = document.getElementById('mem-time');
@@ -1022,7 +1596,7 @@ function memNew(){
   memTimeEl.textContent = '0:00';
   memPairsEl.textContent = '0/8';
   memMsg.textContent = 'Tüm kart çiftlerini bul!';
-  memDeck = memShuffle([...MEM_EMOJI, ...MEM_EMOJI].map((e, i) => ({ id: i, emoji: e })));
+  memDeck = memShuffle([...MEM_EMOJI, ...MEM_EMOJI].map((e, i) => ({ id:i, emoji:e })));
   memGrid.innerHTML = '';
   memDeck.forEach((c, idx) => {
     const b = document.createElement('button');
@@ -1042,7 +1616,6 @@ function memClick(idx, el){
   }
   el.classList.add('flipped');
   memFlipped.push({ idx, el, emoji: memDeck[idx].emoji });
-
   if (memFlipped.length === 2){
     memMoves++;
     memMovesEl.textContent = memMoves;
@@ -1074,12 +1647,11 @@ function memClick(idx, el){
 document.getElementById('mem-new').addEventListener('click', memNew);
 memNew();
 
-/* ==========================================================
+/* ============================================================
    8) SES SEVİYESİ ÖLÇER
-   ========================================================== */
+   ============================================================ */
 let sStream = null, sCtx = null, sAnalyser = null, sBuf = null, sRAF = null;
 let sPeak = 0, sSum = 0, sCount = 0, sOffset = 100;
-
 const sndDb = document.getElementById('snd-db');
 const sndFill = document.getElementById('snd-fill');
 const sndPeakEl = document.getElementById('snd-peak');
@@ -1095,7 +1667,7 @@ async function soundStart(){
     });
   }catch(e){
     sndState.textContent = '❌ Reddedildi';
-    alert('Mikrofon erişimi gerekli. HTTPS bağlantısı gerektirebilir.');
+    alert('Mikrofon erişimi gerekli.');
     return;
   }
   sCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1106,7 +1678,6 @@ async function soundStart(){
   sAnalyser.smoothingTimeConstant = 0.3;
   sBuf = new Float32Array(sAnalyser.fftSize);
   src.connect(sAnalyser);
-
   document.getElementById('snd-start').disabled = true;
   document.getElementById('snd-stop').disabled = false;
   sndState.textContent = '🟢 Ölçülüyor';
@@ -1123,11 +1694,9 @@ function sLoop(){
   let db = dbfs + sOffset;
   if (db < 0) db = 0;
   if (db > 140) db = 140;
-
   sSum += db; sCount++;
   if (db > sPeak) sPeak = db;
   else sPeak = Math.max(0, sPeak - 0.15);
-
   sndDb.innerHTML = db.toFixed(1) + ' <span style="font-size:1rem;color:var(--muted)">dB</span>';
   sndFill.style.width = Math.min(100, Math.max(0, (db - 25) / 95 * 100)) + '%';
   sndPeakEl.textContent = sPeak.toFixed(1) + ' dB';
@@ -1152,15 +1721,16 @@ sndOffS.addEventListener('input', () => {
   document.getElementById('snd-off-v').textContent = sOffset;
 });
 
-/* ==========================================================
-   9) PUSULA
-   ========================================================== */
-let cmpRunning = false, cmpHeading = null, cmpTarget = 0, cmpRAF = null;
-
+/* ============================================================
+   9) PUSULA & KIBLE
+   ============================================================ */
+let cmpRunning = false, cmpHeading = null, cmpTarget = 0, cmpRAF = null, qiblaBearing = null;
 const rose = document.getElementById('rose');
 const cmpDeg = document.getElementById('cmp-deg');
 const cmpDir = document.getElementById('cmp-dir');
 const cmpStatus = document.getElementById('cmp-status');
+const qiblaMark = document.getElementById('qiblaMark');
+const qiblaInfo = document.getElementById('qibla-info');
 
 function cmpDirName(h){
   const dirs = ['K','KKD','KD','DKD','D','DGD','GD','GGD','G','GGB','GB','BGB','B','BKB','KB','KKB'];
@@ -1169,9 +1739,9 @@ function cmpDirName(h){
 function cmpHandler(e){
   let h = null;
   if (typeof e.webkitCompassHeading === 'number' && !isNaN(e.webkitCompassHeading)){
-    h = e.webkitCompassHeading;           // iOS: zaten saat yönünde
+    h = e.webkitCompassHeading;
   } else if (e.alpha !== null && e.alpha !== undefined){
-    h = 360 - e.alpha;                    // Android yaklaşık
+    h = 360 - e.alpha;
     if (h >= 360) h -= 360;
   }
   if (h === null || isNaN(h)) return;
@@ -1180,7 +1750,6 @@ function cmpHandler(e){
 function cmpLoop(){
   cmpRAF = requestAnimationFrame(cmpLoop);
   if (cmpHeading === null) return;
-  // Yumuşatma (açı sarma)
   let diff = cmpHeading - cmpTarget;
   while (diff > 180) diff -= 360;
   while (diff < -180) diff += 360;
@@ -1220,38 +1789,57 @@ function compassStop(){
   if (a){ a.disabled = false; b.disabled = true; }
   if (cmpStatus) cmpStatus.textContent = 'Durduruldu.';
 }
+function calcQibla(lat, lon){
+  const K_LAT = 21.4225 * Math.PI / 180;
+  const K_LON = 39.8262 * Math.PI / 180;
+  const φ1 = lat * Math.PI / 180;
+  const Δλ = K_LON - lon * Math.PI / 180;
+  const y = Math.sin(Δλ);
+  const x = Math.cos(φ1) * Math.tan(K_LAT) - Math.sin(φ1) * Math.cos(Δλ);
+  let θ = Math.atan2(y, x) * 180 / Math.PI;
+  return (θ + 360) % 360;
+}
 document.getElementById('cmp-start').addEventListener('click', compassStart);
 document.getElementById('cmp-stop').addEventListener('click', compassStop);
+document.getElementById('cmp-qibla').addEventListener('click', () => {
+  if (!navigator.geolocation){ alert('GPS yok'); return; }
+  cmpStatus.textContent = '📍 Konum alınıyor…';
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude, longitude } = pos.coords;
+    qiblaBearing = calcQibla(latitude, longitude);
+    qiblaMark.style.display = 'block';
+    qiblaMark.style.transform = `rotate(${qiblaBearing}deg)`;
+    qiblaInfo.style.display = 'block';
+    qiblaInfo.innerHTML = `🕋 Kıble: <b>${Math.round(qiblaBearing)}°</b> · Konum: ${latitude.toFixed(3)}, ${longitude.toFixed(3)}`;
+    cmpStatus.textContent = '🟢 Kıble işaretlendi. Telefonu döndürerek kıbleyi bulun.';
+  }, err => {
+    cmpStatus.textContent = '❌ Konum alınamadı: ' + err.message;
+  }, { enableHighAccuracy: true, timeout: 12000 });
+});
 
-/* ==========================================================
+/* ============================================================
    10) CETVEL
-   ========================================================== */
+   ============================================================ */
 let pxPerMm = parseFloat(localStorage.getItem('pxPerMm') || '3.7795');
-
 const calSlider = document.getElementById('cal');
 const calV = document.getElementById('cal-v');
 const calRef = document.getElementById('cal-ref');
-
 function updateCal(){
   pxPerMm = parseFloat(calSlider.value);
   localStorage.setItem('pxPerMm', pxPerMm);
   calV.textContent = pxPerMm.toFixed(3);
-  calRef.style.width = (53.98 * pxPerMm) + 'px';   // kredi kartı kısa kenarı
+  calRef.style.width = (53.98 * pxPerMm) + 'px';
   buildRulers();
 }
-
 function buildRulers(){
   const cmEl = document.getElementById('ruler-cm');
   const inEl = document.getElementById('ruler-in');
   if (!cmEl || !cmEl.offsetWidth) return;
   const w = cmEl.clientWidth;
-  const ppm = pxPerMm;
-
-  // --- cm cetveli ---
-  const maxMm = Math.floor(w / ppm);
+  const maxMm = Math.floor(w / pxPerMm);
   let html = '';
   for (let i = 0; i <= maxMm; i++){
-    const x = i * ppm;
+    const x = i * pxPerMm;
     const isCm = i % 10 === 0;
     const isHalf = i % 5 === 0;
     const h = isCm ? 100 : isHalf ? 58 : 32;
@@ -1260,9 +1848,8 @@ function buildRulers(){
   }
   cmEl.innerHTML = html;
 
-  // --- inç cetveli ---
   const inWidth = inEl.clientWidth;
-  const unit = 25.4 / 16 * ppm; // 1/16 inç
+  const unit = 25.4 / 16 * pxPerMm;
   const maxT = Math.floor(inWidth / unit);
   let h2 = '';
   for (let i = 0; i <= maxT; i++){
@@ -1276,27 +1863,862 @@ function buildRulers(){
   }
   inEl.innerHTML = h2;
 }
-
 calSlider.value = pxPerMm;
 calSlider.addEventListener('input', updateCal);
 document.getElementById('cal-reset').addEventListener('click', () => {
-  calSlider.value = 3.7795;
-  updateCal();
+  calSlider.value = 3.7795; updateCal();
 });
 window.addEventListener('resize', () => setTimeout(buildRulers, 120));
 window.addEventListener('orientationchange', () => setTimeout(buildRulers, 300));
-
 updateCal();
 
-/* ==========================================================
-   GENEL
-   ========================================================== */
-// Sayfa gizlenince kamera/mikrofonu kapat
+/* ============================================================
+   11) HIZ GÖSTERGESİ
+   ============================================================ */
+let spdWatchId = null, spdLast = null, spdMax = 0, spdSum = 0, spdCount = 0, spdDist = 0;
+const spdVal = document.getElementById('spd-val');
+const spdArc = document.getElementById('spd-arc');
+const spdMaxEl = document.getElementById('spd-max');
+const spdAvgEl = document.getElementById('spd-avg');
+const spdDistEl = document.getElementById('spd-dist');
+const spdStatus = document.getElementById('spd-status');
+const SPD_MAX = 200;
+
+function haversine(lat1, lon1, lat2, lon2){
+  const R = 6371000;
+  const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180;
+  const Δφ = (lat2-lat1) * Math.PI/180;
+  const Δλ = (lon2-lon1) * Math.PI/180;
+  const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function spdRender(kmh){
+  spdVal.textContent = kmh.toFixed(0);
+  const pct = Math.min(1, kmh / SPD_MAX);
+  // Arc: 377 = tam çember (2πr), 270° için 0.75 * 377
+  const fullArc = 0.75 * 377;
+  spdArc.setAttribute('stroke-dasharray', `${pct * fullArc} 502`);
+}
+function spdStart(){
+  if (!navigator.geolocation){ alert('GPS yok'); return; }
+  spdLast = null; spdMax = 0; spdSum = 0; spdCount = 0; spdDist = 0;
+  spdMaxEl.textContent = '0'; spdAvgEl.textContent = '0'; spdDistEl.textContent = '0 m';
+  spdRender(0);
+  spdStatus.textContent = '🛰 GPS sinyali bekleniyor…';
+  spdWatchId = navigator.geolocation.watchPosition(pos => {
+    let sp = pos.coords.speed;
+    if (sp === null || isNaN(sp)){
+      if (spdLast){
+        const dt = (pos.timestamp - spdLast.timestamp) / 1000;
+        if (dt > 0.5){
+          sp = haversine(spdLast.coords.latitude, spdLast.coords.longitude,
+                         pos.coords.latitude, pos.coords.longitude) / dt;
+        }
+      }
+    }
+    if (sp !== null && !isNaN(sp)){
+      const kmh = Math.max(0, sp * 3.6);
+      spdRender(kmh);
+      if (kmh > spdMax) spdMax = kmh;
+      spdSum += kmh; spdCount++;
+      spdMaxEl.textContent = spdMax.toFixed(0);
+      spdAvgEl.textContent = (spdSum / spdCount).toFixed(0);
+    }
+    if (spdLast){
+      spdDist += haversine(spdLast.coords.latitude, spdLast.coords.longitude,
+                           pos.coords.latitude, pos.coords.longitude);
+      spdDistEl.textContent = fmtDist(spdDist);
+    }
+    spdLast = pos;
+    spdStatus.textContent = `🟢 Aktif · Doğruluk: ±${pos.coords.accuracy.toFixed(0)} m`;
+  }, err => {
+    spdStatus.textContent = '❌ ' + err.message;
+    spdStop();
+  }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+  document.getElementById('spd-start').disabled = true;
+  document.getElementById('spd-stop').disabled = false;
+}
+function spdStop(){
+  if (spdWatchId !== null){ navigator.geolocation.clearWatch(spdWatchId); spdWatchId = null; }
+  const a = document.getElementById('spd-start'), b = document.getElementById('spd-stop');
+  if (a){ a.disabled = false; b.disabled = true; }
+  if (spdStatus) spdStatus.textContent = 'Durduruldu.';
+}
+document.getElementById('spd-start').addEventListener('click', spdStart);
+document.getElementById('spd-stop').addEventListener('click', spdStop);
+document.getElementById('spd-reset').addEventListener('click', () => {
+  spdMax = 0; spdSum = 0; spdCount = 0; spdDist = 0;
+  spdMaxEl.textContent = '0'; spdAvgEl.textContent = '0'; spdDistEl.textContent = '0 m';
+  spdRender(0);
+});
+spdRender(0);
+
+/* ============================================================
+   12) AY EVRESİ
+   ============================================================ */
+const MOON_REF = Date.UTC(2000, 0, 6, 18, 14); // Bilinen yeni ay
+const SYNODIC = 29.530588853 * 86400000;       // ms
+
+const moonNames = [
+  {max:0.02, name:'Yeni Ay',     emoji:'🌑'},
+  {max:0.23, name:'Büyüyen Hilal',emoji:'🌒'},
+  {max:0.27, name:'İlk Dördün',  emoji:'🌓'},
+  {max:0.48, name:'Şişkin Ay',   emoji:'🌔'},
+  {max:0.52, name:'Dolunay',     emoji:'🌕'},
+  {max:0.73, name:'Küçülen Şişkin',emoji:'🌖'},
+  {max:0.77, name:'Son Dördün',  emoji:'🌗'},
+  {max:0.98, name:'Küçülen Hilal',emoji:'🌘'},
+  {max:1.01, name:'Yeni Ay',     emoji:'🌑'}
+];
+const moonDate = document.getElementById('moon-date');
+moonDate.value = new Date().toISOString().slice(0,10);
+moonDate.addEventListener('change', moonRender);
+document.getElementById('moon-today').addEventListener('click', () => {
+  moonDate.value = new Date().toISOString().slice(0,10);
+  moonRender();
+});
+
+function moonRender(){
+  const d = moonDate.value ? new Date(moonDate.value + 'T12:00:00') : new Date();
+  const t = d.getTime();
+  const phase = ((t - MOON_REF) % SYNODIC + SYNODIC) % SYNODIC / SYNODIC;
+  const age = phase * 29.530588853;
+
+  const p = moonNames.find(m => phase < m.max) || moonNames[0];
+  document.getElementById('moon-name').textContent = p.name;
+  document.getElementById('moon-emoji').textContent = p.emoji;
+
+  // Aydınlık oranı
+  const illum = (1 - Math.cos(2 * Math.PI * phase)) / 2;
+  document.getElementById('moon-pct').textContent = `%${Math.round(illum*100)} aydınlık`;
+  document.getElementById('moon-age').textContent = age.toFixed(1) + ' gün';
+
+  // Görsel: ay diski + gölge. Waxing (0-0.5): sağdan aydınlanır. Waning: soldan.
+  const shadow = document.getElementById('moon-shadow');
+  // Shadow, lit'in üzerine kayan bir dairedir. Basit yaklaşım:
+  // phase 0: tam gölge, 0.5: gölge yok, 1: tam gölge.
+  // Gölge pozisyonu — gerçekçi olmayan basit ama görsel olarak makul
+  if (phase < 0.5){
+    // Waxing: gölge solda
+    const shift = (1 - phase * 2) * 100; // phase 0 → 100, 0.5 → 0
+    shadow.style.transform = `translateX(${-shift}%)`;
+    shadow.style.background = 'radial-gradient(circle at 65% 40%, #1a1a22, #0a0a0e)';
+  } else {
+    const shift = ((phase - 0.5) * 2) * 100; // phase 0.5 → 0, 1 → 100
+    shadow.style.transform = `translateX(${shift}%)`;
+    shadow.style.background = 'radial-gradient(circle at 35% 40%, #1a1a22, #0a0a0e)';
+  }
+  if (phase < 0.03 || phase > 0.97){
+    shadow.style.transform = 'translateX(0)';
+  }
+  if (Math.abs(phase - 0.5) < 0.03){
+    shadow.style.transform = 'translateX(200%)';
+  }
+
+  // Sonraki dolunay & yeni ay
+  const now = t;
+  const phaseMs = SYNODIC;
+  const nextNew = now + ((1 - phase) % 1) * phaseMs;
+  const nextFull = now + (((0.5 - phase + 1) % 1)) * phaseMs;
+  document.getElementById('moon-next-full').textContent = new Date(nextFull).toLocaleDateString('tr-TR', { day:'2-digit', month:'short' });
+  document.getElementById('moon-next-new').textContent = new Date(nextNew).toLocaleDateString('tr-TR', { day:'2-digit', month:'short' });
+}
+moonRender();
+
+/* ============================================================
+   13) OTP / TOTP
+   ============================================================ */
+const OTP_STORE_KEY = 'otp_accounts_v1';
+function otpLoad(){
+  try{ return JSON.parse(localStorage.getItem(OTP_STORE_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function otpSave(list){
+  localStorage.setItem(OTP_STORE_KEY, JSON.stringify(list));
+}
+function base32Decode(str){
+  const map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  str = String(str).toUpperCase().replace(/=+$/,'').replace(/\s+/g,'');
+  let bits = '';
+  for (const c of str){
+    const v = map.indexOf(c);
+    if (v < 0) throw new Error('Geçersiz Base32 karakteri: ' + c);
+    bits += v.toString(2).padStart(5,'0');
+  }
+  const bytes = [];
+  for (let i = 0; i + 8 <= bits.length; i += 8){
+    bytes.push(parseInt(bits.substr(i,8), 2));
+  }
+  return new Uint8Array(bytes);
+}
+async function totpCode(secret, opts){
+  const { digits = 6, period = 30, algo = 'SHA-1' } = opts || {};
+  const key = base32Decode(secret);
+  const counter = Math.floor(Date.now() / 1000 / period);
+  const buf = new ArrayBuffer(8);
+  const view = new DataView(buf);
+  view.setUint32(0, Math.floor(counter / 0x100000000));
+  view.setUint32(4, counter >>> 0);
+  const cryptoKey = await crypto.subtle.importKey(
+    'raw', key, { name:'HMAC', hash: algo }, false, ['sign']
+  );
+  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', cryptoKey, buf));
+  const offset = sig[sig.length - 1] & 0x0f;
+  const code = ((sig[offset] & 0x7f) << 24 |
+                (sig[offset+1] & 0xff) << 16 |
+                (sig[offset+2] & 0xff) << 8 |
+                (sig[offset+3] & 0xff)) % Math.pow(10, digits);
+  return String(code).padStart(digits, '0');
+}
+
+let otpAccounts = otpLoad();
+let otpActiveIdx = 0;
+let otpTickId = null;
+
+async function otpRender(){
+  const list = document.getElementById('otp-list');
+  list.innerHTML = '';
+
+  if (!otpAccounts.length){
+    list.innerHTML = '<div class="muted" style="text-align:center;padding:20px">Henüz hesap eklenmedi. "➕ Yeni Ekle" ile başlayın.</div>';
+    document.getElementById('otp-code').textContent = '------';
+    document.getElementById('otp-timer-fill').style.width = '100%';
+    document.getElementById('otp-remain').textContent = '—';
+    return;
+  }
+
+  if (otpActiveIdx >= otpAccounts.length) otpActiveIdx = 0;
+
+  // Aktif hesap kodunu güncelle
+  const acc = otpAccounts[otpActiveIdx];
+  try{
+    const code = await totpCode(acc.secret, acc);
+    const formatted = code.length === 6 ? code.slice(0,3) + ' ' + code.slice(3) :
+                     code.length === 8 ? code.slice(0,4) + ' ' + code.slice(4) : code;
+    document.getElementById('otp-code').textContent = formatted;
+    document.getElementById('otp-code').dataset.raw = code;
+  }catch(e){
+    document.getElementById('otp-code').textContent = 'HATA';
+  }
+
+  // Kalan süre
+  const period = acc.period || 30;
+  const now = Math.floor(Date.now() / 1000);
+  const remain = period - (now % period);
+  document.getElementById('otp-timer-fill').style.width = (remain / period * 100) + '%';
+  document.getElementById('otp-remain').textContent = remain + ' saniye kaldı';
+
+  // Liste
+  otpAccounts.forEach((a, i) => {
+    const item = document.createElement('div');
+    item.className = 'vocab-item';
+    item.style.cursor = 'pointer';
+    if (i === otpActiveIdx) item.style.boxShadow = 'inset 0 0 0 1px rgba(91,157,255,.4)';
+    item.innerHTML = `
+      <span class="q">${escapeHtml(a.name || 'Hesap')}</span>
+      <span class="a">${a.digits || 6} hane · ${a.period || 30}s</span>
+      <button data-del="${i}" class="danger" style="padding:6px 10px;font-size:.75rem">🗑</button>
+    `;
+    item.addEventListener('click', e => {
+      if (e.target.dataset.del !== undefined) return;
+      otpActiveIdx = i;
+      otpRender();
+    });
+    item.querySelector('[data-del]').addEventListener('click', e => {
+      e.stopPropagation();
+      const idx = +e.target.dataset.del;
+      if (confirm('Bu hesabı silmek istediğinize emin misiniz?')){
+        otpAccounts.splice(idx, 1);
+        otpSave(otpAccounts);
+        if (otpActiveIdx >= otpAccounts.length) otpActiveIdx = 0;
+        otpRender();
+      }
+    });
+    list.appendChild(item);
+  });
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function otpStartTick(){
+  clearInterval(otpTickId);
+  otpTickId = setInterval(() => { if (currentTab === 'otp') otpRender(); }, 1000);
+}
+document.getElementById('otp-add-open').addEventListener('click', () => {
+  document.getElementById('otp-add-card').style.display = 'block';
+  document.getElementById('otp-name').focus();
+});
+document.getElementById('otp-cancel').addEventListener('click', () => {
+  document.getElementById('otp-add-card').style.display = 'none';
+  document.getElementById('otp-name').value = '';
+  document.getElementById('otp-secret').value = '';
+});
+document.getElementById('otp-save').addEventListener('click', () => {
+  const name = document.getElementById('otp-name').value.trim();
+  const secret = document.getElementById('otp-secret').value.trim();
+  if (!name || !secret){
+    alert('Ad ve secret gerekli');
+    return;
+  }
+  try{ base32Decode(secret); }
+  catch(e){ alert('Secret Base32 formatında olmalı.'); return; }
+  otpAccounts.push({
+    name, secret,
+    digits: +document.getElementById('otp-digits').value,
+    period: +document.getElementById('otp-period').value,
+    algo: document.getElementById('otp-algo').value
+  });
+  otpSave(otpAccounts);
+  document.getElementById('otp-add-card').style.display = 'none';
+  document.getElementById('otp-name').value = '';
+  document.getElementById('otp-secret').value = '';
+  otpRender();
+});
+document.getElementById('otp-copy').addEventListener('click', e => {
+  const raw = document.getElementById('otp-code').dataset.raw;
+  if (raw) copyText(raw, e.target);
+});
+document.getElementById('otp-export').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(otpAccounts, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'otp_accounts.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+document.getElementById('otp-import').addEventListener('click', () => {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json,application/json';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        const arr = JSON.parse(r.result);
+        if (Array.isArray(arr)){
+          otpAccounts = arr;
+          otpSave(otpAccounts);
+          otpRender();
+          alert('İçe aktarıldı: ' + arr.length + ' hesap');
+        }
+      }catch(err){ alert('Geçersiz dosya'); }
+    };
+    r.readAsText(file);
+  };
+  inp.click();
+});
+otpStartTick();
+
+/* ============================================================
+   14) BEYAZ GÜRÜLTÜ
+   ============================================================ */
+let nCtx = null, nSrc = null, nGain = null, nRunning = false, nType = 'white';
+let nTimerId = null;
+const noiseVisual = document.getElementById('noise-visual');
+const noiseStatus = document.getElementById('noise-status');
+const noiseVolS = document.getElementById('noise-vol');
+const noiseVolV = document.getElementById('noise-vol-v');
+
+// Görsel bar oluştur
+(function buildNoiseBars(){
+  noiseVisual.innerHTML = '';
+  for (let i = 0; i < 24; i++){
+    const s = document.createElement('span');
+    s.style.animationDelay = (Math.random() * 0.9).toFixed(2) + 's';
+    s.style.animationDuration = (0.5 + Math.random() * 0.8).toFixed(2) + 's';
+    noiseVisual.appendChild(s);
+  }
+})();
+noiseVolS.addEventListener('input', () => {
+  noiseVolV.textContent = noiseVolS.value;
+  if (nGain) nGain.gain.value = (+noiseVolS.value) / 100 * 0.6;
+});
+
+function noiseBuffer(ctx, type){
+  const dur = 3;
+  const len = ctx.sampleRate * dur;
+  const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  if (type === 'white'){
+    for (let i = 0; i < len; i++) d[i] = Math.random()*2 - 1;
+  } else if (type === 'pink'){
+    let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+    for (let i = 0; i < len; i++){
+      const w = Math.random()*2 - 1;
+      b0 = 0.99886*b0 + w*0.0555179;
+      b1 = 0.99332*b1 + w*0.0750759;
+      b2 = 0.96900*b2 + w*0.1538520;
+      b3 = 0.86650*b3 + w*0.3104856;
+      b4 = 0.55000*b4 + w*0.5329522;
+      b5 = -0.7616*b5 - w*0.0168980;
+      d[i] = (b0+b1+b2+b3+b4+b5+b6 + w*0.5362) * 0.11;
+      b6 = w * 0.115926;
+    }
+  } else if (type === 'brown'){
+    let last = 0;
+    for (let i = 0; i < len; i++){
+      const w = Math.random()*2 - 1;
+      last = (last + 0.02*w) / 1.02;
+      d[i] = last * 3.5;
+    }
+  } else if (type === 'rain'){
+    // Yağmur: filtrelenmiş beyaz gürültü + damla tıkırtıları
+    let last = 0;
+    for (let i = 0; i < len; i++){
+      const w = Math.random()*2 - 1;
+      last = last * 0.92 + w * 0.15;
+      // Damla efektleri
+      if (Math.random() < 0.0006){
+        d[i] = (Math.random()*2 - 1) * 0.9;
+      } else {
+        d[i] = last * 0.9 + w * 0.15;
+      }
+    }
+  }
+  return buf;
+}
+function noiseStart(type){
+  if (nRunning) noiseStop();
+  nType = type || nType;
+  nCtx = nCtx || new (window.AudioContext || window.webkitAudioContext)();
+  if (nCtx.state === 'suspended') nCtx.resume();
+  const buf = noiseBuffer(nCtx, nType);
+  nSrc = nCtx.createBufferSource();
+  nSrc.buffer = buf;
+  nSrc.loop = true;
+
+  nGain = nCtx.createGain();
+  nGain.gain.value = (+noiseVolS.value) / 100 * 0.6;
+
+  // Basit lowpass filtresi daha yumuşak ses için
+  const filter = nCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = nType === 'brown' ? 1200 : nType === 'pink' ? 4000 : 8000;
+
+  nSrc.connect(filter).connect(nGain).connect(nCtx.destination);
+  nSrc.start();
+  nRunning = true;
+
+  document.getElementById('noise-start').disabled = true;
+  document.getElementById('noise-stop').disabled = false;
+  noiseStatus.textContent = '🟢 Çalıyor: ' + noiseLabel(nType);
+
+  // Zamanlayıcı
+  clearTimeout(nTimerId);
+  const t = +document.getElementById('noise-timer').value;
+  if (t > 0){
+    nTimerId = setTimeout(() => {
+      noiseStop();
+      noiseStatus.textContent = '⏱ Zamanlayıcı bitti, durduruldu.';
+    }, t * 60 * 1000);
+  }
+}
+function noiseLabel(t){
+  return { white:'Beyaz', pink:'Pembe', brown:'Kahverengi', rain:'Yağmur' }[t] || t;
+}
+function noiseStop(){
+  if (nSrc){ try{ nSrc.stop(); }catch(e){} nSrc.disconnect(); nSrc = null; }
+  if (nGain){ nGain.disconnect(); nGain = null; }
+  nRunning = false;
+  clearTimeout(nTimerId);
+  const a = document.getElementById('noise-start'), b = document.getElementById('noise-stop');
+  if (a){ a.disabled = false; b.disabled = true; }
+  if (noiseStatus) noiseStatus.textContent = 'Durduruldu.';
+}
+document.querySelectorAll('.noise-preset-grid button').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.noise-preset-grid button').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    nType = b.dataset.noise;
+    if (nRunning) noiseStart(nType);
+  });
+});
+document.getElementById('noise-start').addEventListener('click', () => noiseStart(nType));
+document.getElementById('noise-stop').addEventListener('click', noiseStop);
+
+/* ============================================================
+   15) MESAFE & ALAN
+   ============================================================ */
+let trkWatchId = null, trkPoints = [], trkRunning = false, trkLast = null;
+const trkCanvas = document.getElementById('trk-canvas');
+const trkCtx = trkCanvas.getContext('2d');
+const trkDistEl = document.getElementById('trk-dist');
+const trkAreaEl = document.getElementById('trk-area');
+const trkPtsEl = document.getElementById('trk-pts');
+const trkStatus = document.getElementById('trk-status');
+
+function trkProject(lat, lon, lat0, lon0){
+  const R = 6371000;
+  const x = (lon - lon0) * Math.PI/180 * R * Math.cos(lat0 * Math.PI/180);
+  const y = (lat - lat0) * Math.PI/180 * R;
+  return { x, y };
+}
+function trkPolygonArea(pts){
+  if (pts.length < 3) return 0;
+  const lat0 = pts[0].lat, lon0 = pts[0].lon;
+  const proj = pts.map(p => trkProject(p.lat, p.lon, lat0, lon0));
+  let a = 0;
+  for (let i = 0; i < proj.length; i++){
+    const j = (i + 1) % proj.length;
+    a += proj[i].x * proj[j].y - proj[j].x * proj[i].y;
+  }
+  return Math.abs(a) / 2;
+}
+function trkTotalDistance(pts){
+  let d = 0;
+  for (let i = 1; i < pts.length; i++){
+    d += haversine(pts[i-1].lat, pts[i-1].lon, pts[i].lat, pts[i].lon);
+  }
+  return d;
+}
+function trkRender(){
+  const w = trkCanvas.width, h = trkCanvas.height;
+  trkCtx.fillStyle = '#0e1219';
+  trkCtx.fillRect(0, 0, w, h);
+
+  // Grid
+  trkCtx.strokeStyle = 'rgba(255,255,255,.04)';
+  trkCtx.lineWidth = 1;
+  for (let i = 1; i < 8; i++){
+    trkCtx.beginPath();
+    trkCtx.moveTo(i * w / 8, 0); trkCtx.lineTo(i * w / 8, h);
+    trkCtx.moveTo(0, i * h / 8); trkCtx.lineTo(w, i * h / 8);
+    trkCtx.stroke();
+  }
+
+  if (trkPoints.length < 1){
+    trkCtx.fillStyle = '#5b6675';
+    trkCtx.font = 'bold 22px -apple-system,sans-serif';
+    trkCtx.textAlign = 'center';
+    trkCtx.fillText('Nokta bekleniyor…', w/2, h/2);
+    return;
+  }
+
+  // Sınırları bul
+  const lats = trkPoints.map(p => p.lat);
+  const lons = trkPoints.map(p => p.lon);
+  const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+  const minLon = Math.min(...lons), maxLon = Math.max(...lons);
+  const pad = 60;
+  const availW = w - pad * 2, availH = h - pad * 2;
+  const dLat = Math.max(maxLat - minLat, 1e-6);
+  const dLon = Math.max(maxLon - minLon, 1e-6);
+  const scale = Math.min(availW / dLon, availH / dLat) * 0.9;
+
+  function toXY(p){
+    const cx = w/2, cy = h/2;
+    const mx = (minLon + maxLon) / 2;
+    const my = (minLat + maxLat) / 2;
+    return {
+      x: cx + (p.lon - mx) * scale,
+      y: cy - (p.lat - my) * scale
+    };
+  }
+
+  // Çizgi
+  if (trkPoints.length >= 2){
+    trkCtx.strokeStyle = '#5b9dff';
+    trkCtx.lineWidth = 3;
+    trkCtx.lineJoin = 'round';
+    trkCtx.lineCap = 'round';
+    trkCtx.beginPath();
+    trkPoints.forEach((p, i) => {
+      const { x, y } = toXY(p);
+      if (i === 0) trkCtx.moveTo(x, y);
+      else trkCtx.lineTo(x, y);
+    });
+    trkCtx.stroke();
+
+    // Kapalı alan
+    if (trkPoints.length >= 3){
+      trkCtx.strokeStyle = 'rgba(139,92,246,.6)';
+      trkCtx.setLineDash([6, 6]);
+      trkCtx.beginPath();
+      const last = toXY(trkPoints[trkPoints.length - 1]);
+      const first = toXY(trkPoints[0]);
+      trkCtx.moveTo(last.x, last.y);
+      trkCtx.lineTo(first.x, first.y);
+      trkCtx.stroke();
+      trkCtx.setLineDash([]);
+
+      trkCtx.fillStyle = 'rgba(91,157,255,.12)';
+      trkCtx.beginPath();
+      trkPoints.forEach((p, i) => {
+        const { x, y } = toXY(p);
+        if (i === 0) trkCtx.moveTo(x, y);
+        else trkCtx.lineTo(x, y);
+      });
+      trkCtx.closePath();
+      trkCtx.fill();
+    }
+  }
+
+  // Noktalar
+  trkPoints.forEach((p, i) => {
+    const { x, y } = toXY(p);
+    trkCtx.fillStyle = i === trkPoints.length - 1 ? '#22c55e' : '#5b9dff';
+    trkCtx.beginPath();
+    trkCtx.arc(x, y, i === trkPoints.length - 1 ? 9 : 6, 0, Math.PI * 2);
+    trkCtx.fill();
+    trkCtx.strokeStyle = '#0b0d12';
+    trkCtx.lineWidth = 3;
+    trkCtx.stroke();
+
+    trkCtx.fillStyle = '#eef2f8';
+    trkCtx.font = 'bold 18px -apple-system,sans-serif';
+    trkCtx.textAlign = 'center';
+    trkCtx.fillText(String(i + 1), x, y - 14);
+  });
+
+  // İstatistikler
+  const dist = trkTotalDistance(trkPoints);
+  const area = trkPolygonArea(trkPoints);
+  trkDistEl.textContent = fmtDist(dist);
+  trkAreaEl.textContent = fmtArea(area);
+  trkPtsEl.textContent = trkPoints.length;
+}
+function trkAddPoint(lat, lon){
+  trkPoints.push({ lat, lon });
+  trkRender();
+}
+function trkStart(){
+  if (!navigator.geolocation){ alert('GPS yok'); return; }
+  trkRunning = true;
+  trkLast = null;
+  document.getElementById('trk-start').disabled = true;
+  document.getElementById('trk-stop').disabled = false;
+  trkStatus.textContent = '🛰 GPS sinyali bekleniyor…';
+  trkWatchId = navigator.geolocation.watchPosition(pos => {
+    const { latitude, longitude, accuracy } = pos.coords;
+    // Filtre: çok düşük doğruluk atla
+    if (accuracy > 50) return;
+    if (trkLast){
+      const d = haversine(trkLast.lat, trkLast.lon, latitude, longitude);
+      if (d < 3) return; // aynı noktaya çok yakın
+    }
+    trkAddPoint(latitude, longitude);
+    trkLast = { lat: latitude, lon: longitude };
+    trkStatus.textContent = `🟢 Kayıt · Doğruluk: ±${accuracy.toFixed(0)} m · ${trkPoints.length} nokta`;
+  }, err => {
+    trkStatus.textContent = '❌ ' + err.message;
+    trkStop();
+  }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
+}
+function trkStop(){
+  if (trkWatchId !== null){ navigator.geolocation.clearWatch(trkWatchId); trkWatchId = null; }
+  trkRunning = false;
+  const a = document.getElementById('trk-start'), b = document.getElementById('trk-stop');
+  if (a){ a.disabled = false; b.disabled = true; }
+  if (trkStatus) trkStatus.textContent = 'Durduruldu. ' + trkPoints.length + ' nokta kayıtlı.';
+}
+document.getElementById('trk-start').addEventListener('click', trkStart);
+document.getElementById('trk-stop').addEventListener('click', trkStop);
+document.getElementById('trk-add').addEventListener('click', () => {
+  navigator.geolocation.getCurrentPosition(pos => {
+    trkAddPoint(pos.coords.latitude, pos.coords.longitude);
+    trkStatus.textContent = `📍 Nokta eklendi · ${trkPoints.length} nokta`;
+  }, err => alert('Konum alınamadı: ' + err.message), { enableHighAccuracy:true, timeout:12000 });
+});
+document.getElementById('trk-undo').addEventListener('click', () => {
+  if (trkPoints.length){ trkPoints.pop(); trkRender(); }
+});
+document.getElementById('trk-clear').addEventListener('click', () => {
+  if (trkPoints.length && !confirm('Tüm noktalar silinsin mi?')) return;
+  trkPoints = []; trkLast = null;
+  trkRender();
+  trkStatus.textContent = 'Temizlendi.';
+});
+trkRender();
+
+/* ============================================================
+   16) KELİME EZBERLEYİCİ
+   ============================================================ */
+const VOCAB_KEY = 'vocab_words_v1';
+function vocabLoad(){
+  try{ return JSON.parse(localStorage.getItem(VOCAB_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function vocabSave(list){
+  localStorage.setItem(VOCAB_KEY, JSON.stringify(list));
+}
+let vocabWords = vocabLoad();
+let vocabCurrent = null, vocabRevealed = false, vocabOrder = [], vocabIdx = 0;
+let vocabRightCount = 0, vocabWrongCount = 0;
+
+const DEFAULT_WORDS = [
+  { q:'apple', a:'elma' }, { q:'book', a:'kitap' }, { q:'water', a:'su' },
+  { q:'house', a:'ev' }, { q:'friend', a:'arkadaş' }, { q:'time', a:'zaman' },
+  { q:'world', a:'dünya' }, { q:'hand', a:'el' }, { q:'eye', a:'göz' },
+  { q:'love', a:'sevgi' }, { q:'work', a:'iş' }, { q:'day', a:'gün' },
+  { q:'night', a:'gece' }, { q:'morning', a:'sabah' }, { q:'family', a:'aile' },
+  { q:'color', a:'renk' }, { q:'music', a:'müzik' }, { q:'street', a:'sokak' },
+  { q:'city', a:'şehir' }, { q:'language', a:'dil' }
+];
+
+function vocabShuffleOrder(){
+  vocabOrder = vocabWords.map((_, i) => i);
+  for (let i = vocabOrder.length - 1; i > 0; i--){
+    const j = randInt(i + 1);
+    [vocabOrder[i], vocabOrder[j]] = [vocabOrder[j], vocabOrder[i]];
+  }
+  vocabIdx = 0;
+}
+function vocabNext(){
+  if (!vocabWords.length){
+    vocabCurrent = null;
+    document.getElementById('vocab-q').textContent = 'Liste boş';
+    document.getElementById('vocab-a').textContent = '';
+    return;
+  }
+  if (vocabIdx >= vocabOrder.length){
+    vocabShuffleOrder();
+  }
+  vocabCurrent = vocabWords[vocabOrder[vocabIdx]];
+  vocabRevealed = false;
+  document.getElementById('vocab-q').textContent = vocabCurrent.q;
+  document.getElementById('vocab-a').textContent = '';
+  document.getElementById('vocab-msg').textContent = 'Cevabı düşün, sonra göster.';
+}
+function vocabShowAnswer(){
+  if (!vocabCurrent) return;
+  vocabRevealed = true;
+  document.getElementById('vocab-a').textContent = vocabCurrent.a;
+}
+function vocabAnswer(known){
+  if (!vocabCurrent) return;
+  if (known){ vocabRightCount++; }
+  else { vocabWrongCount++; }
+  vocabIdx++;
+  vocabUpdateStats();
+  vocabNext();
+}
+function vocabUpdateStats(){
+  document.getElementById('vocab-progress').textContent = `${vocabIdx} / ${vocabOrder.length}`;
+  document.getElementById('vocab-right').textContent = '✓ ' + vocabRightCount;
+  document.getElementById('vocab-wrong').textContent = '✗ ' + vocabWrongCount;
+}
+function vocabRenderList(){
+  const list = document.getElementById('vocab-list');
+  list.innerHTML = '';
+  if (!vocabWords.length){
+    list.innerHTML = '<div class="muted" style="text-align:center;padding:16px">Henüz kelime yok. Yukarıdan ekleyin veya örnek yükleyin.</div>';
+  } else {
+    vocabWords.forEach((w, i) => {
+      const item = document.createElement('div');
+      item.className = 'vocab-item';
+      item.innerHTML = `
+        <span class="q">${escapeHtml(w.q)}</span>
+        <span class="a">${escapeHtml(w.a)}</span>
+        <button data-del="${i}" class="danger">🗑</button>
+      `;
+      item.querySelector('[data-del]').addEventListener('click', () => {
+        vocabWords.splice(i, 1);
+        vocabSave(vocabWords);
+        vocabShuffleOrder();
+        vocabIdx = 0;
+        vocabNext();
+        vocabRenderList();
+      });
+      list.appendChild(item);
+    });
+  }
+  document.getElementById('vocab-count').textContent = vocabWords.length + ' kelime';
+  vocabUpdateStats();
+}
+document.getElementById('vocab-show').addEventListener('click', vocabShowAnswer);
+document.getElementById('vocab-know').addEventListener('click', () => vocabAnswer(true));
+document.getElementById('vocab-again').addEventListener('click', () => vocabAnswer(false));
+document.getElementById('vocab-skip').addEventListener('click', () => { vocabIdx++; vocabNext(); vocabUpdateStats(); });
+document.getElementById('vocab-shuffle').addEventListener('click', () => { vocabShuffleOrder(); vocabNext(); vocabUpdateStats(); });
+document.getElementById('vocab-add').addEventListener('click', () => {
+  const q = document.getElementById('vocab-nq').value.trim();
+  const a = document.getElementById('vocab-na').value.trim();
+  if (!q || !a){ alert('Her iki alan da gerekli'); return; }
+  vocabWords.push({ q, a });
+  vocabSave(vocabWords);
+  document.getElementById('vocab-nq').value = '';
+  document.getElementById('vocab-na').value = '';
+  vocabShuffleOrder();
+  vocabIdx = 0;
+  vocabNext();
+  vocabRenderList();
+});
+document.getElementById('vocab-load').addEventListener('click', () => {
+  if (vocabWords.length && !confirm('Mevcut kelimeler korunacak, örnekler eklenecek. Devam?')) return;
+  DEFAULT_WORDS.forEach(w => {
+    if (!vocabWords.some(x => x.q === w.q)) vocabWords.push({ ...w });
+  });
+  vocabSave(vocabWords);
+  vocabShuffleOrder();
+  vocabIdx = 0;
+  vocabNext();
+  vocabRenderList();
+});
+document.getElementById('vocab-clear-all').addEventListener('click', () => {
+  if (!vocabWords.length) return;
+  if (!confirm('Tüm kelimeler silinsin mi?')) return;
+  vocabWords = [];
+  vocabSave(vocabWords);
+  vocabShuffleOrder();
+  vocabNext();
+  vocabRenderList();
+});
+document.getElementById('vocab-export').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(vocabWords, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'kelimeler.json'; a.click();
+  URL.revokeObjectURL(url);
+});
+document.getElementById('vocab-import').addEventListener('click', () => {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json,application/json';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        const arr = JSON.parse(r.result);
+        if (Array.isArray(arr)){
+          arr.forEach(w => {
+            if (w.q && w.a) vocabWords.push({ q:w.q, a:w.a });
+          });
+          vocabSave(vocabWords);
+          vocabShuffleOrder();
+          vocabIdx = 0;
+          vocabNext();
+          vocabRenderList();
+          alert('İçe aktarıldı.');
+        }
+      }catch(err){ alert('Geçersiz dosya'); }
+    };
+    r.readAsText(file);
+  };
+  inp.click();
+});
+
+// İlk yükleme
+vocabShuffleOrder();
+vocabNext();
+vocabRenderList();
+
+/* ============================================================
+   SAYFA GİZLENİNCE KAYNAKLARI SERBEST BIRAK
+   ============================================================ */
 document.addEventListener('visibilitychange', () => {
   if (document.hidden){
-    qrStop(); soundStop(); compassStop();
+    qrStop(); soundStop(); compassStop(); spdStop(); trkStop();
+    if (noiseRunning()) noiseStop();
   }
 });
+function noiseRunning(){ return nRunning; }
+
+/* ============================================================
+   İLK AÇILIŞ
+   ============================================================ */
+showTab('conv');
 </script>
 </body>
 </html>
