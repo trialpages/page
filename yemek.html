@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr" translate="no">
 <head>
     <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
     <!-- Sanal klavye açıldığında tarayıcının sayfayı kaydırmasını engelleyip, sadece içeriği yeniden boyutlandıran kritik meta etiketi -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     <meta name="theme-color" content="#09090b">
@@ -229,8 +230,8 @@
             </div>
         </div>
 
-        <div class="chat-area" id="chat-area">
-            <div class="system-message"><i class="fa-solid fa-lock" style="color:var(--accent);"></i> Messages and calls are end-to-end encrypted.</div>
+        <div class="chat-area" id="chat-area" translate="no">
+            <div class="system-message" translate="no"><i class="fa-solid fa-lock" style="color:var(--accent);"></i> Messages and calls are end-to-end encrypted.</div>
         </div>
 
         <div class="input-area">
@@ -240,7 +241,7 @@
                 <button class="action-btn" onclick="document.getElementById('file-input').click()"><i class="fa-solid fa-paperclip"></i></button>
                 <div class="text-input-wrapper">
                     <!-- Odaklanıldığında native klavye davranışını iyileştirmek için event dinleyicisi eklendi -->
-                    <textarea id="msg-input" placeholder="Message" rows="1" oninput="autoResize(this); handleTyping();" onkeydown="handleEnter(event)" onfocus="scrollToBottomDelay()"></textarea>
+                    <textarea id="msg-input" translate="no" spellcheck="false" autocorrect="off" autocapitalize="off" placeholder="Message" rows="1" oninput="autoResize(this); handleTyping();" onkeydown="handleEnter(event)" onfocus="scrollToBottomDelay()"></textarea>
                 </div>
                 <button class="send-btn-circle" id="mic-btn" onclick="startRecording()"><i class="fa-solid fa-microphone"></i></button>
                 <button class="send-btn-circle" id="send-btn" onclick="sendTextMessage()" style="display:none;"><i class="fa-solid fa-paper-plane"></i></button>
@@ -556,7 +557,7 @@
             }
         }
         function executeClearChat() {
-            document.getElementById('chat-area').innerHTML = '<div class="system-message"><i class="fa-solid fa-lock" style="color:var(--accent);"></i> Messages and calls are end-to-end encrypted.</div>';
+            document.getElementById('chat-area').innerHTML = '<div class="system-message" translate="no"><i class="fa-solid fa-lock" style="color:var(--accent);"></i> Messages and calls are end-to-end encrypted.</div>';
             messages = {}; sessionMedia = []; document.getElementById('archive-grid').innerHTML = '';
         }
 
@@ -578,7 +579,7 @@
             window.history.replaceState({}, document.title, window.location.pathname);
             
             document.getElementById('chat-screen').innerHTML = `
-                <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 20px;">
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding: 20px;" translate="no">
                     <i class="fa-solid fa-power-off" style="font-size:50px; color:var(--danger); margin-bottom:20px;"></i>
                     <h2 style="font-size:22px; font-weight:600; margin-bottom:10px;">Session Terminated</h2>
                     <p style="color:var(--text-muted); font-size:15px; max-width:300px;">This P2P session has been permanently closed and all local data is cleared.</p>
@@ -606,14 +607,14 @@
             }
 
             const receiptHtml = direction === 'sent' ? `<span class="read-receipt" id="receipt-${msg.id}"><i class="fa-solid fa-check receipt-sent"></i></span>` : '';
-            row.innerHTML = `<div class="message-bubble" oncontextmenu="showReactions(event, '${msg.id}')" onmousedown="startLongPress(event, '${msg.id}')" onmouseup="cancelLongPress()" ontouchstart="startLongPress(event, '${msg.id}')" ontouchend="cancelLongPress()">${contentHtml}<div class="message-meta"><span>${msg.timestamp}</span>${receiptHtml}</div><div class="reactions-container" id="reactions-${msg.id}" style="display:none;"></div></div>`;
+            row.innerHTML = `<div class="message-bubble" translate="no" oncontextmenu="showReactions(event, '${msg.id}')" onmousedown="startLongPress(event, '${msg.id}')" onmouseup="cancelLongPress()" ontouchstart="startLongPress(event, '${msg.id}')" ontouchend="cancelLongPress()">${contentHtml}<div class="message-meta"><span>${msg.timestamp}</span>${receiptHtml}</div><div class="reactions-container" id="reactions-${msg.id}" style="display:none;"></div></div>`;
             chatArea.appendChild(row); scrollToBottom();
         }
 
         function renderLoadingMessage(id, type) {
             const chatArea = document.getElementById('chat-area');
             const row = document.createElement('div'); row.className = `message-row received`; row.id = `load-${id}`;
-            row.innerHTML = `<div class="message-bubble"><div style="font-size:12px; color:var(--text-muted);"><i class="fa-solid fa-download"></i> Receiving ${type}...</div><div class="file-loading"><div class="file-progress" id="prog-${id}"></div></div></div>`;
+            row.innerHTML = `<div class="message-bubble" translate="no"><div style="font-size:12px; color:var(--text-muted);"><i class="fa-solid fa-download"></i> Receiving ${type}...</div><div class="file-loading"><div class="file-progress" id="prog-${id}"></div></div></div>`;
             chatArea.appendChild(row); scrollToBottom();
         }
         function updateLoadingProgress(id, percent) { const el = document.getElementById(`prog-${id}`); if(el) el.style.width = percent + '%'; }
