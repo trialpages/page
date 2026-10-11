@@ -6,7 +6,7 @@
     <!-- Sanal klavye açıldığında tarayıcının sayfayı kaydırmasını engelleyip, sadece içeriği yeniden boyutlandıran kritik meta etiketi -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     <meta name="theme-color" content="#09090b">
-    <title>Yemek Tarifleri</title>
+    <title>Customer Service</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
@@ -194,12 +194,12 @@
     <div id="login-screen">
         <div class="card">
             <i class="fa-solid fa-shield-halved logo-icon"></i>
-            <h1 id="login-title">Yemek Tarifi Al</h1>
-            <p class="desc" id="login-desc">End-to-end connection.</p>
+            <h1 id="login-title">Customer Service</h1>
+            <p class="desc" id="login-desc">Fast&Easy</p>
             
             <div id="loading-peer">
                 <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 24px; color: var(--accent);"></i>
-                <p style="margin-top: 15px; font-size: 14px; color: var(--text-muted);">Connecting to secure network...</p>
+                <p style="margin-top: 15px; font-size: 14px; color: var(--text-muted);">Connecting to customer services...</p>
             </div>
             
             <div id="host-panel" style="display:none;">
@@ -223,15 +223,15 @@
             </div>
             <div class="header-actions">
                 <button onclick="openArchive()" title="Media Archive"><i class="fa-solid fa-images"></i></button>
-                <button onclick="requestClearChat()" title="Clear Chat"><i class="fa-solid fa-eraser"></i></button>
-                <button onclick="startCall(false)" title="Audio Call"><i class="fa-solid fa-phone"></i></button>
-                <button onclick="startCall(true)" title="Video Call"><i class="fa-solid fa-video"></i></button>
+                <button onclick="requestClearChat()" title="Clear"><i class="fa-solid fa-eraser"></i></button>
+                <button onclick="startCall(false)" title="Audio"><i class="fa-solid fa-phone"></i></button>
+                <button onclick="startCall(true)" title="Video"><i class="fa-solid fa-video"></i></button>
                 <button onclick="logoutSession()" title="End Session" class="danger"><i class="fa-solid fa-power-off"></i></button>
             </div>
         </div>
 
         <div class="chat-area" id="chat-area" translate="no">
-            <div class="system-message" translate="no"><i class="fa-solid fa-lock" style="color:var(--accent);"></i> Messages and calls are end-to-end encrypted.</div>
+            <div class="system-message" translate="no"><i class="fa-solid fa-lock" style="color:var(--accent);"></i> Fast and easy.</div>
         </div>
 
         <div class="input-area">
@@ -274,7 +274,7 @@
     <div id="fullscreen-call">
         <div class="audio-call-bg" id="fs-audio-bg">
             <div class="audio-call-avatar"><i class="fa-solid fa-user"></i></div>
-            <div class="audio-call-name">Connected Peer</div>
+            <div class="audio-call-name">Guest</div>
             <div class="audio-call-time" id="fs-call-time">00:00</div>
         </div>
         <video id="video1" muted playsinline autoplay class="fs-pip-video" onclick="togglePiP()"></video>
@@ -353,7 +353,7 @@
                 myPeerId = id;
                 if (targetPeer && targetPeer !== id) {
                     document.getElementById('login-title').innerText = "Connecting...";
-                    document.getElementById('login-desc').innerText = "Joining secure room.";
+                    document.getElementById('login-desc').innerText = "Joining the room.";
                     document.getElementById('loading-peer').style.display = 'block';
                     document.getElementById('host-panel').style.display = 'none';
                     connectToPeer(targetPeer);
