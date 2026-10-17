@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#061B33">
+<meta name="description" content="MÂVİ Okey Kulübü — dört kişilik P2P Düz Okey ve 51.">
+<title>MÂVİ · Okey Kulübü</title>
+<style>
+:root{--navy:#061b33;--blue:#0b3056;--gold:#d4af37;--cream:#f5f5dc;--ink:#1d3557;--muted:#8ca7be;--glass:rgba(8,30,53,.82);--tile-w:clamp(28px,4.6vw,49px);--tile-h:calc(var(--tile-w)*1.28);--radius:16px;color-scheme:dark;font-family:Inter,"Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;background:var(--navy);color:#ecf2f8}
+body{height:100dvh;background:radial-gradient(ellipse at 50% 35%,#154775 0,#0b3056 42%,#061b33 100%)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.34;cursor:default;filter:saturate(.4)}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+button{color:inherit;border:1px solid #ffffff20;background:#ffffff08;border-radius:9px;padding:9px 13px;transition:background .15s,transform .15s}button:not(:disabled):active{transform:translateY(1px)}button:not(:disabled):hover{background:#ffffff14}button.gold{color:#182535;background:linear-gradient(135deg,#e6cc75,#c6a030);border-color:#efd879;font-weight:750;box-shadow:0 4px 20px #0002}button.gold:not(:disabled):hover{background:#efcf69}button.danger{color:#ffb8b8;border-color:#ed6b6b50}button.small{padding:6px 10px;font-size:11px}button.icon{width:34px;height:32px;padding:0;font-size:17px}.hidden,[hidden]{display:none!important}
+.glass{background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid #b3c6da25;box-shadow:0 12px 35px #0002}
+#app{display:flex;flex-direction:column;width:100%;height:100%;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.topbar{height:45px;min-height:45px;display:flex;align-items:center;gap:12px;padding:0 18px;border-bottom:1px solid #ffffff12;background:#04182a85;z-index:3}.brand{font-family:Georgia,serif;font-size:23px;letter-spacing:5px;color:#e5cf86;white-space:nowrap}.brand em{font-family:Arial,sans-serif;letter-spacing:2px;font-size:8px;font-style:normal;color:var(--muted);display:inline-block;margin-left:6px}.badge{border:1px solid #d4af3745;background:#d4af370b;color:#eddaa3;border-radius:20px;padding:4px 10px;font-size:10px;white-space:nowrap}.room-chip{font-family:monospace;font-size:13px;letter-spacing:2px;padding:5px 9px}.spacer{flex:1}.connection{font-size:10px;color:#9eb8cf;display:flex;align-items:center;gap:5px;white-space:nowrap}.dot{height:6px;width:6px;border-radius:50%;background:#63d6ac;box-shadow:0 0 9px #63d6ac70}.dot.warn{background:#efb35d}.toolbar-icons{display:flex;gap:5px}
+.arena{position:relative;flex:1;min-height:90px;margin:0 12px}.table-line{position:absolute;inset:22px 6%;border:1px solid #d4af3725;border-radius:48% 48% 40% 40%;pointer-events:none}.table-line:after{content:"MÂVİ";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font:52px Georgia,serif;letter-spacing:17px;color:#ffffff04}
+.player{position:absolute;width:125px;min-height:69px;padding:9px 8px 7px;border-radius:13px;display:grid;grid-template-columns:38px 1fr;gap:5px;align-items:center;border-color:#ffffff15;z-index:2}.player.left{left:4px;top:48%;transform:translateY(-50%)}.player.right{right:4px;top:48%;transform:translateY(-50%)}.player.top{top:7px;left:50%;transform:translateX(-50%);width:210px;grid-template-columns:38px 1fr 34px;min-height:57px}.player.active{border-color:#d4af37;box-shadow:0 0 0 2px #d4af3712,0 0 25px #d4af3714}.avatar-ring{--progress:100%;width:37px;height:37px;padding:3px;border-radius:50%;background:conic-gradient(var(--gold) var(--progress),#ffffff13 0);position:relative}.avatar{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:#153650;font-size:14px;font-weight:700;color:#e9d696;border:2px solid #0a263e}.player-name{font-size:11px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:82px}.player-meta{font-size:9px;color:var(--muted);margin-top:4px;white-space:nowrap}.player .last-slot{grid-column:1/3;display:flex;align-items:center;gap:7px;color:var(--muted);font-size:9px;margin-top:1px;border-top:1px solid #ffffff0e;padding-top:6px;min-height:35px}.player.top .last-slot{grid-column:3;grid-row:1;min-height:38px;border:0;padding:0;margin:0}.last-slot .tile{width:25px;height:33px;font-size:20px;pointer-events:none}.empty-last{border:1px dashed #c9d5df35;border-radius:4px;width:25px;height:32px;display:block}.turn-count{font-size:9px;color:var(--gold);margin-left:4px}.disconnected{opacity:.5}.opened-tag{font-size:8px;color:#95e6c0}.table-content{position:absolute;inset:69px 143px 8px;display:flex;align-items:center;justify-content:center;gap:17px;min-height:0}
+.stock-area{display:flex;align-items:center;justify-content:center;gap:17px;flex-shrink:0}.stock-block{text-align:center}.stack{position:relative;width:calc(var(--tile-w)*1.06);height:var(--tile-h);border:1px solid #ceb66765;border-radius:6px;background:repeating-linear-gradient(45deg,#103758,#103758 4px,#153d60 4px,#153d60 5px);box-shadow:3px 3px 0 #b99c54,5px 5px 0 #0b243c,7px 7px 0 #b99c5470;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#e3ca77;font-size:22px;font-family:Georgia,serif;padding:0}.stack span{font-size:7px;letter-spacing:1px;margin-top:4px}.stock-label{font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-top:10px}.indicator-box{position:relative}.indicator-box .tile{width:var(--tile-w);height:var(--tile-h)}.indicator-box:before{content:"GÖSTERGE";font-size:7px;letter-spacing:1px;position:absolute;top:-15px;left:50%;transform:translateX(-50%);color:#c3d0dc}.joker-label{font-size:9px;margin-top:9px;color:#e1cd91;white-space:nowrap}.finish-zone{height:70px;min-width:90px;border:1px dashed #d4af3760;border-radius:12px;display:grid;place-items:center;text-align:center;padding:10px;color:#d9c68e;font-size:10px;letter-spacing:1px;background:#d4af3705}.finish-zone strong{font-size:20px;display:block;margin-bottom:3px}.drop-target{outline:2px solid var(--gold)!important;background:#d4af3725!important}.meld-zone{flex:1;align-self:stretch;min-width:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#d4af3760 transparent;border:1px solid #ffffff12;background:#031a2d35;border-radius:12px;padding:9px;display:flex;align-content:flex-start;align-items:flex-start;flex-wrap:wrap;gap:9px}.meld-zone:empty:before{content:"Açılan perler burada görünür";margin:auto;color:#7091aa;font-size:11px}.meld{border-radius:8px;border:1px solid #c4d3df25;background:#0b213a90;padding:5px;cursor:pointer;max-width:100%;overflow:auto}.meld-head{display:flex;align-items:center;justify-content:space-between;color:#a0b8ca;font-size:8px;gap:10px;padding:0 1px 5px}.meld-tiles{display:flex;gap:3px}.meld .tile{width:28px;height:37px;font-size:22px;flex-shrink:0}.meld-owner{color:#d4c084}.meld.ready{border-color:#d4af3770}.mode51 .table-content{inset:70px 141px 5px;gap:13px}.mode51 .stock-area{gap:10px}.mode51 .stack{width:33px;height:45px;font-size:18px}.mode51 .indicator-box .tile{width:31px;height:42px;font-size:25px}.mode51 .stock-label{font-size:7px;letter-spacing:.7px}.mode51 .joker-label{font-size:8px}.mode51 .stock-area{flex-direction:column;gap:23px}.mode51 .indicator-box:before{font-size:6px;top:-11px}.mode51 .stock-block .stock-label{margin-top:7px}
+.notice-line{height:23px;min-height:23px;display:flex;align-items:center;justify-content:center;gap:10px;padding:0 15px;font-size:10px;color:#b3c9db}.notice-line strong{color:#f0d77a;font-weight:600}.notice-line .selection-count{color:#96e0c6}.rack-area{margin:0 13px 2px;position:relative}.rack-shell{position:relative;width:min(calc(100% - 108px),calc(var(--tile-w)*14 + 57px));margin:0 auto;padding:5px 9px 8px;border:1px solid #a88a4d65;border-radius:11px;background:linear-gradient(180deg,#443828bd,#1c2026eb 48%,#443426d9);box-shadow:0 4px 25px #0005,inset 0 1px 0 #e0bc6b30}.rack-row{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px;padding-bottom:6px;position:relative}.rack-row:after{content:"";position:absolute;height:5px;border-radius:2px;bottom:1px;left:-5px;right:-5px;background:linear-gradient(#ba925b,#60442c);box-shadow:0 3px 5px #0007}.rack-slot{height:var(--tile-h);min-width:0;position:relative;border-radius:5px;background:#00000016;border:1px solid #ffffff03}.rack-slot .tile{width:100%;height:100%;touch-action:none;cursor:grab}.rack-slot .tile:active{cursor:grabbing}.rack-slot.selected{transform:translateY(-5px);z-index:1}.rack-slot.selected .tile{box-shadow:0 0 0 2px #ead06f,0 5px 8px #0006}.rack-slot.drag-origin .tile{opacity:.2}.rack-side{position:absolute;left:1px;bottom:9px;width:55px;font-size:9px;color:#94b2c7;line-height:1.7}.rack-side strong{font-size:11px;color:#e3d5ac;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rack-side-right{position:absolute;right:0;bottom:10px;display:flex;flex-direction:column;align-items:center;gap:7px;width:51px}.discard-zone{width:45px;min-height:58px;border-radius:9px;border:1px dashed #d7b65090;font-size:8px;color:#dbc893;padding:4px;display:flex;align-items:center;justify-content:center;text-align:center;flex-direction:column;background:#d4af3708}.discard-zone .tile{width:29px;height:38px;font-size:23px;margin-bottom:3px;pointer-events:none}.rack-status{font-size:8px;color:#8eb5cf}.actions{min-height:39px;display:flex;align-items:center;justify-content:center;gap:6px;padding:3px 12px 6px}.actions button{padding:7px 11px;font-size:10px;white-space:nowrap}.actions .divider{width:1px;height:18px;background:#ffffff20;margin:0 3px}.tile{position:relative;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fffef0,#f5f5dc 56%,#dfdfc5);color:var(--tile-color,#1d3557);border:1px solid #dfdcc3;border-radius:5px;box-shadow:inset 1px 1px 0 #fff,inset -2px -3px 0 #bcbda68c,0 3px 3px #0004;font-size:clamp(22px,3.5vw,37px);font-weight:800;line-height:1;isolation:isolate}.tile:before{content:"";position:absolute;inset:4px 3px 6px;border:1px solid #b9b99c28;border-radius:3px;pointer-events:none}.tile:after{content:"";position:absolute;width:6px;height:3px;border-radius:50%;background:var(--tile-color);opacity:.65;bottom:6px;left:50%;transform:translateX(-50%)}.tile.fake{font-size:30px;color:#87702f}.tile .tile-corner{position:absolute;left:3px;top:2px;font:7px Arial,sans-serif;color:var(--tile-color);line-height:1}.tile .joker-mark{position:absolute;right:2px;top:2px;color:#987b20;font-size:8px;line-height:1}.tile .bound{position:absolute;bottom:2px;right:3px;font-size:7px;color:var(--tile-color);background:#f5f5dccc;border-radius:2px;padding:1px}.tile.fake:after{background:#9e8234}.tile.real-joker{border-color:#e3c35a}.tile.real-joker:before{border-color:#d4af3760}.tile-back{background:#0d3455;color:#d4af37;border-color:#d4af3750;font-size:20px}.tile-back:after{display:none}.drag-ghost{position:fixed;z-index:1000;pointer-events:none;width:var(--tile-w);height:var(--tile-h);transform:translate(-50%,-65%) rotate(-5deg);filter:drop-shadow(0 10px 9px #0007)}.drag-ghost .tile{height:100%;width:100%;font-size:33px}
+.shade{position:fixed;inset:0;background:#020d19b5;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);display:flex;align-items:center;justify-content:center;z-index:20;padding:15px}.dialog{width:min(92vw,620px);max-height:92dvh;border:1px solid #d4af3745;border-radius:20px;background:linear-gradient(145deg,#102f4e,#071c32);box-shadow:0 25px 100px #0009;display:flex;flex-direction:column;overflow:hidden}.dialog-header{padding:17px 20px 12px;display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:1px solid #ffffff10;flex-shrink:0}.dialog-header h2{font:23px Georgia,serif;color:#e5d49c;margin:0}.eyebrow{font-size:8px;letter-spacing:2.5px;color:#9db5c8;margin-bottom:5px}.dialog-body{padding:17px 20px;overflow:auto;min-height:0;scrollbar-width:thin;scrollbar-color:#b5984050 transparent}.dialog-footer{padding:11px 20px 15px;border-top:1px solid #ffffff10;display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-shrink:0}.dialog-footer .hint{margin-right:auto;font-size:10px;color:#a5bdce}.lobby-columns{display:grid;grid-template-columns:1fr 1fr;gap:20px}.form-group{margin-bottom:12px}.form-group label{font-size:10px;color:#b6cbda;display:block;margin-bottom:5px}.form-group input,.form-group select,.form-group textarea{width:100%;min-height:35px;border-radius:8px;border:1px solid #a3bed22c;color:#f1f5f9;background:#03172b99;padding:8px 10px;font-size:12px;outline:none}.form-group textarea{resize:vertical;min-height:70px;touch-action:auto}.form-group input::placeholder{color:#678297}.form-group input[type=checkbox]{width:auto;min-height:0;accent-color:#d4af37}.check{display:flex!important;align-items:center;gap:8px;font-size:11px!important}.option-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.mode-choice{padding:12px 8px;text-align:left}.mode-choice b{display:block;font:18px Georgia,serif;color:#ddd1ac}.mode-choice small{font-size:9px;color:#9bb3c6;display:block;margin-top:4px}.mode-choice.chosen{border-color:var(--gold);background:#d4af3710}.subtle{font-size:10px;color:#9fb7cb;line-height:1.65}.tiny{font-size:9px;color:#88a5bb;line-height:1.6}.code-field{text-transform:uppercase;letter-spacing:6px;text-align:center;font-family:monospace!important;font-size:22px!important}.lobby-seats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seat-card{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid #ffffff17;border-radius:10px;background:#ffffff04;min-width:0}.seat-card .seat-name{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.seat-card .seat-desc{font-size:9px;color:#8faabd;margin-top:4px}.seat-card button{margin-left:auto}.room-code-large{font:30px monospace;letter-spacing:8px;color:#e4ce88;text-align:center;margin:5px 0 17px}.lobby-settings{padding-top:14px;margin-top:13px;border-top:1px solid #ffffff12;display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.lobby-actions{display:flex;gap:8px;margin-top:14px}.error-box{border:1px solid #ef8a6e50;color:#ffc1ad;border-radius:8px;padding:9px 11px;background:#ef8a6e09;font-size:10px;margin-top:9px;line-height:1.5}.busy-line{font-size:11px;color:#dbc790;line-height:1.6;min-height:18px}.section-title{font-size:11px;color:#e1cf95;margin:0 0 10px}.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.help-grid p{font-size:11px;color:#bdd0de;line-height:1.65;margin:5px 0}.help-grid h3{font-size:13px;color:#e6d69e;margin:5px 0}.help-grid ul{padding-left:16px;margin:7px 0;font-size:11px;line-height:1.7;color:#b6cbda}.help-note{margin-top:16px;padding:10px;background:#ffffff05;border:1px solid #ffffff10;border-radius:9px;font-size:10px;color:#9eb8cb;line-height:1.6}.score-table{width:100%;border-collapse:collapse;font-size:11px}.score-table td,.score-table th{padding:10px 8px;text-align:left;border-bottom:1px solid #ffffff14}.score-table th{font-size:9px;color:#8eacbf;font-weight:500}.score-table .winner{color:#edcf6c}.winner-title{text-align:center;font:27px Georgia,serif;color:#eed897;margin:5px 0 7px}.winner-sub{text-align:center;font-size:11px;color:#a1bbcd;margin-bottom:14px}.draft-bar{display:flex;gap:7px;margin-bottom:10px;align-items:center;flex-wrap:wrap}.draft-bar button{font-size:10px;padding:6px 10px}.draft-hand{display:flex;gap:4px;flex-wrap:wrap;padding:12px 5px 7px;min-height:65px;border-top:1px solid #ffffff15;margin-top:10px}.draft-hand .tile{width:33px;height:44px;font-size:25px;cursor:pointer;touch-action:manipulation}.draft-hand .tile.chosen-tile{transform:translateY(-7px);outline:2px solid #dec465}.draft-hand .tile.used-tile{opacity:.19;pointer-events:none}.draft-groups{display:flex;gap:8px;flex-wrap:wrap;min-height:65px;margin-top:9px}.draft-group{padding:7px;border:1px solid #ffffff25;background:#03182b88;border-radius:9px}.draft-group .group-tiles{display:flex;gap:3px}.draft-group .tile{width:27px;height:36px;font-size:21px}.draft-group .group-footer{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:6px;font-size:9px;color:#c1cfda}.draft-group button{padding:2px 5px;font-size:9px}.draft-total{font-size:12px;color:#e3cb81;line-height:1.6}.draft-taken{font-size:9px;color:#8bd6bf}.processing-list{display:flex;flex-direction:column;gap:7px}.process-option{display:flex;align-items:center;gap:10px;text-align:left}.process-option .tile{width:31px;height:42px;font-size:25px;flex-shrink:0}.process-option small{font-size:9px;color:#9fb7c9;display:block;margin-top:4px}.toast-stack{position:fixed;top:53px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:7px;pointer-events:none;max-width:75vw}.toast{background:#061b33ee;border:1px solid #d4af3755;box-shadow:0 6px 25px #0006;border-radius:10px;padding:9px 17px;font-size:11px;text-align:center;color:#e7d8af;animation:toastIn .18s ease-out}.toast.error{color:#ffc4b6;border-color:#d7786770}.pause-banner{position:absolute;inset:66px 140px 10px;display:flex;align-items:center;justify-content:center;z-index:4;background:#041326dc;border:1px solid #d4af3750;border-radius:12px;text-align:center;font-size:12px;color:#eedba4;padding:15px;line-height:1.8}.pause-banner span{display:block;font-size:10px;color:#a7bed0}.portrait{position:fixed;inset:0;z-index:2000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:20px;background:radial-gradient(ellipse,#123b61,#061b33);text-align:center;padding:35px}.phone-icon{width:55px;height:94px;border:3px solid #d4af37;border-radius:12px;position:relative;transform:rotate(-90deg);animation:turnPhone 2.8s ease-in-out infinite}.phone-icon:after{content:"";width:14px;height:3px;background:#d4af37;border-radius:4px;position:absolute;bottom:6px;left:50%;transform:translateX(-50%)}.portrait h2{font:25px Georgia,serif;color:#e2d09a;margin:12px 0 0}.portrait p{font-size:13px;color:#a1b7ca;line-height:1.7}.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@keyframes toastIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}@keyframes turnPhone{0%,20%{transform:rotate(0)}50%,85%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+@media(orientation:portrait){.portrait{display:flex}}
+@media(max-height:450px){:root{--tile-w:clamp(27px,4.1vw,38px);--tile-h:calc(var(--tile-w)*1.22)}.topbar{height:36px;min-height:36px;padding:0 12px;gap:8px}.brand{font-size:20px}.brand em{font-size:7px;letter-spacing:1px}.topbar .icon{height:27px;width:29px;font-size:15px}.badge{font-size:9px;padding:3px 8px}.player{min-height:62px;padding:6px;width:108px;grid-template-columns:31px 1fr;gap:4px}.player.top{top:4px;min-height:43px;width:184px;grid-template-columns:31px 1fr 28px}.player.left,.player.right{top:50%}.avatar-ring{width:30px;height:30px;padding:2px}.avatar{font-size:12px}.player-name{font-size:10px;max-width:76px}.player-meta{font-size:8px;margin-top:3px}.player .last-slot{min-height:27px;padding-top:4px;font-size:8px}.last-slot .tile{width:21px;height:27px;font-size:17px}.empty-last{width:21px;height:27px}.table-content{inset:52px 120px 3px;gap:17px}.mode51 .table-content{inset:51px 120px 3px;gap:10px}.mode51 .stock-area{gap:16px}.mode51 .stack{width:28px;height:34px;font-size:16px}.mode51 .indicator-box .tile{width:26px;height:34px;font-size:22px}.mode51 .stock-label{font-size:6px}.mode51 .joker-label{font-size:7px;margin-top:4px}.mode51 .stock-block .stock-label{margin-top:6px}.stock-area{gap:15px}.stack{font-size:20px}.stock-label{margin-top:8px;font-size:7px}.indicator-box:before{font-size:6px;top:-12px}.joker-label{font-size:8px;margin-top:7px}.finish-zone{height:51px;min-width:70px;font-size:8px;padding:6px}.finish-zone strong{font-size:16px}.notice-line{height:20px;min-height:20px;font-size:9px}.rack-shell{width:min(calc(100% - 110px),calc(var(--tile-w)*14 + 55px));padding:4px 8px 5px;border-radius:8px}.rack-row{padding-bottom:5px;gap:3px}.rack-row:after{height:4px}.tile{font-size:28px}.tile.fake{font-size:26px}.tile:after{bottom:5px;width:4px;height:2px}.tile .tile-corner{font-size:6px}.tile:before{inset:3px 3px 5px}.actions{min-height:32px;padding:2px 10px 5px;gap:5px}.actions button{padding:5px 9px;font-size:9px}.rack-side{font-size:8px;bottom:8px}.rack-side strong{font-size:10px}.rack-side-right{gap:4px;bottom:5px}.discard-zone{min-height:48px;width:43px;font-size:7px}.discard-zone .tile{width:24px;height:29px;font-size:20px}.rack-status{font-size:7px}.meld{padding:4px}.meld .tile{width:23px;height:30px;font-size:19px}.meld-head{font-size:7px;padding-bottom:3px}.meld-zone{padding:6px;gap:6px}.dialog{max-height:94dvh;border-radius:15px}.dialog-header{padding:11px 16px 8px}.dialog-header h2{font-size:21px}.dialog-body{padding:11px 16px}.dialog-footer{padding:8px 16px 10px}.lobby-columns{gap:17px}.form-group{margin-bottom:8px}.form-group input,.form-group select{min-height:31px;padding:6px 9px;font-size:11px}.mode-choice{padding:8px}.mode-choice b{font-size:16px}.dialog .subtle{font-size:9px}.room-code-large{font-size:24px;margin:0 0 11px}.seat-card{padding:7px}.lobby-settings{padding-top:10px;margin-top:9px}.help-grid{gap:15px}.help-grid p,.help-grid ul{font-size:10px}.pause-banner{inset:49px 118px 3px}.toast-stack{top:42px}.toast{padding:7px 13px;font-size:10px}.draft-hand{padding:9px 3px 4px}.draft-hand .tile{width:28px;height:36px;font-size:22px}.draft-group .tile{width:24px;height:31px;font-size:19px}.draft-groups{min-height:45px}.draft-total{font-size:11px}}
+@media(max-width:700px){.brand em,.connection .conn-word{display:none}.topbar{gap:5px}.topbar .icon{width:25px}.player{width:94px}.table-content{left:105px;right:105px}.mode51 .table-content{left:103px;right:103px}.player.top{width:160px}.rack-shell{width:min(calc(100% - 95px),calc(var(--tile-w)*14 + 42px))}.rack-side{width:45px}.rack-side-right{width:44px}.actions{gap:3px;padding-left:5px;padding-right:5px}.actions button{padding:5px 7px;font-size:8px}.actions .divider{margin:0 1px}.rack-row{gap:2px}.pause-banner{left:101px;right:101px}.mode51 .stock-area{gap:15px}.lobby-columns{gap:13px}.dialog{width:95vw}.meld-zone{gap:5px}.mode51 .table-content{gap:7px}}
+@media(max-height:330px){:root{--tile-w:clamp(23px,3.7vw,30px);--tile-h:calc(var(--tile-w)*1.15)}.topbar{height:31px;min-height:31px}.brand{font-size:18px}.topbar .icon{height:24px}.arena{min-height:65px}.notice-line{height:17px;min-height:17px;font-size:8px}.actions{min-height:27px;padding-bottom:3px}.actions button{padding:4px 7px;font-size:8px}.rack-shell{padding-bottom:3px}.tile{font-size:24px}.player{padding:5px;min-height:55px}.player.top{min-height:38px}.player .last-slot{padding-top:3px;min-height:25px}.player-name{font-size:9px}.player-meta{font-size:7px}.mode51 .stock-area{flex-direction:row;gap:9px}.mode51 .stack{width:25px;height:32px}.mode51 .indicator-box .tile{width:25px;height:32px}.table-content,.mode51 .table-content{top:45px}.finish-zone{height:43px}.pause-banner{top:43px}.dialog-header{padding-top:8px}.dialog-footer{padding-bottom:8px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app" aria-label="Mâvi Okey masası">
+  <header class="topbar">
+    <div class="brand">MÂVİ<em>OKEY KULÜBÜ</em></div>
+    <span class="badge" id="modeBadge">DÜZ OKEY</span>
+    <button class="badge room-chip" id="roomButton" title="Oda kodu ve masa">MASA</button>
+    <div class="spacer"></div>
+    <div class="connection" id="connectionStatus"><i class="dot"></i><span class="conn-word">Hazır</span></div>
+    <nav class="toolbar-icons" aria-label="Masa menüsü">
+      <button class="icon" id="soundButton" title="Sesi aç / kapat" aria-label="Sesi aç / kapat">♫</button>
+      <button class="icon" id="fullscreenButton" title="Tam ekran" aria-label="Tam ekran">⛶</button>
+      <button class="icon" id="scoresButton" title="Puan tablosu" aria-label="Puan tablosu">≡</button>
+      <button class="icon" id="helpButton" title="Kurallar ve kullanım" aria-label="Kurallar ve kullanım">?</button>
+      <button class="icon" id="lobbyButton" title="Masa yönetimi" aria-label="Masa yönetimi">⚙</button>
+    </nav>
+  </header>
+  <section class="arena" id="arena" aria-label="Oyun alanı">
+    <div class="table-line"></div>
+    <div id="opponents"></div>
+    <div class="table-content" id="tableContent">
+      <div class="stock-area">
+        <div class="stock-block"><button class="stack" id="stockButton" title="Ortadan taş çek"><b id="stockCount">48</b><span>TAŞ</span></button><div class="stock-label">ORTADAN ÇEK</div></div>
+        <div class="indicator-box"><div id="indicatorTile"></div><div class="joker-label" id="jokerLabel">Masa bekleniyor</div></div>
+      </div>
+      <button class="finish-zone" id="finishZone"><span><strong>♔</strong>BİTİŞ ALANI</span></button>
+      <div class="meld-zone hidden" id="meldZone" aria-label="Açma masası"></div>
+    </div>
+    <div class="pause-banner hidden" id="pauseBanner"></div>
+  </section>
+  <div class="notice-line" id="noticeLine" role="status" aria-live="polite">Bir masa kurun veya oda koduyla katılın.</div>
+  <section class="rack-area" aria-label="Istakanız">
+    <div class="rack-side"><strong id="selfName">Siz</strong><span id="selfCount">0 taş</span><br><span id="selfScore">0 ceza</span></div>
+    <div class="rack-shell" id="rack"><div class="rack-row" id="rackTop"></div><div class="rack-row" id="rackBottom"></div></div>
+    <div class="rack-side-right"><button class="discard-zone" id="discardZone" title="Seçili taşı sağa at"><span>TAŞ AT →</span></button><span class="rack-status" id="selfOpened">GİZLİ EL</span></div>
+  </section>
+  <footer class="actions">
+    <button id="sortRunsButton">↗ Seri Diz</button>
+    <button id="sortPairsButton">♧ Çift Diz</button>
+    <button id="undoButton" title="Son ıstaka düzenini geri al">↶ Geri Al</button>
+    <button id="resetButton" title="Seçimi ve ıstaka düzenini sıfırla">⟲ Sıfırla</button>
+    <span class="divider"></span>
+    <button id="takeLeftButton">← Soldan Al</button>
+    <button id="showIndicatorButton">Gösterge</button>
+    <button id="openButton" class="gold hidden">Yere Aç</button>
+    <button id="processButton" class="hidden">İşle / Okey Al</button>
+    <button id="winButton" class="gold">♔ Bitir</button>
+  </footer>
+</main>
+<section class="shade" id="lobbyOverlay" aria-modal="true" role="dialog" aria-label="Masa lobisi">
+  <div class="dialog" style="width:min(94vw,670px)">
+    <div class="dialog-header"><div><div class="eyebrow">DÖRT KİŞİ · GERÇEK ZAMANLI</div><h2>Mâvi Okey Kulübü</h2></div><button class="icon hidden" id="closeLobbyButton" aria-label="Masaya dön">×</button></div>
+    <div class="dialog-body">
+      <div id="entryPanel" class="lobby-columns">
+        <div>
+          <div class="form-group"><label for="playerNameInput">MASADAKİ ADINIZ</label><input id="playerNameInput" maxlength="20" value="Oyuncu" autocomplete="nickname"></div>
+          <div class="form-group"><label>OYUN SEÇİMİ</label><div class="option-grid"><button class="mode-choice chosen" data-mode="okey"><b>Düz Okey</b><small>Perler · 7 çift · gizli el</small></button><button class="mode-choice" data-mode="51"><b>51</b><small>Açılış · işleme · katlama</small></button></div></div>
+          <div class="form-group"><label class="check"><input id="foldedInput" type="checkbox">51'de katlamalı açılış</label></div>
+          <div class="lobby-actions"><button class="gold" id="createRoomButton">Oda Kur · P2P</button><button id="localButton">Botlarla Oyna</button></div>
+          <p class="tiny">Bot masası çevrimdışı çalışır. P2P masasında kurucu uygulamayı açık tutar.</p>
+        </div>
+        <div style="border-left:1px solid #ffffff13;padding-left:18px">
+          <h3 class="section-title">ARKADAŞLARINIZIN MASASINA KATILIN</h3>
+          <div class="form-group"><label for="roomCodeInput">5 KARAKTERLİ ODA KODU</label><input class="code-field" id="roomCodeInput" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="A7K3M"></div>
+          <button class="gold" id="joinRoomButton" style="width:100%">Masaya Katıl</button>
+          <p class="subtle">Aynı dosyayı dört cihazda açın. Kurucunun oda kodunu diğer üç oyuncu girsin.</p>
+          <button class="small" id="networkSettingsButton">Gelişmiş Ağ Ayarları</button>
+          <div class="busy-line" id="entryStatus"></div><button class="small hidden" id="cancelConnectionButton">Bağlantıdan Vazgeç</button>
+        </div>
+      </div>
+      <div id="roomPanel" class="hidden">
+        <div class="room-code-large" id="lobbyRoomCode"></div>
+        <div class="lobby-seats" id="lobbySeats"></div>
+        <div class="lobby-settings" id="roomSettings">
+          <div class="form-group"><label for="roomModeSelect">Oyun</label><select id="roomModeSelect"><option value="okey">Düz Okey</option><option value="51">51</option></select></div>
+          <div class="form-group"><label for="turnSecondsSelect">Hamle süresi</label><select id="turnSecondsSelect"><option value="30">30 saniye</option><option value="45" selected>45 saniye</option><option value="60">60 saniye</option><option value="90">90 saniye</option></select></div>
+          <div class="form-group"><label for="jokerPenaltySelect">51'de elde kalan okey cezası</label><select id="jokerPenaltySelect"><option value="25">25 puan</option><option value="50">50 puan</option></select></div>
+          <div class="form-group"><label class="check"><input id="roomFoldedInput" type="checkbox">51 · Katlamalı</label><label class="check"><input id="indicatorEnabledInput" type="checkbox" checked>Düz Okey · Gösterge cezası</label></div>
+        </div>
+        <div class="lobby-actions" id="hostLobbyActions"><button id="addBotButton">＋ Bot Ekle</button><button id="fillBotsButton">Botlarla Tamamla</button><button class="gold" id="startButton">Eli Başlat</button></div>
+        <div class="lobby-actions hidden" id="activeRoomActions"><button class="gold" id="returnTableButton">Masaya Dön</button><button id="replaceDisconnectedButton">Kopan Oyuncuya Bot</button></div>
+        <p class="tiny" id="lobbyRoomHint"></p>
+        <button class="small danger" id="leaveRoomButton">Masadan Ayrıl</button>
+      </div>
+      <div id="lobbyError" class="error-box hidden"></div>
+    </div>
+  </div>
+</section>
+<section class="shade hidden" id="modalOverlay" aria-modal="true" role="dialog" aria-label="Masa penceresi"><div class="dialog" id="modalDialog"><div class="dialog-header"><h2 id="modalTitle"></h2><button class="icon" id="closeModalButton" aria-label="Pencereyi kapat">×</button></div><div class="dialog-body" id="modalBody"></div><div class="dialog-footer" id="modalFooter"></div></div></section>
+<div class="toast-stack" id="toastStack" role="status" aria-live="polite"></div>
+<section class="portrait"><div class="phone-icon"></div><h2>Lütfen cihazınızı yatay çevirin</h2><p>Istakanız ve bütün masa<br>yatay ekranda sizi bekliyor.</p><div class="brand">MÂVİ</div></section>
+<script id="appScript">
+'use strict';
+/* Tek dosya, build gerektirmez. P2P: PeerJS 1.5.5 (MIT), ihtiyaç halinde CDN'den yüklenir.
+   APK: INTERNET izni ve JavaScript/DOM storage açık WebView gerekir. Modern Android
+   System WebView ve HTTPS WebViewAssetLoader önerilir. Host uygulama arka planda
+   askıya alınırsa masa bekler. Kurallar bu dosyadaki masa sözleşmesidir; 51 yöresel
+   farklılıklar içerir. Dağıtımın otoritesi host'tur; kötü niyetli host'a karşı
+   kriptografik, sunucusuz dağıtım ispatı amaçlanmaz. */
+const COLORS=['#E63946','#1D3557','#0077B6','#F4A261'];
+const COLOR_NAMES=['Kırmızı','Siyah','Mavi','Sarı'];
+const BOT_NAMES=['Nâzım','Defne','Kemal','Eylül','Mahir','Aslı'];
+const clone=o=>JSON.parse(JSON.stringify(o));
+const int=n=>Number.isInteger(n);
+const ensure=(v,m)=>{if(!v)throw new Error(m);};
+const now=()=>Date.now();
+const storage={get(k,f=''){try{return localStorage.getItem('mavi.'+k)||f;}catch(e){return f;}},set(k,v){try{localStorage.setItem('mavi.'+k,String(v));}catch(e){}},del(k){try{localStorage.removeItem('mavi.'+k);}catch(e){}}};
+function randomInt(max){ensure(int(max)&&max>0,'Geçersiz rastgele aralık.');if(globalThis.crypto&&crypto.getRandomValues){const a=new Uint32Array(1),lim=4294967296-(4294967296%max);do{crypto.getRandomValues(a);}while(a[0]>=lim);return a[0]%max;}return Math.floor(Math.random()*max);}
+function randomToken(){return Array.from({length:24},()=>randomInt(256).toString(16).padStart(2,'0')).join('');}
+function cleanName(n){return String(n||'Oyuncu').replace(/[\u0000-\u001f\u007f<>]/g,'').trim().slice(0,20)||'Oyuncu';}
+function escapeHTML(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function bitCount(n){let c=0;while(n){n&=n-1;c++;}return c;}
+function tileText(t,j){if(!t)return 'Boş';if(t.f)return 'Sahte okey';return COLOR_NAMES[t.c]+' '+t.n+(Rules.isWild(t,j)?' · Okey':'');}
+
+class Rules{
+  static deck(){const d=[];for(let c=0;c<4;c++)for(let n=1;n<=13;n++)for(let k=0;k<2;k++)d.push({id:d.length,c,n,f:false});d.push({id:104,c:-1,n:0,f:true},{id:105,c:-1,n:0,f:true});return d;}
+  static shuffle(d){for(let i=d.length-1;i>0;i--){const j=randomInt(i+1);[d[i],d[j]]=[d[j],d[i]];}return d;}
+  static isWild(t,j){return !!(t&&j&&!t.f&&t.c===j.c&&t.n===j.n);}
+  static value(t,j){return t.f?{c:j.c,n:j.n}:{c:t.c,n:t.n};}
+  static penalty(t,j,p=25){return this.isWild(t,j)?p:this.value(t,j).n;}
+  static key(desc){return desc.kind+':'+desc.entries.map(e=>e.tile.id+'@'+e.as.c+','+e.as.n).join(';');}
+  static analyze(tiles,mode,j){
+    if(!Array.isArray(tiles)||new Set(tiles.map(t=>t.id)).size!==tiles.length||!j)return [];
+    const list=tiles.slice().sort((a,b)=>a.id-b.id),wild=list.filter(t=>this.isWild(t,j)),fixed=list.filter(t=>!this.isWild(t,j)),L=list.length,out=[];
+    const add=(kind,entries,start=null)=>{const d={kind,entries,score:entries.reduce((s,e)=>s+e.as.n,0)};if(start!==null)d.start=start;d.key=this.key(d);if(!out.some(x=>x.key===d.key))out.push(d);};
+    if(mode==='pairs'){
+      if(L!==2)return [];
+      if(fixed.length===2){const a=this.value(fixed[0],j),b=this.value(fixed[1],j);if(a.c!==b.c||a.n!==b.n)return [];}
+      const as=fixed.length?this.value(fixed[0],j):{c:j.c,n:j.n};
+      add('pair',list.map(tile=>({tile,as:{c:as.c,n:as.n}})));
+      return out;
+    }
+    if(L<3||L>13)return [];
+    if(L<=4&&fixed.length){
+      const vals=fixed.map(t=>this.value(t,j)),n=vals[0].n,used=new Set(vals.map(v=>v.c));
+      if(vals.every(v=>v.n===n)&&used.size===vals.length){
+        const missing=[0,1,2,3].filter(c=>!used.has(c));
+        const assign=(pos,chosen)=>{if(pos===wild.length){let wi=0;const entries=list.map(tile=>({tile,as:this.isWild(tile,j)?{c:chosen[wi++],n}:this.value(tile,j)})).sort((a,b)=>a.as.c-b.as.c);add('group',entries);return;}for(const c of missing)if(!chosen.includes(c))assign(pos+1,chosen.concat(c));};
+        assign(0,[]);
+      }
+    }
+    const possibleColors=fixed.length?[this.value(fixed[0],j).c]:[0,1,2,3];
+    for(const c of possibleColors){
+      if(fixed.some(t=>this.value(t,j).c!==c))continue;
+      for(let start=1;start+L-1<=14;start++){
+        const nums=Array.from({length:L},(_,i)=>start+i===14?1:start+i);
+        if(new Set(nums).size!==nums.length)continue;
+        const occupied=new Map();let good=true;
+        for(const t of fixed){const n=this.value(t,j).n,pos=nums.indexOf(n);if(pos<0||occupied.has(pos)){good=false;break;}occupied.set(pos,t);}
+        if(!good)continue;
+        let w=0;const entries=nums.map((n,i)=>({tile:occupied.get(i)||wild[w++],as:{c,n}}));
+        if(entries.every(e=>e.tile))add('run',entries,start);
+      }
+    }
+    return out.sort((a,b)=>b.score-a.score||a.key.localeCompare(b.key));
+  }
+  static candidates(hand,mode,j){
+    const N=hand.length,found=new Map(),index=new Map(hand.map((t,i)=>[t.id,i]));
+    const emit=ids=>{
+      let mask=0;for(const id of ids)mask|=1<<index.get(id);
+      if(found.has(mask))return;
+      const ds=this.analyze(ids.map(id=>hand[index.get(id)]),mode,j);
+      if(ds.length)found.set(mask,Object.assign({mask,ids:ids.slice()},ds[0]));
+    };
+    if(mode==='pairs'){for(let a=0;a<N;a++)for(let b=a+1;b<N;b++)emit([hand[a].id,hand[b].id]);return Array.from(found.values());}
+    const choose=(from,k,ids)=>{if(!k){emit(ids);return;}for(let i=from;i<=N-k;i++)choose(i+1,k-1,ids.concat(hand[i].id));};
+    choose(0,3,[]);if(N>=4)choose(0,4,[]);
+    const jokers=hand.filter(t=>this.isWild(t,j)),buckets=Array.from({length:4},()=>Array.from({length:14},()=>[]));
+    for(const t of hand)if(!this.isWild(t,j)){const v=this.value(t,j);buckets[v.c][v.n].push(t);}
+    for(let c=0;c<4;c++)for(let start=1;start<=12;start++)for(let len=3;len<=Math.min(13,N);len++){
+      if(start+len-1>14)break;
+      const slots=Array.from({length:len},(_,i)=>buckets[c][start+i===14?1:start+i]);
+      if(slots.filter(s=>!s.length).length>jokers.length)continue;
+      const walk=(p,mask,ids)=>{
+        if(p===len){emit(ids);return;}
+        for(const tile of slots[p].concat(jokers)){const bit=1<<index.get(tile.id);if(!(mask&bit))walk(p+1,mask|bit,ids.concat(tile.id));}
+      };
+      walk(0,0,[]);
+    }
+    return Array.from(found.values());
+  }
+  static solver(hand,mode,j,objective='coverage',requiredId=null){
+    ensure(hand.length<=20,'Istaka sınırı aşıldı.');
+    const groups=this.candidates(hand,mode,j),byIndex=hand.map((_,i)=>groups.filter(g=>g.mask&(1<<i))),memo=new Map(),reqIndex=hand.findIndex(t=>t.id===requiredId),reqBit=reqIndex<0?0:1<<reqIndex;
+    const better=(a,b)=>{if(!a)return b;if(!b)return a;return objective==='score'?(b.score>a.score||b.score===a.score&&b.count>a.count?b:a):(b.count>a.count||b.count===a.count&&b.score>a.score?b:a);};
+    const solve=mask=>{
+      if(!mask)return {count:0,score:0,groups:[]};
+      if(memo.has(mask))return memo.get(mask);
+      const bit=mask&-mask,i=31-Math.clz32(bit);
+      let best=(bit===reqBit)?null:solve(mask^bit);
+      for(const g of byIndex[i])if((g.mask&mask)===g.mask){
+        const rest=solve(mask^g.mask);
+        if(rest)best=better(best,{count:rest.count+g.entries.length,score:rest.score+g.score,groups:[g].concat(rest.groups)});
+      }
+      memo.set(mask,best);return best;
+    };
+    return {groups,solve,fullMask:(1<<hand.length)-1,better};
+  }
+  static plan(hand,mode,j,opts={}){
+    const s=this.solver(hand,mode,j,opts.objective||'coverage',opts.requiredId??null);
+    if(!opts.leave)return s.solve(s.fullMask)||{count:0,score:0,groups:[]};
+    let best=null;
+    for(let i=0;i<hand.length;i++)if(hand[i].id!==opts.requiredId)best=s.better(best,s.solve(s.fullMask^(1<<i)));
+    return best||{count:0,score:0,groups:[]};
+  }
+  static finish(hand,j){
+    if(hand.length!==14)return null;
+    const pair=this.plan(hand,'pairs',j);if(pair.count===14)return {mode:'pairs',groups:pair.groups};
+    const runs=this.plan(hand,'run',j);return runs.count===14?{mode:'run',groups:runs.groups}:null;
+  }
+  static openPlan(hand,j,settings,maxOpen=50,maxPairs=3,opened=null,requiredId=null){
+    const options=[];
+    for(const mode of opened?[opened]:['run','pairs']){
+      const p=this.plan(hand,mode,j,{leave:1,objective:mode==='run'?'score':'coverage',requiredId});
+      const min=mode==='run'?(opened?0:(settings.folded?Math.max(51,maxOpen+1):51)):(opened?1:(settings.folded?Math.max(4,maxPairs+1):4));
+      if(p.groups.length&&(mode==='run'?p.score>=min:p.groups.length>=min)&&(!requiredId||p.groups.some(g=>g.entries.some(e=>e.tile.id===requiredId))))options.push({mode,groups:p.groups,score:p.score,count:p.count});
+    }
+    options.sort((a,b)=>b.count-a.count||b.score-a.score);return options[0]||null;
+  }
+  static payload(plan){return plan.groups.map(g=>({ids:g.entries.map(e=>e.tile.id),key:g.key}));}
+  static addOptions(tile,meld,j){
+    const out=[],wild=this.isWild(tile,j),v=this.value(tile,j),compatible=as=>wild||v.c===as.c&&v.n===as.n;
+    if(meld.kind==='group'&&meld.entries.length<4){
+      const used=new Set(meld.entries.map(e=>e.as.c)),n=meld.entries[0].as.n;
+      for(let c=0;c<4;c++)if(!used.has(c)&&compatible({c,n}))out.push({op:'append',side:'end',as:{c,n}});
+    }
+    if(meld.kind==='run'&&meld.entries.length<13){
+      const c=meld.entries[0].as.c,start=meld.start,end=start+meld.entries.length-1;
+      if(start>1&&compatible({c,n:start-1===14?1:start-1}))out.push({op:'append',side:'start',as:{c,n:start-1}});
+      if(end<14&&compatible({c,n:end+1===14?1:end+1}))out.push({op:'append',side:'end',as:{c,n:end+1===14?1:end+1}});
+    }
+    if(!wild)meld.entries.forEach((e,at)=>{if(this.isWild(e.tile,j)&&v.c===e.as.c&&v.n===e.as.n)out.push({op:'replace',at,targetTileId:e.tile.id,as:{c:v.c,n:v.n}});});
+    return out;
+  }
+  static handPotential(hand,j){
+    let score=0;
+    for(let i=0;i<hand.length;i++){
+      const t=hand[i];if(this.isWild(t,j)){score+=11;continue;}const v=this.value(t,j);
+      for(let k=i+1;k<hand.length;k++){
+        const u=hand[k];if(this.isWild(u,j))continue;const w=this.value(u,j);
+        if(v.c===w.c&&v.n===w.n)score+=2.7;
+        else if(v.n===w.n&&v.c!==w.c)score+=2.5;
+        else if(v.c===w.c){const d=Math.abs(v.n-w.n);if(d===1||d===12)score+=3;else if(d===2||d===11)score+=1.1;}
+      }
+    }return score;
+  }
+}
+
+class GameEngine{
+  constructor(name,settings={}){
+    this.state={revision:0,status:'lobby',handNo:0,turnSerial:0,turn:0,phase:'draw',deadline:0,paused:false,pauseRemaining:0,settings:Object.assign({mode:'okey',folded:false,turnSeconds:45,jokerPenalty:25,indicatorEnabled:true},settings),players:[this.player(name,false),null,null,null],deck:[],indicator:null,joker:null,discards:[[],[],[],[]],melds:[],maxOpen:50,maxPairs:3,lastDraw:null,result:null,records:[],log:[]};
+    this.seen=new Map();this.meldSequence=0;
+  }
+  player(name,bot){return {name:cleanName(name),bot:!!bot,connected:true,hand:[],score:0,opened:null,shown:false,draws:0};}
+  log(text){this.state.log.push(text);if(this.state.log.length>30)this.state.log.shift();}
+  touch(){this.state.revision++;}
+  addPlayer(name){ensure(this.state.status==='lobby','El başladı; yalnızca eski oyuncular geri bağlanabilir.');const seat=this.state.players.findIndex(p=>p===null);ensure(seat>=0,'Masa dolu.');this.state.players[seat]=this.player(name,false);this.touch();return seat;}
+  addBot(seat=null){
+    const s=this.state;if(seat===null)seat=s.players.findIndex(p=>p===null);
+    ensure(int(seat)&&seat>0&&seat<4,'Bot için boş koltuk yok.');
+    const prev=s.players[seat];ensure(!prev||!prev.connected,'Bağlı oyuncu botla değiştirilemez.');
+    if(prev){prev.bot=true;prev.connected=true;prev.name=prev.name+' · Bot';}else{ensure(s.status==='lobby','Yeni bot el arasında eklenebilir.');s.players[seat]=this.player(BOT_NAMES[(seat+s.handNo)%BOT_NAMES.length],true);}
+    this.log(s.players[seat].name+' masaya katıldı.');this.refreshPause();this.touch();return seat;
+  }
+  removePlayer(seat){ensure(this.state.status==='lobby'&&seat>0&&seat<4,'Oyuncu yalnızca lobide çıkarılabilir.');this.state.players[seat]=null;this.touch();}
+  setSettings(settings){
+    ensure(this.state.status==='lobby','Ayarlar el başladıktan sonra değiştirilemez.');
+    const x=Object.assign({},this.state.settings,settings);
+    ensure(['okey','51'].includes(x.mode)&&[30,45,60,90].includes(x.turnSeconds)&&[25,50].includes(x.jokerPenalty),'Geçersiz masa ayarı.');
+    x.folded=!!x.folded;x.indicatorEnabled=!!x.indicatorEnabled;this.state.settings=x;this.touch();
+  }
+  setConnected(seat,value){const p=this.state.players[seat];if(!p||p.bot||p.connected===value)return;p.connected=value;this.refreshPause();this.touch();}
+  refreshPause(){
+    const s=this.state,want=s.status==='playing'&&s.players.some(p=>p&&!p.bot&&!p.connected);
+    if(want&&!s.paused){s.pauseRemaining=Math.max(1000,s.deadline-now());s.paused=true;}
+    else if(!want&&s.paused){s.deadline=now()+s.pauseRemaining;s.paused=false;}
+  }
+  start(){
+    const s=this.state;ensure(s.status==='lobby'||s.status==='ended','El zaten sürüyor.');ensure(s.players.every(p=>p&&p.connected),'Dört koltuk da hazır olmalı.');
+    s.handNo++;s.status='playing';s.turn=(s.handNo-1)%4;s.turnSerial++;s.phase='discard';s.paused=false;s.deadline=now()+s.settings.turnSeconds*1000;s.result=null;s.melds=[];s.discards=[[],[],[],[]];s.maxOpen=50;s.maxPairs=3;s.lastDraw=null;s.log=[];
+    s.players.forEach(p=>{p.hand=[];p.opened=null;p.shown=false;p.draws=0;});
+    const d=Rules.shuffle(Rules.deck()),idx=d.findIndex(t=>!t.f);s.indicator=d.splice(idx,1)[0];s.joker={c:s.indicator.c,n:s.indicator.n===13?1:s.indicator.n+1};
+    for(let k=0;k<14;k++)for(let seat=0;seat<4;seat++)s.players[seat].hand.push(d.pop());
+    s.players[s.turn].hand.push(d.pop());s.deck=d;s.handStartScores=s.players.map(p=>p.score);
+    this.seen.clear();this.log(s.players[s.turn].name+' ilk taşı atacak.');this.assertConservation();this.touch();
+  }
+  groupsFrom(seat,groups,mode){
+    ensure(Array.isArray(groups)&&groups.length>0&&groups.length<=7,'En az bir geçerli per seçin.');
+    const p=this.state.players[seat],map=new Map(p.hand.map(t=>[t.id,t])),used=new Set(),descs=[];
+    for(const g of groups){
+      ensure(g&&Array.isArray(g.ids)&&g.ids.length>=2&&g.ids.length<=13,'Geçersiz per.');
+      ensure(g.ids.every(id=>int(id)&&map.has(id)&&!used.has(id))&&new Set(g.ids).size===g.ids.length,'Taş size ait değil veya iki kez kullanıldı.');
+      const variants=Rules.analyze(g.ids.map(id=>map.get(id)),mode,this.state.joker);
+      const desc=g.key?variants.find(v=>v.key===g.key):variants[0];ensure(desc,'Per kurallara uygun değil.');
+      g.ids.forEach(id=>used.add(id));descs.push(desc);
+    }
+    ensure(p.hand.length-used.size>=1,'Son taşı atmak için ıstakada en az bir taş bırakın.');
+    return {descs,used,score:descs.reduce((a,d)=>a+d.score,0)};
+  }
+  open(seat,a,requiredId=null){
+    const s=this.state,p=s.players[seat];ensure(s.settings.mode==='51'&&s.phase==='discard','Bu hamlede yere açılamaz.');
+    ensure(['run','pairs'].includes(a.mode),'Açılış türünü seçin.');ensure(!p.opened||p.opened===a.mode,'Seri ile çift arasında geçiş yapılamaz.');
+    const g=this.groupsFrom(seat,a.groups,a.mode),first=!p.opened;
+    if(requiredId!==null)ensure(g.used.has(requiredId),'Soldan alınan taş açılan perlerin içinde bulunmalı.');
+    if(first){
+      if(a.mode==='run'){const min=s.settings.folded?Math.max(51,s.maxOpen+1):51;ensure(g.score>=min,'Seri açılışı en az '+min+' puan olmalı.');s.maxOpen=Math.max(s.maxOpen,g.score);}
+      else{const min=s.settings.folded?Math.max(4,s.maxPairs+1):4;ensure(g.descs.length>=min,'Çift açılışı en az '+min+' çift olmalı.');s.maxPairs=Math.max(s.maxPairs,g.descs.length);}
+      p.opened=a.mode;
+    }
+    p.hand=p.hand.filter(t=>!g.used.has(t.id));
+    for(const d of g.descs)s.melds.push(Object.assign({id:'m'+s.handNo+'-'+(++this.meldSequence),owner:seat},d));
+    this.log(p.name+(first?' el açtı: ':' yeni per koydu: ')+(a.mode==='pairs'?g.descs.length+' çift':g.score+' puan')+'.');
+  }
+  act(seat,a){
+    ensure(a&&typeof a==='object'&&typeof a.type==='string','Geçersiz hamle.');
+    const s=this.state;
+    ensure(s.status==='playing','Aktif el yok.');ensure(!s.paused,'Bağlantı bekleniyor; masa duraklatıldı.');ensure(int(seat)&&seat===s.turn,'Sıra sizde değil.');
+    ensure(a.round===s.handNo&&a.turnSerial===s.turnSerial,'Hamle eski bir sıraya ait; masa güncelleniyor.');
+    if(a.id&&this.seen.has(seat+':'+a.id))return {duplicate:true};
+    const backup=clone(s),meldBackup=this.meldSequence;
+    try{
+      const p=s.players[seat];
+      if(a.type==='ACTION_DRAW'){
+        ensure(s.phase==='draw','Önce elinizden bir taş atın.');ensure(a.source==='deck'||a.source==='left','Geçersiz çekme kaynağı.');
+        if(a.source==='deck'){
+          if(!s.deck.length){this.end(null,'stock');this.touch();return {ended:true};}
+          const tile=s.deck.pop();p.hand.push(tile);s.phase='discard';p.draws++;s.lastDraw={seat,tileId:tile.id,source:'deck'};this.log(p.name+' ortadan taş çekti.');
+        }else{
+          const left=(seat+3)%4,pile=s.discards[left];ensure(pile.length>0,'Sol oyuncunun alınabilecek taşı yok.');
+          const tile=pile.pop();p.hand.push(tile);s.phase='discard';p.draws++;s.lastDraw={seat,tileId:tile.id,source:'left'};
+          if(s.settings.mode==='51'&&!p.opened)this.open(seat,{mode:a.mode,groups:a.groups},tile.id);
+          this.log(p.name+' soldan '+tileText(tile,s.joker)+' aldı.');
+        }
+      }else if(a.type==='ACTION_DISCARD'||a.type==='ACTION_FINISH'){
+        ensure(s.phase==='discard','Önce bir taş çekin.');const idx=p.hand.findIndex(t=>t.id===a.tileId);ensure(idx>=0,'Atılacak taş elinizde değil.');
+        const tile=p.hand[idx],remaining=p.hand.filter(t=>t.id!==a.tileId);
+        if(a.type==='ACTION_FINISH'){
+          ensure(s.settings.mode==='okey','51 oyununda son taşınızı atarak bitin.');const f=Rules.finish(remaining,s.joker);ensure(f,'Kalan 14 taş geçerli perler veya 7 çift oluşturmuyor.');
+          p.hand=remaining;s.discards[seat].push(tile);this.end(seat,'finish',{discard:tile,finish:f});
+        }else{
+          p.hand.splice(idx,1);s.discards[seat].push(tile);
+          if(s.settings.mode==='51'&&p.hand.length===0){ensure(p.opened,'Bitmeden önce elinizi açmalısınız.');this.end(seat,'finish',{discard:tile});}
+          else if(s.deck.length===0)this.end(null,'stock');
+          else{this.log(p.name+' '+tileText(tile,s.joker)+' attı.');s.turn=(seat+1)%4;s.turnSerial++;s.phase='draw';s.lastDraw=null;s.deadline=now()+s.settings.turnSeconds*1000;}
+        }
+      }else if(a.type==='ACTION_SHOW_INDICATOR'){
+        ensure(s.settings.mode==='okey'&&s.settings.indicatorEnabled,'Gösterge cezası bu masada kapalı.');ensure(!p.shown&&p.draws===0,'Gösterge yalnızca ilk taş çekişinizden önce bir kez gösterilir.');
+        ensure(p.hand.some(t=>!t.f&&t.c===s.indicator.c&&t.n===s.indicator.n),'Elinizde göstergenin eşi yok.');p.shown=true;s.players.forEach((q,i)=>{if(i!==seat)q.score++;});this.log(p.name+' gösterge gösterdi; rakiplere 1 ceza.');
+      }else if(a.type==='ACTION_OPEN_MELDS')this.open(seat,a);
+      else if(a.type==='ACTION_ADD_TO_MELD'){
+        ensure(s.settings.mode==='51'&&s.phase==='discard'&&p.opened,'İşlemek için sıranızda taş çekmiş ve el açmış olmalısınız.');
+        const meld=s.melds.find(m=>m.id===a.meldId),idx=p.hand.findIndex(t=>t.id===a.tileId);ensure(meld&&idx>=0,'Per veya taş artık mevcut değil.');
+        ensure((p.opened==='pairs')===(meld.kind==='pair'),'Çift açan çiftlere, seri açan seri ve gruplara işlem yapabilir.');
+        const tile=p.hand[idx],ops=Rules.addOptions(tile,meld,s.joker),op=ops.find(o=>o.op===a.op&&(o.op==='replace'?o.at===a.at&&o.targetTileId===a.targetTileId:o.side===a.side&&a.as&&o.as.c===a.as.c&&o.as.n===a.as.n));ensure(op,'Taş bu konuma işlenemez.');
+        if(op.op==='replace'){
+          const old=meld.entries[op.at].tile;meld.entries[op.at].tile=tile;p.hand[idx]=old;this.log(p.name+' yerdeki okeyi gerçek taşıyla değiştirdi.');
+        }else{
+          ensure(p.hand.length>1,'Bitmek için son taşı atmalısınız.');p.hand.splice(idx,1);const entry={tile,as:op.as};
+          if(op.side==='start'){meld.entries.unshift(entry);meld.start--;}else meld.entries.push(entry);
+          meld.score=meld.entries.reduce((n,e)=>n+e.as.n,0);this.log(p.name+' bir taşa işledi.');
+        }
+        meld.key=Rules.key(meld);
+      }else throw new Error('Bu hamle tanınmıyor.');
+      this.assertConservation();this.touch();if(a.id){this.seen.set(seat+':'+a.id,true);if(this.seen.size>300)this.seen.delete(this.seen.keys().next().value);}return {ok:true};
+    }catch(e){this.state=backup;this.meldSequence=meldBackup;throw e;}
+  }
+  end(winner,reason,extra={}){
+    const s=this.state,multiplier=extra.discard&&Rules.isWild(extra.discard,s.joker)?2:1;
+    const delta=s.players.map(()=>0);
+    if(s.settings.mode==='okey'&&winner!==null){const mult=multiplier*(extra.finish.mode==='pairs'?2:1);delta.forEach((_,i)=>{if(i!==winner)delta[i]=mult;});extra.multiplier=mult;}
+    if(s.settings.mode==='51')s.players.forEach((p,i)=>{if(i!==winner)delta[i]=(p.opened?p.hand.reduce((a,t)=>a+Rules.penalty(t,s.joker,s.settings.jokerPenalty),0):100)*multiplier;});
+    s.players.forEach((p,i)=>p.score+=delta[i]);s.status='ended';s.paused=false;s.deadline=0;
+    s.result={winner,reason,multiplier:extra.multiplier||multiplier,finishMode:extra.finish?extra.finish.mode:null,delta,totalDelta:s.players.map((p,i)=>p.score-s.handStartScores[i]),totals:s.players.map(p=>p.score),discard:extra.discard||null,reveal:s.players.map(p=>p.hand.slice()),winningGroups:extra.finish?extra.finish.groups:[]};
+    s.records.push({hand:s.handNo,mode:s.settings.mode,winner,reason,delta:s.result.totalDelta.slice(),totals:s.result.totals.slice()});if(s.records.length>100)s.records.shift();this.log(winner===null?'Deste bitti; el kapandı.':s.players[winner].name+' eli bitirdi.');
+  }
+  timeout(){
+    const s=this.state;if(s.status!=='playing'||s.paused||now()<s.deadline)return false;
+    const seat=s.turn,base=()=>({round:this.state.handNo,turnSerial:this.state.turnSerial});
+    if(s.phase==='draw')this.act(seat,Object.assign(base(),{type:'ACTION_DRAW',source:'deck'}));
+    if(this.state.status==='playing'){
+      const p=this.state.players[seat],draw=this.state.lastDraw,tile=draw?p.hand.find(t=>t.id===draw.tileId):null;
+      const fallback=p.hand.slice().sort((a,b)=>Rules.penalty(b,this.state.joker)-Rules.penalty(a,this.state.joker))[0];
+      this.act(seat,Object.assign(base(),{type:'ACTION_DISCARD',tileId:(tile||fallback).id}));
+      this.log(p.name+' için süre doldu; otomatik taş atıldı.');this.touch();
+    }return true;
+  }
+  assertConservation(){
+    const s=this.state;if(!s.indicator)return true;
+    const all=[s.indicator].concat(s.deck,...s.players.filter(Boolean).map(p=>p.hand),...s.discards,...s.melds.map(m=>m.entries.map(e=>e.tile)));
+    ensure(all.length===106&&new Set(all.map(t=>t.id)).size===106,'Taş bütünlüğü denetimi başarısız.');
+    ensure(s.players.every(p=>p.hand.length<=15),'Istaka taş sınırı aşıldı.');
+    return true;
+  }
+  view(seat){
+    const s=this.state;
+    return {revision:s.revision,serverNow:now(),you:seat,status:s.status,handNo:s.handNo,turnSerial:s.turnSerial,turn:s.turn,phase:s.phase,deadline:s.deadline,paused:s.paused,pauseRemaining:s.pauseRemaining,settings:clone(s.settings),players:s.players.map(p=>p?{name:p.name,bot:p.bot,connected:p.connected,count:p.hand.length,score:p.score,opened:p.opened,shown:p.shown,draws:p.draws}:null),hand:s.players[seat]?clone(s.players[seat].hand):[],stockCount:s.deck.length,indicator:clone(s.indicator),joker:clone(s.joker),discards:clone(s.discards),melds:clone(s.melds),maxOpen:s.maxOpen,maxPairs:s.maxPairs,lastDraw:s.lastDraw&&s.lastDraw.seat===seat?clone(s.lastDraw):null,result:clone(s.result),records:clone(s.records),log:s.log.slice()};
+  }
+}
+
+class BotAI{
+  constructor(){this.turnKey='';this.steps=0;this.swaps=new Set();}
+  choose(v){
+    const p=v.players[v.you],key=v.handNo+':'+v.turnSerial;if(key!==this.turnKey){this.turnKey=key;this.steps=0;this.swaps.clear();}this.steps++;
+    const hand=v.hand,j=v.joker,left=v.discards[(v.you+3)%4].slice(-1)[0],mode=v.settings.mode;let analysis=null;
+    if(v.phase==='draw'){
+      if(left&&mode==='51'&&!p.opened){
+        const plan=Rules.openPlan(hand.concat(left),j,v.settings,v.maxOpen,v.maxPairs,null,left.id);
+        if(plan)return {type:'ACTION_DRAW',source:'left',mode:plan.mode,groups:Rules.payload(plan)};
+      }else if(left){
+        const value=Rules.handPotential(hand.concat(left),j)-Rules.handPotential(hand,j),canProcess=mode==='51'&&p.opened&&v.melds.some(m=>(p.opened==='pairs')===(m.kind==='pair')&&Rules.addOptions(left,m,j).length>0),worth=Rules.isWild(left,j)||value>=5||canProcess;
+        if(worth)return {type:'ACTION_DRAW',source:'left'};
+      }return {type:'ACTION_DRAW',source:'deck'};
+    }
+    if(mode==='okey'){
+      analysis={runs:Rules.solver(hand,'run',j),pairs:Rules.solver(hand,'pairs',j)};let finish=null;
+      for(let i=0;i<hand.length;i++){
+        const mask=analysis.runs.fullMask^(1<<i),pairs=analysis.pairs.solve(mask),runs=analysis.runs.solve(mask),valid=pairs.count===14?2:runs.count===14?1:0;
+        if(valid){const multiplier=valid*(Rules.isWild(hand[i],j)?2:1);if(!finish||multiplier>finish.multiplier)finish={tileId:hand[i].id,multiplier};}
+      }
+      if(finish)return {type:'ACTION_FINISH',tileId:finish.tileId};
+      if(v.settings.indicatorEnabled&&!p.shown&&p.draws===0&&hand.some(t=>!t.f&&t.c===v.indicator.c&&t.n===v.indicator.n))return {type:'ACTION_SHOW_INDICATOR'};
+    }else if(this.steps<18){
+      const plan=Rules.openPlan(hand,j,v.settings,v.maxOpen,v.maxPairs,p.opened);
+      if(plan)return {type:'ACTION_OPEN_MELDS',mode:plan.mode,groups:Rules.payload(plan)};
+      if(p.opened){
+        for(const meld of v.melds){
+          if((p.opened==='pairs')!==(meld.kind==='pair'))continue;
+          for(const t of hand){
+            const ops=Rules.addOptions(t,meld,j);
+            const append=ops.find(o=>o.op==='append'&&!Rules.isWild(t,j));
+            if(append&&hand.length>1)return Object.assign({type:'ACTION_ADD_TO_MELD',meldId:meld.id,tileId:t.id},append);
+            const swap=ops.find(o=>o.op==='replace'&&!this.swaps.has(meld.id+':'+o.targetTileId));
+            if(swap){this.swaps.add(meld.id+':'+swap.targetTileId);return Object.assign({type:'ACTION_ADD_TO_MELD',meldId:meld.id,tileId:t.id},swap);}
+          }
+        }
+        if(hand.length<=3)for(const meld of v.melds)if((p.opened==='pairs')===(meld.kind==='pair'))for(const t of hand){const op=Rules.addOptions(t,meld,j).find(o=>o.op==='append');if(op&&hand.length>1)return Object.assign({type:'ACTION_ADD_TO_MELD',meldId:meld.id,tileId:t.id},op);}
+      }
+    }
+    return {type:'ACTION_DISCARD',tileId:this.bestDiscard(hand,j,mode,p.opened,analysis)};
+  }
+  bestDiscard(hand,j,mode,opened,analysis=null){
+    if(hand.length===1)return hand[0].id;
+    const runs=analysis?analysis.runs:Rules.solver(hand,'run',j),pairs=analysis?analysis.pairs:Rules.solver(hand,'pairs',j);let best=null;
+    for(let i=0;i<hand.length;i++){
+      const t=hand[i],rest=hand.filter((_,k)=>k!==i),r=runs.solve(runs.fullMask^(1<<i)),p=pairs.solve(pairs.fullMask^(1<<i));
+      const covered=opened==='pairs'?p.count:Math.max(r.count,p.count*.88);
+      let value=covered*22+Rules.handPotential(rest,j)-Rules.penalty(t,j)*.035;
+      if(mode==='51')value-=Rules.penalty(t,j)*.12;
+      if(Rules.isWild(t,j))value-=130;
+      if(!best||value>best.value)best={id:t.id,value};
+    }return best.id;
+  }
+}
+
+class SoundFX{
+  constructor(){this.enabled=storage.get('sound','1')==='1';this.ctx=null;this.unlocked=false;}
+  unlock(){if(!this.enabled)return;try{if(!this.ctx)this.ctx=new (window.AudioContext||window.webkitAudioContext)();if(this.ctx.state==='suspended')this.ctx.resume().catch(()=>{});this.unlocked=true;}catch(e){}}
+  toggle(){this.enabled=!this.enabled;storage.set('sound',this.enabled?'1':'0');if(this.enabled){this.unlock();this.play('tile');}return this.enabled;}
+  play(kind='tile'){
+    if(!this.enabled||!this.ctx||this.ctx.state!=='running')return;
+    try{
+      const c=this.ctx,t=c.currentTime;
+      if(kind==='win'){[523.25,659.25,783.99,1046.5].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.09);g.gain.linearRampToValueAtTime(.08,t+i*.09+.01);g.gain.exponentialRampToValueAtTime(.001,t+i*.09+.4);o.connect(g);g.connect(c.destination);o.start(t+i*.09);o.stop(t+i*.09+.45);});return;}
+      const length=Math.floor(c.sampleRate*.065),b=c.createBuffer(1,length,c.sampleRate),d=b.getChannelData(0);
+      for(let i=0;i<length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(c.sampleRate*.008));
+      const src=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain();src.buffer=b;filter.type='bandpass';filter.frequency.value=kind==='draw'?1900:3100;filter.Q.value=.8;gain.gain.value=.15;src.connect(filter);filter.connect(gain);gain.connect(c.destination);src.start();
+      const o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(kind==='draw'?780:1150,t);o.frequency.exponentialRampToValueAtTime(240,t+.045);g.gain.setValueAtTime(.025,t);g.gain.exponentialRampToValueAtTime(.001,t+.06);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.065);
+    }catch(e){}
+  }
+}
+class NetworkManager{
+  constructor(app){
+    this.app=app;this.engine=null;this.peer=null;this.conn=null;this.links=new Map();this.sessions=new Map();this.processed=new Map();this.mode=null;this.code='';this.connected=false;this.closed=false;this.generation=0;this.pending=null;this.lastHostSeen=0;this.lastHeartbeat=0;this.nextRetry=0;this.botReadyAt=0;this.bots=new Map();this.peerTimer=null;this.rebuilding=false;this.nextSignalRetry=0;this.joinDeadline=0;this.timer=setInterval(()=>this.tick(),300);
+  }
+  static async loadPeer(){
+    if(typeof globalThis.Peer==='function')return;
+    if(this.loading)return this.loading;
+    this.loading=(async()=>{
+      const sources=['https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js','https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js'];
+      for(const src of sources){
+        try{await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.crossOrigin='anonymous';const t=setTimeout(()=>{s.remove();reject(new Error('CDN zaman aşımı'));},8000);s.onload=()=>{clearTimeout(t);typeof globalThis.Peer==='function'?resolve():reject(new Error('PeerJS yüklenemedi'));};s.onerror=()=>{clearTimeout(t);s.remove();reject(new Error('CDN erişilemiyor'));};document.head.appendChild(s);});return;}catch(e){}
+      }throw new Error('PeerJS yüklenemedi. İnternet bağlantısını kontrol edin veya Botlarla Oyna seçeneğini kullanın.');
+    })().catch(e=>{this.loading=null;throw e;});return this.loading;
+  }
+  options(){
+    let ice=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}];
+    try{const saved=JSON.parse(storage.get('ice','null'));if(saved&&saved.length)ice=saved;}catch(e){}
+    const x={debug:0,secure:true,pingInterval:5000,config:{iceServers:ice,sdpSemantics:'unified-plan'}};
+    const host=storage.get('peerHost');if(host){x.host=host;x.port=Number(storage.get('peerPort','443'));x.path=storage.get('peerPath','/');}
+    return x;
+  }
+  async openPeer(id){
+    const gen=this.generation;await NetworkManager.loadPeer();ensure(gen===this.generation,'Bağlantı iptal edildi.');
+    return new Promise((resolve,reject)=>{
+      let ready=false,done=false;const p=id?new Peer(id,this.options()):new Peer(this.options());
+      const timeout=setTimeout(()=>{if(!done){done=true;p.destroy();reject(new Error('Sinyal sunucusuna ulaşılamadı. Ağ ayarlarını ve interneti kontrol edin.'));}},14000);
+      p.on('open',()=>{if(!ready){ready=true;done=true;clearTimeout(timeout);resolve(p);}if(gen===this.generation)this.app.ui.connection(this.mode==='client'?'Bağlanıyor':'P2P hazır',false);});
+      p.on('error',e=>{
+        if(!ready&&!done){done=true;clearTimeout(timeout);p.destroy();reject(e);return;}
+        if(ready){this.app.ui.connection('Ağ bekleniyor',true);if(this.mode==='client'&&e.type==='peer-unavailable')this.nextRetry=now()+4000;}
+      });
+      p.on('disconnected',()=>{if(this.closed)return;this.app.ui.connection('Sinyal yeniden bağlanıyor',true);clearTimeout(this.peerTimer);this.peerTimer=setTimeout(()=>{try{if(!p.destroyed&&p.disconnected)p.reconnect();}catch(e){}},1800);});
+      p.on('connection',c=>{if(this.mode==='host')this.accept(c);else c.close();});
+    });
+  }
+  local(name,settings){
+    this.shutdown();this.closed=false;this.mode='local';this.code='YEREL';this.connected=true;this.engine=new GameEngine(name,settings);for(let i=1;i<4;i++)this.engine.addBot();this.engine.start();this.app.ui.connection('Bot masası',false);this.broadcast();
+  }
+  async host(name,settings){
+    this.shutdown();this.closed=false;this.mode='host';const gen=this.generation;let p=null,code='';
+    for(let i=0;i<5;i++){
+      const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';code=Array.from({length:5},()=>alphabet[randomInt(alphabet.length)]).join('');
+      try{p=await this.openPeer('mavi-okey-v1-'+code);break;}catch(e){if(gen!==this.generation)return;if(e.type!=='unavailable-id'||i===4)throw new Error(e.message||'Oda kurulamadı.');}
+    }
+    if(gen!==this.generation){if(p)p.destroy();return;}
+    this.peer=p;this.code=code;this.connected=true;this.engine=new GameEngine(name,settings);storage.set('room',code);this.broadcast();
+  }
+  async join(name,code){
+    ensure(/^[A-HJ-NP-Z2-9]{5}$/.test(code),'Geçerli bir 5 karakterli oda kodu girin.');
+    this.shutdown();this.closed=false;this.mode='client';this.code=code;this.name=cleanName(name);const gen=this.generation;
+    const p=await this.openPeer();if(gen!==this.generation){p.destroy();return;}this.peer=p;storage.set('room',code);this.joinDeadline=now()+22000;this.connectHost();this.nextRetry=now()+5000;
+  }
+  token(){try{return sessionStorage.getItem('mavi.token.'+this.code)||'';}catch(e){return '';}}
+  saveToken(t){try{sessionStorage.setItem('mavi.token.'+this.code,t);}catch(e){}}
+  clearToken(){try{sessionStorage.removeItem('mavi.token.'+this.code);}catch(e){}}
+  connectHost(){
+    if(this.closed||!this.peer||this.peer.destroyed||this.peer.disconnected)return;
+    if(this.conn){const old=this.conn;this.conn=null;try{old.close();}catch(e){}}
+    const c=this.peer.connect('mavi-okey-v1-'+this.code,{reliable:true,serialization:'json',metadata:{protocol:1}});this.conn=c;this.lastHostSeen=now();
+    c.on('open',()=>{if(c!==this.conn)return;this.send(c,{type:'HELLO',protocol:1,name:this.name,token:this.token()});this.lastHostSeen=now();});
+    c.on('data',m=>{if(c===this.conn)this.fromHost(m);});
+    c.on('close',()=>{if(c===this.conn)this.lostHost();});
+    c.on('error',()=>{if(c===this.conn)this.lostHost();});
+  }
+  lostHost(){
+    if(this.closed)return;this.connected=false;this.nextRetry=now()+3000;this.app.ui.connection('Kurucuya bağlanılıyor',true);this.app.ui.renderConnection();if(this.pending)this.pending.retryAt=now()+4500;
+  }
+  send(c,m){try{if(c&&c.open){c.send(m);return true;}}catch(e){}return false;}
+  validMessage(m,limit=16000){try{return m&&typeof m==='object'&&!Array.isArray(m)&&JSON.stringify(m).length<=limit;}catch(e){return false;}}
+  accept(c){
+    let seat=null,lastSeen=now(),windowAt=now(),messages=0,authed=false;
+    const helloTimer=setTimeout(()=>{if(!authed)c.close();},11000);
+    c.on('data',m=>{
+      if(!this.validMessage(m)){c.close();return;}
+      const time=now();if(time-windowAt>1000){windowAt=time;messages=0;}if(++messages>35){c.close();return;}lastSeen=time;
+      if(!authed){
+        if(m.type!=='HELLO'||m.protocol!==1){this.send(c,{type:'REJECT',message:'Uyumsuz oyun sürümü.'});return;}
+        try{
+          const oldSeat=typeof m.token==='string'?this.sessions.get(m.token):undefined;
+          if(int(oldSeat)&&this.engine.state.players[oldSeat]&&!this.engine.state.players[oldSeat].bot)seat=oldSeat;
+          else{ensure(!m.token,'Eski koltuğunuz artık bu masada yok.');seat=this.engine.addPlayer(m.name);}
+          const token=int(oldSeat)?m.token:randomToken();this.sessions.set(token,seat);const old=this.links.get(seat);this.links.set(seat,{conn:c,get lastSeen(){return lastSeen;}});
+          authed=true;clearTimeout(helloTimer);if(old&&old.conn!==c)old.conn.close();this.engine.setConnected(seat,true);
+          this.send(c,{type:'WELCOME',protocol:1,seat,token,code:this.code});this.broadcast();
+        }catch(e){this.send(c,{type:'REJECT',message:e.message});setTimeout(()=>c.close(),180);}
+        return;
+      }
+      if(m.type==='PONG')return;
+      if(m.type==='PING'){this.send(c,{type:'PONG',at:m.at});return;}
+      if(m.type==='RESYNC'){this.send(c,{type:'SYNC_STATE',state:this.engine.view(seat)});return;}
+      if(m.type==='ACTION')this.process(seat,m.action,c);
+    });
+    const close=()=>{clearTimeout(helloTimer);if(this.closed||seat===null)return;const current=this.links.get(seat);if(current&&current.conn===c){this.links.delete(seat);this.engine.setConnected(seat,false);this.broadcast();}};
+    c.on('close',close);c.on('error',close);
+  }
+  fromHost(m){
+    if(!this.validMessage(m,131072))return;this.lastHostSeen=now();
+    if(m.type==='PING'){this.send(this.conn,{type:'PONG',at:m.at});return;}
+    if(m.type==='WELCOME'){
+      if(m.protocol!==1||!int(m.seat)||m.seat<1||m.seat>3||typeof m.token!=='string')return;
+      this.saveToken(m.token);this.connected=true;this.joinDeadline=0;this.app.ui.connection('P2P bağlı',false);this.app.ui.setEntryBusy(false,'');return;
+    }
+    if(m.type==='REJECT'||m.type==='REPLACED'){
+      this.clearToken();this.closed=true;this.connected=false;if(this.pending){this.app.ui.toast('Bekleyen hamle iptal edildi.',true);this.pending=null;}
+      this.app.ui.setEntryBusy(false,'');this.app.ui.showLobby();this.app.ui.lobbyError(m.message||'Koltuğunuz kapandı.');this.app.ui.renderConnection();if(this.conn)this.conn.close();return;
+    }
+    if(m.type==='SYNC_STATE'){
+      const v=m.state;if(!v||!Array.isArray(v.hand)||!Array.isArray(v.players)||v.players.length!==4||!int(v.you))return;
+      if(this.app.state&&v.handNo===this.app.state.handNo&&v.revision<this.app.state.revision)return;
+      this.connected=true;this.app.ui.connection('P2P bağlı',false);this.app.onState(v);this.app.ui.setEntryBusy(false,'');
+      if(this.pending&&this.pending.action.round!==v.handNo)this.clearPending();
+      return;
+    }
+    if(m.type==='ACK'&&this.pending&&m.id===this.pending.action.id){
+      this.clearPending();if(!m.ok)this.app.ui.toast(m.error||'Hamle reddedildi.',true);
+    }
+  }
+  intent(a){
+    const v=this.app.state;ensure(v&&v.status==='playing','Önce bir el başlatın.');ensure(this.connected,'Bağlantı bekleniyor.');ensure(!this.pending,'Önceki hamlenin sonucu bekleniyor.');
+    const action=Object.assign({},a,{id:randomToken().slice(0,24),round:v.handNo,turnSerial:v.turnSerial});
+    if(this.mode==='host'||this.mode==='local')return this.process(0,action,null);
+    ensure(this.conn&&this.conn.open,'Kurucu bağlantısı henüz hazır değil.');
+    this.pending={action,retries:0,retryAt:now()+3500};this.send(this.conn,{type:'ACTION',action});this.app.ui.renderControls();return true;
+  }
+  clearPending(){this.pending=null;this.app.ui.renderControls();}
+  process(seat,a,conn){
+    let ack;
+    try{
+      ensure(this.validMessage(a)&&typeof a.id==='string'&&/^[a-f0-9]{24}$/.test(a.id),'Geçersiz hamle kimliği.');
+      const key=seat+':'+a.id;
+      if(this.processed.has(key)){ack=this.processed.get(key);if(conn){this.send(conn,ack);this.send(conn,{type:'SYNC_STATE',state:this.engine.view(seat)});}return ack.ok;}
+      const allowed=['ACTION_DRAW','ACTION_DISCARD','ACTION_FINISH','ACTION_SHOW_INDICATOR','ACTION_OPEN_MELDS','ACTION_ADD_TO_MELD'];ensure(allowed.includes(a.type),'İzin verilmeyen hamle.');
+      this.engine.act(seat,a);ack={type:'ACK',id:a.id,ok:true};this.processed.set(key,ack);if(this.processed.size>400)this.processed.delete(this.processed.keys().next().value);
+      if(conn)this.send(conn,ack);this.broadcast();return true;
+    }catch(e){
+      ack={type:'ACK',id:a&&a.id,ok:false,error:e.message};if(conn){this.send(conn,ack);if(this.engine)this.send(conn,{type:'SYNC_STATE',state:this.engine.view(seat)});}else this.app.ui.toast(e.message,true);return false;
+    }
+  }
+  broadcast(){
+    if(!this.engine)return;this.app.onState(this.engine.view(0));if(this.mode==='host')for(const [seat,link]of this.links)this.send(link.conn,{type:'SYNC_STATE',state:this.engine.view(seat)});
+    this.botReadyAt=now()+450;
+  }
+  addBot(){ensure(this.engine,'Masa yok.');this.engine.addBot();this.broadcast();}
+  fillBots(){ensure(this.engine,'Masa yok.');while(this.engine.state.players.some(p=>p===null))this.engine.addBot();this.broadcast();}
+  removePlayer(seat){
+    ensure(this.engine,'Masa yok.');this.engine.removePlayer(seat);const link=this.links.get(seat);this.links.delete(seat);for(const [t,s]of this.sessions)if(s===seat)this.sessions.delete(t);
+    if(link){this.send(link.conn,{type:'REPLACED',message:'Kurucu sizi masadan çıkardı.'});setTimeout(()=>link.conn.close(),150);}this.broadcast();
+  }
+  replaceDisconnected(){
+    ensure(this.engine,'Masa yok.');const seat=this.engine.state.players.findIndex((p,i)=>i>0&&p&&!p.bot&&!p.connected);ensure(seat>0,'Bağlantısı kopan oyuncu yok.');
+    for(const [t,s]of this.sessions)if(s===seat)this.sessions.delete(t);const link=this.links.get(seat);this.links.delete(seat);if(link)link.conn.close();this.engine.addBot(seat);this.broadcast();
+  }
+  settings(x){ensure(this.engine,'Masa yok.');this.engine.setSettings(x);this.broadcast();}
+  start(){ensure(this.engine,'Yalnızca kurucu başlatabilir.');this.engine.start();this.processed.clear();this.bots.clear();this.app.ui.closeModal();this.app.ui.hideLobby();this.broadcast();}
+  repairSignaling(){
+    if(this.closed||!this.peer||this.rebuilding||now()<this.nextSignalRetry)return;
+    this.nextSignalRetry=now()+6000;
+    if(this.peer.destroyed){
+      const gen=this.generation;this.rebuilding=true;
+      this.openPeer(this.mode==='host'?'mavi-okey-v1-'+this.code:null).then(p=>{if(gen!==this.generation){p.destroy();return;}this.peer=p;if(this.mode==='client')this.connectHost();}).catch(()=>{if(gen===this.generation)this.app.ui.connection('Sinyal sunucusu bekleniyor',true);}).finally(()=>{if(gen===this.generation)this.rebuilding=false;});
+    }else if(this.peer.disconnected){try{this.peer.reconnect();}catch(e){}}
+  }
+  tick(){
+    if(this.closed)return;
+    const time=now();
+    if(this.mode==='host'||this.mode==='client')this.repairSignaling();
+    if(this.mode==='host'&&time-this.lastHeartbeat>2800){
+      this.lastHeartbeat=time;
+      for(const [seat,link]of this.links){if(time-link.lastSeen>14000){this.links.delete(seat);link.conn.close();this.engine.setConnected(seat,false);this.broadcast();}else this.send(link.conn,{type:'PING',at:time});}
+    }
+    if(this.mode==='client'){
+      if(this.joinDeadline&&time>this.joinDeadline&&!this.app.state){this.shutdown();this.app.ui.setEntryBusy(false,'');this.app.ui.showLobby();this.app.ui.lobbyError('Odaya ulaşılamadı. Kodu, kurucunun açık olduğunu ve ağ ayarlarını kontrol edin. Farklı ağlarda TURN gerekebilir.');return;}
+      if(this.connected&&time-this.lastHostSeen>14000)this.lostHost();
+      if(!this.connected&&time>=this.nextRetry){this.nextRetry=time+5500;this.connectHost();}
+      if(this.pending&&time>=this.pending.retryAt){
+        if(this.connected&&this.conn&&this.conn.open){this.send(this.conn,{type:'ACTION',action:this.pending.action});this.send(this.conn,{type:'RESYNC'});}
+        this.pending.retryAt=time+4500;this.pending.retries++;if(this.pending.retries===3)this.app.ui.toast('Hamle onayı bekleniyor; bağlantı yeniden denetleniyor.',true);
+      }return;
+    }
+    if(!this.engine)return;const s=this.engine.state;
+    if(s.status!=='playing'||s.paused)return;
+    if(time>=s.deadline){try{if(this.engine.timeout())this.broadcast();}catch(e){this.app.ui.toast(e.message,true);}return;}
+    if(!s.players[s.turn].bot||time<this.botReadyAt)return;
+    try{
+      let bot=this.bots.get(s.turn);if(!bot){bot=new BotAI();this.bots.set(s.turn,bot);}
+      const a=bot.choose(this.engine.view(s.turn));a.round=s.handNo;a.turnSerial=s.turnSerial;this.engine.act(s.turn,a);this.broadcast();this.botReadyAt=time+650+randomInt(450);
+    }catch(e){
+      try{const st=this.engine.state,p=st.players[st.turn];if(st.phase==='discard'&&p.hand.length)this.engine.act(st.turn,{type:'ACTION_DISCARD',tileId:p.hand[p.hand.length-1].id,round:st.handNo,turnSerial:st.turnSerial});else if(st.phase==='draw')this.engine.act(st.turn,{type:'ACTION_DRAW',source:'deck',round:st.handNo,turnSerial:st.turnSerial});this.broadcast();}catch(f){this.app.ui.toast('Bot hamlesi: '+f.message,true);this.botReadyAt=time+1500;}
+    }
+  }
+  shutdown(){
+    this.generation++;this.closed=true;this.connected=false;clearTimeout(this.peerTimer);for(const [,l]of this.links)try{l.conn.close();}catch(e){}this.links.clear();this.sessions.clear();this.processed.clear();
+    if(this.conn)try{this.conn.close();}catch(e){}if(this.peer)try{this.peer.destroy();}catch(e){}
+    this.peer=null;this.conn=null;this.engine=null;this.pending=null;this.mode=null;this.code='';this.bots.clear();this.rebuilding=false;this.nextSignalRetry=0;this.joinDeadline=0;
+  }
+}
+
+class UIManager{
+  constructor(app){
+    this.app=app;this.layout=Array(28).fill(null);this.history=[];this.selected=new Set();this.handKey='';this.drag=null;this.draft=null;this.modalKind=null;this.entryMode='okey';this.entryBusy=false;this.lastFocus=null;this.bind();this.paintEmptyRack();
+  }
+  $(id){return document.getElementById(id);}
+  on(id,fn){this.$(id).addEventListener('click',()=>this.guard(fn));}
+  guard(fn){try{const p=fn();if(p&&p.catch)p.catch(e=>{this.setEntryBusy(false,'');this.lobbyError(e.message);this.toast(e.message,true);});}catch(e){this.toast(e.message,true);}}
+  bind(){
+    this.$('playerNameInput').value=storage.get('name','Oyuncu');this.$('roomCodeInput').value=storage.get('room','');
+    for(const b of document.querySelectorAll('[data-mode]'))b.addEventListener('click',()=>{this.entryMode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('chosen',x===b));this.$('foldedInput').disabled=this.entryMode!=='51';});this.$('foldedInput').disabled=true;
+    this.on('createRoomButton',()=>this.app.create('host'));this.on('localButton',()=>this.app.create('local'));this.on('joinRoomButton',()=>this.app.join());
+    this.on('cancelConnectionButton',()=>this.app.cancelConnection());
+    this.$('roomCodeInput').addEventListener('input',e=>{e.target.value=e.target.value.toUpperCase().replace(/[^A-Z2-9]/g,'');});
+    this.$('roomCodeInput').addEventListener('keydown',e=>{if(e.key==='Enter')this.guard(()=>this.app.join());});
+    this.on('networkSettingsButton',()=>this.showNetworkSettings());this.on('roomButton',()=>this.showLobby());this.on('lobbyButton',()=>this.showLobby());
+    this.on('closeLobbyButton',()=>this.hideLobby());this.on('returnTableButton',()=>this.hideLobby());
+    this.on('addBotButton',()=>this.app.network.addBot());this.on('fillBotsButton',()=>this.app.network.fillBots());this.on('startButton',()=>this.app.network.start());this.on('replaceDisconnectedButton',()=>this.app.network.replaceDisconnected());this.on('leaveRoomButton',()=>this.confirmLeave());
+    ['roomModeSelect','turnSecondsSelect','jokerPenaltySelect','roomFoldedInput','indicatorEnabledInput'].forEach(id=>this.$(id).addEventListener('change',()=>this.guard(()=>this.changeSettings())));
+    this.$('lobbySeats').addEventListener('click',e=>{const b=e.target.closest('[data-remove-seat]');if(b)this.guard(()=>this.app.network.removePlayer(Number(b.dataset.removeSeat)));});
+    this.on('helpButton',()=>this.showHelp());this.on('scoresButton',()=>this.showScores());this.on('closeModalButton',()=>this.closeModal());
+    this.on('soundButton',()=>{this.app.sound.toggle();this.renderSound();});
+    this.on('fullscreenButton',()=>this.fullscreen());this.on('sortRunsButton',()=>this.arrange('run'));this.on('sortPairsButton',()=>this.arrange('pairs'));this.on('undoButton',()=>this.undo());this.on('resetButton',()=>this.resetRack());
+    this.on('stockButton',()=>this.app.intent({type:'ACTION_DRAW',source:'deck'}));this.on('takeLeftButton',()=>this.takeLeft());
+    this.on('showIndicatorButton',()=>this.app.intent({type:'ACTION_SHOW_INDICATOR'}));this.on('openButton',()=>this.openDraft());this.on('processButton',()=>this.processTile());
+    this.on('discardZone',()=>this.discard());this.on('finishZone',()=>this.finish());this.on('winButton',()=>this.finish());
+    this.$('opponents').addEventListener('click',e=>{const b=e.target.closest('[data-take-left]');if(b)this.guard(()=>this.takeLeft());});
+    this.$('meldZone').addEventListener('click',e=>{const b=e.target.closest('[data-meld-id]');if(b)this.guard(()=>this.processTile(null,b.dataset.meldId));});
+    const rack=this.$('rack');
+    rack.addEventListener('mousedown',e=>{if(e.button===0)this.startDrag(e);});
+    rack.addEventListener('touchstart',e=>this.startDrag(e),{passive:false});
+    document.addEventListener('mousemove',e=>this.moveDrag(e),{passive:false});
+    document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();this.moveDrag(e);},{passive:false});
+    document.addEventListener('mouseup',e=>this.endDrag(e));document.addEventListener('touchend',e=>this.endDrag(e),{passive:false});document.addEventListener('touchcancel',()=>this.cancelDrag());
+    document.addEventListener('contextmenu',e=>e.preventDefault());document.addEventListener('selectstart',e=>e.preventDefault());document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});document.addEventListener('dragstart',e=>e.preventDefault());
+    document.addEventListener('touchstart',()=>this.app.sound.unlock(),{passive:true});document.addEventListener('mousedown',()=>this.app.sound.unlock(),{passive:true});
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){if(this.modalKind)this.closeModal();else if(this.app.state)this.hideLobby();}
+      if(e.key==='Tab'&&!this.$('modalOverlay').classList.contains('hidden'))this.trapFocus(e,this.$('modalDialog'));
+    });
+    window.addEventListener('resize',()=>this.cancelDrag());window.addEventListener('blur',()=>this.cancelDrag());document.addEventListener('visibilitychange',()=>{if(!document.hidden){this.app.sound.unlock();if(this.app.network.mode==='client')this.app.network.send(this.app.network.conn,{type:'RESYNC'});}});
+    this.renderSound();this.timer=setInterval(()=>this.renderTimers(),200);
+  }
+  trapFocus(e,root){const all=Array.from(root.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex="0"]')).filter(n=>n.offsetParent!==null);if(!all.length)return;const first=all[0],last=all[all.length-1];if(e.shiftKey&&document.activeElement===first){last.focus();e.preventDefault();}else if(!e.shiftKey&&document.activeElement===last){first.focus();e.preventDefault();}}
+  renderSound(){this.$('soundButton').style.opacity=this.app.sound.enabled?'1':'.4';this.$('soundButton').title=this.app.sound.enabled?'Sesi kapat':'Sesi aç';this.$('soundButton').setAttribute('aria-pressed',String(this.app.sound.enabled));}
+  entrySettings(){return {mode:this.entryMode,folded:this.$('foldedInput').checked,turnSeconds:45,jokerPenalty:25,indicatorEnabled:true};}
+  setEntryBusy(b,text=''){this.entryBusy=b;['createRoomButton','localButton','joinRoomButton'].forEach(id=>this.$(id).disabled=b);this.$('entryStatus').textContent=text;this.$('cancelConnectionButton').classList.toggle('hidden',!b);}
+  lobbyError(message){this.$('lobbyError').textContent=message;this.$('lobbyError').classList.toggle('hidden',!message);}
+  connection(text,warn){this.$('connectionStatus').innerHTML='<i class="dot'+(warn?' warn':'')+'"></i><span class="conn-word">'+escapeHTML(text)+'</span>';}
+  toast(text,error=false){const node=document.createElement('div');node.className='toast'+(error?' error':'');node.textContent=text;this.$('toastStack').appendChild(node);while(this.$('toastStack').children.length>3)this.$('toastStack').firstChild.remove();setTimeout(()=>node.remove(),error?4500:2800);}
+  showLobby(){this.lobbyError('');this.$('lobbyOverlay').classList.remove('hidden');this.renderLobby();}
+  hideLobby(){if(this.app.state)this.$('lobbyOverlay').classList.add('hidden');}
+  renderLobby(){
+    const v=this.app.state,n=this.app.network,host=n.mode==='host'||n.mode==='local';
+    this.$('entryPanel').classList.toggle('hidden',!!v);this.$('roomPanel').classList.toggle('hidden',!v);this.$('closeLobbyButton').classList.toggle('hidden',!v);
+    if(!v)return;
+    this.$('lobbyRoomCode').textContent=n.mode==='local'?'BOT MASASI':n.code;
+    this.$('lobbySeats').innerHTML=v.players.map((p,i)=>'<div class="seat-card"><div class="avatar-ring" style="width:31px;height:31px"><div class="avatar">'+(p?escapeHTML(p.bot?'♟':p.name.charAt(0).toUpperCase()):'+')+'</div></div><div style="min-width:0"><div class="seat-name">'+(p?escapeHTML(p.name):'Boş koltuk')+'</div><div class="seat-desc">'+(p?(i===0?'Kurucu':p.bot?'Yapay zekâ':p.connected?'Bağlı':'Bağlantı bekleniyor'):'Davet edin veya bot ekleyin')+'</div></div>'+(host&&i>0&&p&&v.status==='lobby'?'<button class="small" data-remove-seat="'+i+'" aria-label="Oyuncuyu çıkar">×</button>':'')+'</div>').join('');
+    this.$('roomModeSelect').value=v.settings.mode;this.$('turnSecondsSelect').value=String(v.settings.turnSeconds);this.$('jokerPenaltySelect').value=String(v.settings.jokerPenalty);this.$('roomFoldedInput').checked=v.settings.folded;this.$('indicatorEnabledInput').checked=v.settings.indicatorEnabled;
+    ['roomModeSelect','turnSecondsSelect','jokerPenaltySelect','roomFoldedInput','indicatorEnabledInput'].forEach(id=>this.$(id).disabled=!host||v.status!=='lobby');
+    this.$('hostLobbyActions').classList.toggle('hidden',!host||v.status==='playing');this.$('activeRoomActions').classList.toggle('hidden',v.status!=='playing');
+    this.$('replaceDisconnectedButton').classList.toggle('hidden',!host);this.$('replaceDisconnectedButton').disabled=!v.players.some((p,i)=>i>0&&p&&!p.bot&&!p.connected);
+    const full=v.players.every(p=>p&&p.connected);this.$('startButton').disabled=!full;this.$('startButton').textContent=v.status==='ended'?'Sonraki El':'Eli Başlat';
+    this.$('addBotButton').disabled=!v.players.some(p=>!p)||v.status!=='lobby';this.$('fillBotsButton').disabled=this.$('addBotButton').disabled;
+    this.$('lobbyRoomHint').textContent=v.status==='playing'?'El sürüyor. Bağlantısı kopan bir oyuncunun yerine kurucu bot atayabilir.':host?'Oda kodunu arkadaşlarınızla paylaşın. Dört koltuk hazır olduğunda eli başlatın.':'Kurucunun eli başlatması bekleniyor. Kurucu uygulamayı açık tutmalıdır.';
+    if(n.mode==='local')this.$('lobbyRoomHint').textContent='Çevrimdışı masa. Sonraki ellerde ilk oynayan koltuk sırayla değişir.';
+  }
+  changeSettings(){this.app.network.settings({mode:this.$('roomModeSelect').value,turnSeconds:Number(this.$('turnSecondsSelect').value),jokerPenalty:Number(this.$('jokerPenaltySelect').value),folded:this.$('roomFoldedInput').checked,indicatorEnabled:this.$('indicatorEnabledInput').checked});}
+  tileHTML(t,j,opts={}){
+    if(!t)return '<div class="tile tile-back">✦</div>';
+    const wild=Rules.isWild(t,j),c=t.f?'#87702f':COLORS[t.c],bound=opts.bound;
+    return '<div class="tile'+(t.f?' fake':'')+(wild?' real-joker':'')+(opts.extra?' '+opts.extra:'')+'" style="--tile-color:'+c+'"'+(opts.data?' data-tile-id="'+t.id+'"':'')+' role="img" aria-label="'+escapeHTML(tileText(t,j)+(bound?' · '+COLOR_NAMES[bound.c]+' '+bound.n+' yerine':''))+'"><span class="tile-corner">'+(t.f?'S':t.n)+'</span><span>'+(t.f?'✦':t.n)+'</span>'+(wild?'<span class="joker-mark">✦</span>':'')+(bound&&(wild||t.f)?'<span class="bound" style="color:'+COLORS[bound.c]+'">'+bound.n+'</span>':'')+'</div>';
+  }
+  paintEmptyRack(){for(let row=0;row<2;row++)this.$(row?'rackBottom':'rackTop').innerHTML=Array.from({length:14},(_,i)=>'<div class="rack-slot" data-slot="'+(row*14+i)+'"></div>').join('');this.renderControls();}
+  reconcile(v){
+    const next=v.hand.map(t=>t.id).sort((a,b)=>a-b).join(','),same=next===this.handKey;
+    if(!same){
+      this.cancelDrag();const ids=new Set(v.hand.map(t=>t.id));this.layout=this.layout.map(id=>ids.has(id)?id:null);
+      for(const t of v.hand)if(!this.layout.includes(t.id)){const at=this.layout.indexOf(null);if(at>=0)this.layout[at]=t.id;}
+      this.selected=new Set(Array.from(this.selected).filter(id=>ids.has(id)));this.history=[];this.handKey=next;
+      if(this.draft&&(this.draft.round!==v.handNo||this.draft.turnSerial!==v.turnSerial))this.closeModal();
+    }
+  }
+  render(v){
+    this.reconcile(v);const is51=v.settings.mode==='51';this.$('app').classList.toggle('mode51',is51);
+    this.$('modeBadge').textContent=(is51?'51'+(v.settings.folded?' · KATLAMALI':''):'DÜZ OKEY')+(v.handNo?' · EL '+v.handNo:'');
+    this.$('roomButton').textContent=this.app.network.code||'MASA';this.$('stockCount').textContent=v.stockCount;
+    this.$('indicatorTile').innerHTML=this.tileHTML(v.indicator,v.joker);this.$('jokerLabel').textContent=v.joker?'Okey: '+COLOR_NAMES[v.joker.c]+' '+v.joker.n:'Masa bekleniyor';
+    this.$('finishZone').classList.toggle('hidden',is51);this.$('meldZone').classList.toggle('hidden',!is51);
+    this.renderOpponents();this.renderMelds();this.renderRack();this.renderControls();this.renderConnection();this.renderLobby();this.renderTimers();
+    if(v.status==='playing'&&!v.paused&&!this.app.previousPlaying)this.hideLobby();
+  }
+  renderOpponents(){
+    const v=this.app.state;if(!v)return;
+    this.$('opponents').innerHTML=[{seat:(v.you+3)%4,pos:'left'},{seat:(v.you+2)%4,pos:'top'},{seat:(v.you+1)%4,pos:'right'}].map(o=>{
+      const p=v.players[o.seat],active=v.status==='playing'&&v.turn===o.seat,last=v.discards[o.seat].slice(-1)[0],canLeft=o.pos==='left';
+      return '<article class="player glass '+o.pos+(active?' active':'')+(p&&!p.connected?' disconnected':'')+'" data-player-seat="'+o.seat+'"><div class="avatar-ring" data-timer-seat="'+o.seat+'"><div class="avatar">'+(p?escapeHTML(p.bot?'♟':p.name.charAt(0).toUpperCase()):'·')+'</div></div><div><div class="player-name">'+(p?escapeHTML(p.name):'Boş koltuk')+'</div><div class="player-meta">'+(p?p.count+' taş · '+p.score+' ceza':'Bekleniyor')+'<span class="turn-count" data-seconds-seat="'+o.seat+'"></span></div>'+(p&&p.opened?'<div class="opened-tag">'+(p.opened==='pairs'?'ÇİFT AÇTI':'SERİ AÇTI')+'</div>':'')+'</div><button class="last-slot" '+(canLeft?'data-take-left="1" title="Soldaki atılan taşı al"':'disabled')+'>'+(last?this.tileHTML(last,v.joker):'<span class="empty-last"></span>')+(o.pos==='top'?'':'<span>'+(canLeft?'SOLDAN AL':'SON ATILAN')+'</span>')+'</button></article>';
+    }).join('');
+  }
+  renderMelds(){
+    const v=this.app.state;if(!v)return;
+    this.$('meldZone').innerHTML=v.melds.map(m=>'<article class="meld" data-meld-id="'+escapeHTML(m.id)+'" tabindex="0" role="button" aria-label="Pere taş işle"><div class="meld-head"><span class="meld-owner">'+escapeHTML(v.players[m.owner].name)+'</span><span>'+(m.kind==='pair'?'ÇİFT':m.kind==='group'?'GRUP':'SERİ')+' · '+m.score+'</span></div><div class="meld-tiles">'+m.entries.map(e=>this.tileHTML(e.tile,v.joker,{bound:e.as})).join('')+'</div></article>').join('');
+  }
+  renderRack(){
+    const v=this.app.state;if(!v){this.paintEmptyRack();return;}
+    const map=new Map(v.hand.map(t=>[t.id,t]));
+    for(let row=0;row<2;row++)this.$(row?'rackBottom':'rackTop').innerHTML=this.layout.slice(row*14,row*14+14).map((id,i)=>'<div class="rack-slot'+(this.selected.has(id)?' selected':'')+'" data-slot="'+(row*14+i)+'">'+(map.has(id)?this.tileHTML(map.get(id),v.joker,{data:true}):'')+'</div>').join('');
+    const p=v.players[v.you],last=v.discards[v.you].slice(-1)[0];this.$('selfName').textContent=p.name;this.$('selfCount').textContent=v.hand.length+' taş';this.$('selfScore').textContent=p.score+' ceza';
+    this.$('selfOpened').textContent=p.opened==='pairs'?'ÇİFT AÇTI':p.opened?'SERİ AÇTI':'GİZLİ EL';this.$('discardZone').innerHTML=(last?this.tileHTML(last,v.joker):'')+'<span>TAŞ AT →</span>';
+  }
+  canAct(){const v=this.app.state;return !!(v&&v.status==='playing'&&v.you===v.turn&&!v.paused&&this.app.network.connected&&!this.app.network.pending);}
+  renderControls(){
+    const v=this.app.state,play=!!(v&&v.status==='playing'),mine=this.canAct(),discard=mine&&v.phase==='discard',draw=mine&&v.phase==='draw',is51=!!(v&&v.settings.mode==='51'),p=v&&v.players[v.you],left=v&&v.discards[(v.you+3)%4].slice(-1)[0];
+    this.$('stockButton').disabled=!draw;this.$('takeLeftButton').disabled=!draw||!left;this.$('discardZone').disabled=!discard;this.$('finishZone').disabled=!discard;this.$('winButton').disabled=!discard;
+    this.$('showIndicatorButton').classList.toggle('hidden',is51);this.$('showIndicatorButton').disabled=!mine||!p||p.shown||p.draws!==0||!v.settings.indicatorEnabled||!v.hand.some(t=>!t.f&&v.indicator&&t.c===v.indicator.c&&t.n===v.indicator.n);
+    this.$('winButton').classList.toggle('hidden',is51);this.$('openButton').classList.toggle('hidden',!is51);this.$('processButton').classList.toggle('hidden',!is51);this.$('openButton').disabled=!discard;this.$('processButton').disabled=!discard||!p||!p.opened;
+    this.$('openButton').textContent=p&&p.opened?(p.opened==='pairs'?'Çift Ekle':'Per Ekle'):'Yere Aç';
+    this.$('sortRunsButton').disabled=!play||!v.hand.length;this.$('sortPairsButton').disabled=!play||!v.hand.length;this.$('undoButton').disabled=!this.history.length;this.$('resetButton').disabled=!play;
+    if(!v)return;
+    let message='';
+    if(v.status==='lobby')message='Dört oyuncu hazır olduğunda kurucu eli başlatır.';
+    else if(v.status==='ended')message='El tamamlandı. Puan tablosundan sonucu görebilirsiniz.';
+    else if(this.app.network.pending)message='Hamle kurucu tarafından doğrulanıyor…';
+    else if(v.you===v.turn)message='<strong>Sıra sizde</strong> · '+(v.phase==='draw'?'Ortadan veya soldan taş alın.':'Bir taş seçip sağa atın'+(is51?' ya da perlerinizi açın.':'; hazırsa bitiş alanına bırakın.'));
+    else message='<strong>'+escapeHTML(v.players[v.turn].name)+'</strong> oynuyor · '+(v.phase==='draw'?'Taş çekmesi bekleniyor.':'Taş atması bekleniyor.');
+    if(this.selected.size)message+=' <span class="selection-count">'+this.selected.size+' taş seçili</span>';
+    this.$('noticeLine').innerHTML=message;
+  }
+  renderConnection(){
+    const v=this.app.state;if(!v){this.$('pauseBanner').classList.add('hidden');return;}
+    const lost=this.app.network.mode==='client'&&!this.app.network.connected,paused=v.paused||lost;
+    this.$('pauseBanner').classList.toggle('hidden',!paused||v.status!=='playing');this.$('pauseBanner').style.flexDirection='column';
+    if(paused)this.$('pauseBanner').innerHTML=lost?'Kurucuya yeniden bağlanılıyor…<span>Kurucu uygulamayı açık tutmalıdır. Sayfayı kapatmadan bekleyin.</span>':'Masa duraklatıldı<span>'+escapeHTML(v.players.filter(p=>p&&!p.connected).map(p=>p.name).join(', '))+' için bağlantı bekleniyor. Kurucu masa menüsünden bot atayabilir.</span>';
+    this.renderControls();
+  }
+  renderTimers(){
+    const v=this.app.state;if(!v)return;const active=v.status==='playing',left=v.paused?v.pauseRemaining:Math.max(0,v.deadline-(now()+this.app.clockSkew)),seconds=Math.ceil(left/1000),percent=Math.min(100,left/(v.settings.turnSeconds*1000)*100);
+    document.querySelectorAll('[data-timer-seat]').forEach(n=>n.style.setProperty('--progress',active&&Number(n.dataset.timerSeat)===v.turn?percent+'%':'0%'));
+    document.querySelectorAll('[data-seconds-seat]').forEach(n=>n.textContent=active&&Number(n.dataset.secondsSeat)===v.turn?' · '+seconds+'s':'');
+    if(active&&v.turn===v.you)this.$('selfCount').textContent=v.hand.length+' taş · '+seconds+'s';
+  }
+  saveLayout(){this.history.push(this.layout.slice());if(this.history.length>25)this.history.shift();}
+  undo(){if(!this.history.length)return;this.layout=this.history.pop();this.selected.clear();this.renderRack();this.renderControls();this.app.sound.play();}
+  resetRack(){const v=this.app.state;if(!v)return;this.saveLayout();this.layout=Array(28).fill(null);v.hand.forEach((t,i)=>this.layout[i]=t.id);this.selected.clear();this.renderRack();this.renderControls();}
+  arrange(mode){
+    const v=this.app.state;if(!v||!v.joker)return;this.saveLayout();const plan=Rules.plan(v.hand,mode,v.joker),used=new Set(),groups=plan.groups.map(g=>g.entries.map(e=>{used.add(e.tile.id);return e.tile.id;}));
+    const rest=v.hand.filter(t=>!used.has(t.id)).sort((a,b)=>{const x=Rules.value(a,v.joker),y=Rules.value(b,v.joker);return mode==='pairs'?x.n-y.n||x.c-y.c:x.c-y.c||x.n-y.n;}).map(t=>t.id);
+    this.layout=Array(28).fill(null);let at=0;
+    for(const g of groups){
+      if(at<14&&at+g.length>14)at=14;
+      for(const id of g)this.layout[at++]=id;
+      if(at!==14&&at<27)at++;
+    }
+    for(const id of rest){const i=this.layout.indexOf(null);if(i>=0)this.layout[i]=id;}
+    this.selected.clear();this.renderRack();this.renderControls();this.app.sound.play();
+  }
+  startDrag(e){
+    if(this.drag||!this.app.state)return;const tile=e.target.closest('[data-tile-id]'),slot=e.target.closest('[data-slot]');if(!tile||!slot)return;
+    if(e.touches&&e.touches.length!==1)return;e.preventDefault();const p=e.touches?e.touches[0]:e;
+    this.drag={id:Number(tile.dataset.tileId),slot:Number(slot.dataset.slot),x:p.clientX,y:p.clientY,lastX:p.clientX,lastY:p.clientY,moved:false,ghost:null,target:null};
+    this.app.sound.unlock();
+  }
+  moveDrag(e){
+    if(!this.drag)return;if(e.touches&&e.touches.length!==1){this.cancelDrag();return;}e.preventDefault();const d=this.drag,p=e.touches?e.touches[0]:e;d.lastX=p.clientX;d.lastY=p.clientY;
+    if(!d.moved&&Math.hypot(p.clientX-d.x,p.clientY-d.y)>6){
+      d.moved=true;const tile=this.app.state.hand.find(t=>t.id===d.id);if(!tile){this.cancelDrag();return;}d.ghost=document.createElement('div');d.ghost.className='drag-ghost';d.ghost.innerHTML=this.tileHTML(tile,this.app.state.joker);document.body.appendChild(d.ghost);const origin=this.$('rack').querySelector('[data-slot="'+d.slot+'"]');if(origin)origin.classList.add('drag-origin');
+    }
+    if(d.moved){d.ghost.style.left=p.clientX+'px';d.ghost.style.top=p.clientY+'px';const hit=document.elementFromPoint(p.clientX,p.clientY),target=hit&&hit.closest('[data-slot],#discardZone,#finishZone,[data-meld-id]');if(d.target&&d.target!==target)d.target.classList.remove('drop-target');d.target=target;if(target)target.classList.add('drop-target');}
+  }
+  endDrag(e){
+    if(!this.drag)return;if(e.cancelable)e.preventDefault();const d=this.drag,p=e.changedTouches?e.changedTouches[0]:e,hit=document.elementFromPoint(p.clientX??d.lastX,p.clientY??d.lastY),target=hit&&hit.closest('[data-slot],#discardZone,#finishZone,[data-meld-id]');this.cancelDrag();
+    this.guard(()=>{
+      if(!d.moved){if(this.selected.has(d.id))this.selected.delete(d.id);else this.selected.add(d.id);this.renderRack();this.renderControls();return;}
+      if(!target)return;
+      if(target.hasAttribute('data-slot')){const at=Number(target.dataset.slot);if(at!==d.slot){this.saveLayout();[this.layout[at],this.layout[d.slot]]=[this.layout[d.slot],this.layout[at]];this.renderRack();this.renderControls();this.app.sound.play();}}
+      else if(target.id==='discardZone')this.discard(d.id);
+      else if(target.id==='finishZone')this.finish(d.id);
+      else if(target.dataset.meldId)this.processTile(d.id,target.dataset.meldId,true);
+    });
+  }
+  cancelDrag(){if(!this.drag)return;if(this.drag.ghost)this.drag.ghost.remove();if(this.drag.target)this.drag.target.classList.remove('drop-target');document.querySelectorAll('.drag-origin').forEach(n=>n.classList.remove('drag-origin'));this.drag=null;}
+  chosenId(explicit=null){if(int(explicit))return explicit;ensure(this.selected.size===1,'Istakadan tek bir taş seçin.');return Array.from(this.selected)[0];}
+  discard(id=null){ensure(this.canAct(),'Hamle yapmak için sıranızı bekleyin.');this.app.intent({type:'ACTION_DISCARD',tileId:this.chosenId(id)});}
+  finish(id=null){ensure(this.canAct(),'Hamle yapmak için sıranızı bekleyin.');this.app.intent({type:'ACTION_FINISH',tileId:this.chosenId(id)});}
+  takeLeft(){
+    const v=this.app.state;ensure(this.canAct()&&v.phase==='draw','Soldan almak için taş çekme sıranız olmalı.');const tile=v.discards[(v.you+3)%4].slice(-1)[0];ensure(tile,'Sol oyuncunun atılan taşı yok.');
+    if(v.settings.mode==='51'&&!v.players[v.you].opened)this.openDraft(tile);else this.app.intent({type:'ACTION_DRAW',source:'left'});
+  }
+  showModal(title,body,buttons=[],kind='general'){
+    this.lastFocus=document.activeElement;this.modalKind=kind;this.$('modalTitle').textContent=title;this.$('modalBody').onclick=null;this.$('modalBody').innerHTML=body;this.$('modalFooter').innerHTML='';this.$('modalOverlay').classList.remove('hidden');
+    for(const b of buttons){const node=document.createElement(b.tag||'button');node.textContent=b.label;if(b.className)node.className=b.className;if(b.disabled)node.disabled=true;if(b.id)node.id=b.id;if(b.action)node.addEventListener('click',()=>this.guard(b.action));this.$('modalFooter').appendChild(node);}
+    this.$('closeModalButton').focus({preventScroll:true});
+  }
+  closeModal(){this.$('modalOverlay').classList.add('hidden');this.modalKind=null;this.draft=null;if(this.lastFocus&&this.lastFocus.isConnected)this.lastFocus.focus({preventScroll:true});}
+  openDraft(leftTile=null){
+    const v=this.app.state;ensure(this.canAct()&&v.settings.mode==='51','51 modunda sıranız geldiğinde per açabilirsiniz.');ensure(leftTile||v.phase==='discard','Önce taş çekin.');
+    const p=v.players[v.you];this.draft={hand:v.hand.concat(leftTile?[leftTile]:[]),mode:p.opened||'run',opened:p.opened,groups:[],picked:new Set(this.selected),requiredId:leftTile?leftTile.id:null,round:v.handNo,turnSerial:v.turnSerial,sourceLeft:!!leftTile};
+    this.showModal(leftTile?'Soldan Al ve El Aç':p.opened?'Masaya Per Ekle':'Elinizi Açın','',[],'draft');this.renderDraft();
+    if(leftTile){const plan=Rules.openPlan(this.draft.hand,v.joker,v.settings,v.maxOpen,v.maxPairs,null,leftTile.id);if(plan)this.draft.mode=plan.mode;this.autoDraft();}
+  }
+  draftUsed(){return new Set(this.draft.groups.flatMap(g=>g.variants[g.index].entries.map(e=>e.tile.id)));}
+  draftStatus(){
+    const d=this.draft,v=this.app.state,descs=d.groups.map(g=>g.variants[g.index]),used=new Set(descs.flatMap(g=>g.entries.map(e=>e.tile.id))),score=descs.reduce((a,g)=>a+g.score,0),count=descs.length,min=d.mode==='run'?(d.opened?0:(v.settings.folded?Math.max(51,v.maxOpen+1):51)):(d.opened?1:(v.settings.folded?Math.max(4,v.maxPairs+1):4)),required=d.requiredId===null||used.has(d.requiredId);
+    return {descs,used,score,count,min,ready:count>0&&required&&d.hand.length-used.size>=1&&(d.mode==='run'?score>=min:count>=min)};
+  }
+  renderDraft(){
+    if(!this.draft)return;const d=this.draft,v=this.app.state,s=this.draftStatus();
+    this.$('modalBody').innerHTML='<div class="draft-bar"><button id="draftRun" class="'+(d.mode==='run'?'gold':'')+'" '+(d.opened&&d.opened!=='run'?'disabled':'')+'>Seri / Grup</button><button id="draftPairs" class="'+(d.mode==='pairs'?'gold':'')+'" '+(d.opened&&d.opened!=='pairs'?'disabled':'')+'>Çift</button><span class="spacer"></span><button id="draftAuto">Otomatik Per Bul</button><button id="draftClear">Temizle</button></div><div class="draft-total">'+(d.mode==='run'?'Per toplamı: <strong>'+s.score+'</strong> · Gerekli: '+s.min:'Çift sayısı: <strong>'+s.count+'</strong> · Gerekli: '+s.min)+' · Elde kalacak: '+(d.hand.length-s.used.size)+'</div>'+(d.sourceLeft?'<div class="draft-taken">Soldan alınan taş perlerde kullanılmalı; çekme ve açılış birlikte onaylanır.</div>':'')+'<div class="draft-groups" id="draftGroups">'+d.groups.map((g,i)=>{const desc=g.variants[g.index];return '<div class="draft-group"><div class="group-tiles">'+desc.entries.map(e=>this.tileHTML(e.tile,v.joker,{bound:e.as})).join('')+'</div><div class="group-footer"><span>'+desc.score+' puan</span>'+(g.variants.length>1?'<button data-variant="'+i+'" title="Okeyin temsilini değiştir">↻ Yorum</button>':'')+'<button data-delete-group="'+i+'" aria-label="Peri kaldır">×</button></div></div>';}).join('')+'</div><div class="draft-hand" id="draftHand">'+d.hand.map(t=>this.tileHTML(t,v.joker,{data:true,extra:(s.used.has(t.id)?'used-tile':d.picked.has(t.id)?'chosen-tile':'')})).join('')+'</div><p class="tiny">Taşlara dokunup seçin, ardından “Seçimi Per Yap”a basın. Okeyin temsilini “Yorum” ile değiştirebilirsiniz. Son taşı atmak için en az bir taş ayırın.</p>';
+    this.$('modalFooter').innerHTML='<button id="draftGroupButton">Seçimi Per Yap</button><button id="draftSubmit" class="gold" '+(s.ready?'':'disabled')+'>'+(d.sourceLeft?'Taşı Al ve Aç':d.opened?'Perleri Ekle':'El Aç')+'</button>';
+    this.$('draftRun').onclick=()=>this.guard(()=>this.setDraftMode('run'));this.$('draftPairs').onclick=()=>this.guard(()=>this.setDraftMode('pairs'));this.$('draftAuto').onclick=()=>this.guard(()=>this.autoDraft());this.$('draftClear').onclick=()=>{d.groups=[];d.picked.clear();this.renderDraft();};
+    this.$('draftHand').onclick=e=>{const n=e.target.closest('[data-tile-id]');if(!n)return;const id=Number(n.dataset.tileId);if(this.draftUsed().has(id))return;if(d.picked.has(id))d.picked.delete(id);else d.picked.add(id);this.renderDraft();};
+    this.$('draftGroups').onclick=e=>{const del=e.target.closest('[data-delete-group]'),variant=e.target.closest('[data-variant]');if(del){d.groups.splice(Number(del.dataset.deleteGroup),1);this.renderDraft();}else if(variant){const g=d.groups[Number(variant.dataset.variant)];g.index=(g.index+1)%g.variants.length;this.renderDraft();}};
+    this.$('draftGroupButton').onclick=()=>this.guard(()=>this.addDraftGroup());this.$('draftSubmit').onclick=()=>this.guard(()=>this.submitDraft());
+  }
+  setDraftMode(mode){const d=this.draft;ensure(!d.opened||d.opened===mode,'Açılış türünüz değiştirilemez.');d.mode=mode;d.groups=[];d.picked.clear();this.renderDraft();}
+  addDraftGroup(){
+    const d=this.draft,used=this.draftUsed(),tiles=d.hand.filter(t=>d.picked.has(t.id)&&!used.has(t.id));ensure(tiles.length>0,'Per yapacağınız taşları seçin.');const variants=Rules.analyze(tiles,d.mode,this.app.state.joker);
+    if(variants.length)d.groups.push({variants,index:0});
+    else{
+      const p=Rules.plan(tiles,d.mode,this.app.state.joker);ensure(p.count===tiles.length,'Seçilen taşların tamamı geçerli per oluşturmuyor.');
+      for(const g of p.groups)d.groups.push({variants:Rules.analyze(g.entries.map(e=>e.tile),d.mode,this.app.state.joker),index:0});
+    }
+    d.picked.clear();this.renderDraft();this.app.sound.play();
+  }
+  autoDraft(){
+    const d=this.draft,v=this.app.state;const p=Rules.plan(d.hand,d.mode,v.joker,{leave:1,objective:d.mode==='run'?'score':'coverage',requiredId:d.requiredId});
+    d.groups=p.groups.map(g=>{const variants=Rules.analyze(g.entries.map(e=>e.tile),d.mode,v.joker);return {variants,index:Math.max(0,variants.findIndex(x=>x.key===g.key))};});d.picked.clear();this.renderDraft();if(!d.groups.length)this.toast('Bu taşlarla uygun per bulunamadı.',true);
+  }
+  submitDraft(){
+    const d=this.draft,s=this.draftStatus();ensure(s.ready,'Açılış barajını ve son taşınızı kontrol edin.');
+    const groups=s.descs.map(g=>({ids:g.entries.map(e=>e.tile.id),key:g.key})),a=d.sourceLeft?{type:'ACTION_DRAW',source:'left',mode:d.mode,groups}:{type:'ACTION_OPEN_MELDS',mode:d.mode,groups};
+    if(this.app.intent(a))this.closeModal();
+  }
+  processTile(explicit=null,meldId=null,quick=false){
+    const v=this.app.state;ensure(this.canAct()&&v.phase==='discard'&&v.settings.mode==='51','İşlemek için sıranızda taş çekin.');const p=v.players[v.you];ensure(p.opened,'İşlemeden önce el açmalısınız.');const id=this.chosenId(explicit),tile=v.hand.find(t=>t.id===id);ensure(tile,'Taş elinizde değil.');
+    const choices=[];for(const m of v.melds){if(meldId&&m.id!==meldId)continue;if((p.opened==='pairs')!==(m.kind==='pair'))continue;for(const op of Rules.addOptions(tile,m,v.joker))if(op.op==='replace'||v.hand.length>1)choices.push({meld:m,op});}
+    ensure(choices.length,'Bu taş uygun bir pere işlenemiyor. Çift açtıysanız yeni çiftleri “Çift Ekle” ile koyabilirsiniz.');
+    const send=c=>{const ok=this.app.intent(Object.assign({type:'ACTION_ADD_TO_MELD',meldId:c.meld.id,tileId:id},c.op));if(ok)this.closeModal();};
+    if(quick&&choices.length===1){send(choices[0]);return;}
+    const html='<p class="subtle">Taşın işleneceği yeri veya yerine geçeceği okeyi seçin.</p><div class="processing-list">'+choices.map((c,i)=>'<button class="process-option" data-process="'+i+'">'+this.tileHTML(tile,v.joker)+'<div>'+escapeHTML(v.players[c.meld.owner].name)+' · '+(c.op.op==='replace'?'Okeyi Al':c.meld.kind==='group'?'Gruba Ekle':c.op.side==='start'?'Serinin Başına':'Serinin Sonuna')+'<small>'+COLOR_NAMES[c.op.as.c]+' '+c.op.as.n+' · '+c.meld.entries.map(e=>e.as.n).join('–')+'</small></div></button>').join('')+'</div>';
+    this.showModal('Taş İşle / Okey Değiştir',html,[],'process');this.$('modalBody').onclick=e=>{const b=e.target.closest('[data-process]');if(b)this.guard(()=>send(choices[Number(b.dataset.process)]));};
+  }
+  showScores(){
+    const v=this.app.state;if(!v){this.toast('Henüz bir masa kurulmadı.');return;}
+    let html='<p class="subtle">Ceza puanı düşük olan oyuncu öndedir. Gösterge cezaları el toplamına dahildir.</p><table class="score-table"><thead><tr><th>OYUNCU</th><th>TOPLAM CEZA</th><th>AÇILIŞ</th></tr></thead><tbody>'+v.players.map((p,i)=>'<tr><td>'+escapeHTML(p?p.name:'Boş koltuk')+(i===v.you?' · Siz':'')+'</td><td>'+(p?p.score:'—')+'</td><td>'+(p&&p.opened?(p.opened==='pairs'?'Çift':'Seri'):'—')+'</td></tr>').join('')+'</tbody></table>';
+    if(v.records.length)html+='<h3 class="section-title" style="margin-top:18px">EL GEÇMİŞİ</h3><table class="score-table"><thead><tr><th>EL</th>'+v.players.map(p=>'<th>'+escapeHTML(p?p.name:'—')+'</th>').join('')+'</tr></thead><tbody>'+v.records.slice().reverse().map(r=>'<tr><td>'+r.hand+' · '+(r.mode==='51'?'51':'Okey')+'</td>'+r.delta.map((x,i)=>'<td'+(r.winner===i?' class="winner"':'')+'>'+x+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+    this.showModal('Puan Tablosu',html,[{label:'Masaya Dön',action:()=>this.closeModal()}],'scores');
+  }
+  showResult(){
+    const v=this.app.state,r=v.result;if(!r)return;const title=r.winner===null?'Deste Bitti':v.players[r.winner].name+' Kazandı';
+    let html='<div class="winner-title">'+escapeHTML(title)+'</div><div class="winner-sub">'+(r.winner===null?'Son taşın atılmasıyla el kapandı.':r.finishMode==='pairs'?'7 çift ile bitiş · x'+r.multiplier:r.multiplier>1?'Okeyli bitiş · x'+r.multiplier:'Kurallı bitiş')+'</div><table class="score-table"><thead><tr><th>OYUNCU</th><th>BU EL</th><th>TOPLAM</th></tr></thead><tbody>'+v.players.map((p,i)=>'<tr'+(r.winner===i?' class="winner"':'')+'><td>'+escapeHTML(p.name)+(r.winner===i?' ♔':'')+'</td><td>+'+r.totalDelta[i]+'</td><td>'+p.score+'</td></tr>').join('')+'</tbody></table>';
+    if(r.winningGroups.length)html+='<div class="draft-groups">'+r.winningGroups.map(g=>'<div class="draft-group"><div class="group-tiles">'+g.entries.map(e=>this.tileHTML(e.tile,v.joker,{bound:e.as})).join('')+'</div></div>').join('')+'</div>';
+    html+='<details style="margin-top:15px"><summary class="subtle" style="cursor:pointer">El sonunda ıstakaları göster</summary>'+r.reveal.map((hand,i)=>'<p class="tiny">'+escapeHTML(v.players[i].name)+'</p><div class="draft-hand">'+hand.map(t=>this.tileHTML(t,v.joker)).join('')+'</div>').join('')+'</details>';
+    const host=this.app.network.mode!=='client';
+    this.showModal('El Sonucu',html,[{label:'Puanlar',action:()=>this.showScores()},{label:host?'Sonraki El':'Masaya Dön',className:'gold',action:()=>host?this.app.network.start():this.closeModal()}],'result');
+  }
+  showHelp(){
+    const html='<div class="help-grid"><div><h3>Istaka ve sıra</h3><p>Taşa dokunarak seçin; sürükleyerek boş yuvaya taşıyın veya başka taşla yer değiştirin. Üst ve alt sırada toplam 28 yuva vardır.</p><p>İlk oyuncu 15, diğerleri 14 taş alır. İlk oyuncu taş atar; sonraki oyuncu ortadan veya solundan çekip sağa atar. Seçili taşı sağdaki “Taş At” alanına, Düz Okey’de bitiş taşını “Bitiş Alanı”na bırakın.</p><p>Geri Al ve Sıfırla yalnızca ıstaka düzenini değiştirir. Çekilen, atılan veya masaya açılan taşlar geri alınmaz. Süre dolunca kurucu ortadan çekip otomatik taş atar.</p><h3>Perler ve okey</h3><p>Aynı renk ardışık en az 3 taş seridir. 1–2–3 ve 12–13–1 geçerlidir; 13–1–2 geçersizdir. Bir seride 1 yalnızca bir defa kullanılır.</p><p>Aynı sayının farklı renklerinden 3–4 taş gruptur. Aynı renk ve sayıdan 2 taş çifttir. Gösterge 13 ise okey aynı rengin 1’idir. Gerçek okey her taşı temsil eder; yıldızlı sahte okey yalnızca okeyin renk ve sayı değerini taşır.</p></div><div><h3>Düz Okey</h3><p>Yere per açılmaz. 14 taşı tamamen serilere/gruplara veya 7 çifte ayırıp kalan taşı bitiş alanına bırakın. Bitiş doğrulamasını kurucu yapar.</p><p>Her rakibe normal bitişte 1, okey atarak veya 7 çiftle bitişte 2, çift ve okeyli bitişte 4 ceza yazılır. Gösterge açıksa eşini ilk kişisel çekişinizden önce, sıranızdayken bir kez gösterip rakiplere 1 ceza yazdırabilirsiniz; ilk oynayan da ilk atışından önce gösterebilir.</p><h3>51</h3><p>Seri/grup açılışı en az 51; çift açılışı en az 4 çifttir. Katlamalı masada önceki en yüksek ilk açılışın en az 1 puan veya 1 çift üstü gerekir. Seri ve çift barajları ayrıdır. 1 taşı sayısal toplamda 1 sayılır.</p><p>Kapalı oyuncu soldan ancak aldığı taşı da içeren geçerli açılışı aynı işlemde yapabiliyorsa alır. Açık oyuncu soldan serbestçe alabilir. Seri açan seri/gruplara; çift açan çiftlere işlem yapar ve “Çift Ekle” ile yeni çift koyar. Tamamlanmış bir çifte üçüncü taş eklenmez.</p><p>İşlemek için o sırada taş çekmiş olun. Perin uygun ucuna taş ekleyin veya yerdeki okeyi temsil ettiği gerçek taşla değiştirip alın. Son taşınızı atmak için bir taş ayırın. Kapalıya 100; açığa kalan taş toplamı ceza yazılır. Elde okey 25 veya 50’dir; okeyli bitişte cezalar ikiye katlanır. Deste sonunda kazanan yoktur; herkesin cezası hesaplanır.</p></div></div><div class="help-note"><b>Bağlantı:</b> Botlar internet istemez. P2P için internet, PeerJS sinyal servisi ve WebRTC gerekir. Kısıtlı NAT/ağlarda kendi TURN sunucunuzu Gelişmiş Ağ Ayarları’na ekleyin. Kurucu uygulamayı açık tutar; kurucu kaybolursa otorite başka cihaza devredilmez. İstemci tekrar katılmak için aynı sekmedeki oda kodunu kullanabilir. Bağlantı kopunca masa durur; kurucu kopan koltuğa bot atayabilir. Kurucu sayfayı yenilerse masa durumu kaybolur.<br><br><b>Android WebView:</b> JavaScript, DOM storage, INTERNET izni ve güncel Android System WebView gerekir. APK kabuğu yatay yönü, tam ekranı ve ekranın açık kalmasını ayrıca ayarlayabilir. Bu dosya APK içine yerleştirilmeye hazır web uygulamasıdır.<br><br><b>Kaynak:</b> PeerJS veri kanalları, yeniden bağlanma ve ICE yapılandırması için <a href="https://peerjs.com/client/api/peer" target="_blank" rel="noopener noreferrer" style="color:#e2ca83">PeerJS belgeleri</a>. Düz Okey ve 51 için bu masada uygulanan kurallar yukarıda açıkça belirtilmiştir.</div>';
+    this.showModal('Kurallar ve Kullanım',html,[{label:'Masaya Dön',className:'gold',action:()=>this.closeModal()}],'help');
+  }
+  showNetworkSettings(){
+    const html='<p class="subtle">Varsayılan bağlantı PeerJS Cloud ve Google STUN kullanır. Farklı ağlarda bağlantı kurulamıyorsa geçerli TURN sunucunuzun ICE bilgisini her cihazda girin. Değişiklikler sonraki oda bağlantısında uygulanır.</p><div class="form-group"><label for="iceInput">ICE SUNUCULARI · JSON DİZİ (BOŞ: VARSAYILAN)</label><textarea id="iceInput" spellcheck="false" placeholder=\'[{"urls":"stun:stun.l.google.com:19302"}]\'>'+escapeHTML(storage.get('ice'))+'</textarea></div><div class="lobby-settings"><div class="form-group"><label for="peerHostInput">Özel PeerServer adresi (isteğe bağlı)</label><input id="peerHostInput" value="'+escapeHTML(storage.get('peerHost'))+'" placeholder="Boş: PeerJS Cloud"></div><div class="form-group"><label for="peerPortInput">TLS portu</label><input id="peerPortInput" type="number" min="1" max="65535" value="'+escapeHTML(storage.get('peerPort','443'))+'"></div><div class="form-group"><label for="peerPathInput">PeerServer yolu</label><input id="peerPathInput" value="'+escapeHTML(storage.get('peerPath','/'))+'"></div></div>';
+    this.showModal('Gelişmiş Ağ Ayarları',html,[{label:'Varsayılana Dön',action:()=>{['ice','peerHost','peerPort','peerPath'].forEach(k=>storage.del(k));this.closeModal();this.toast('Varsayılan ağ ayarları kaydedildi.');}},{label:'Kaydet',className:'gold',action:()=>{
+      const raw=this.$('iceInput').value.trim();if(raw){const ice=JSON.parse(raw);ensure(Array.isArray(ice)&&ice.length>0&&ice.length<=10,'ICE ayarı 1–10 sunucudan oluşan JSON dizi olmalı.');for(const s of ice){ensure(s&&typeof s==='object'&&!Array.isArray(s),'Geçersiz ICE sunucusu.');const urls=Array.isArray(s.urls)?s.urls:[s.urls];ensure(urls.length>0&&urls.length<=5&&urls.every(u=>typeof u==='string'&&/^(stun|stuns|turn|turns):[^\s]+$/.test(u)),'Sunucunun urls alanında geçerli STUN/TURN adresi olmalı.');if(s.username!==undefined)ensure(typeof s.username==='string','TURN kullanıcı adı metin olmalı.');if(s.credential!==undefined)ensure(typeof s.credential==='string','TURN parolası metin olmalı.');}storage.set('ice',JSON.stringify(ice));}else storage.del('ice');
+      const host=this.$('peerHostInput').value.trim(),port=Number(this.$('peerPortInput').value),path=this.$('peerPathInput').value.trim()||'/';ensure(!host||/^[a-zA-Z0-9.-]+$/.test(host),'Sunucuya yalnızca alan adı yazın; https:// eklemeyin.');ensure(int(port)&&port>0&&port<65536,'Port 1–65535 arasında olmalı.');ensure(path.startsWith('/')&&!/\s/.test(path),'Yol / ile başlamalı ve boşluk içermemeli.');storage.set('peerHost',host);storage.set('peerPort',port);storage.set('peerPath',path);this.closeModal();this.toast('Ağ ayarları kaydedildi.');
+    }}],'network');
+  }
+  confirmLeave(){
+    this.showModal('Masadan Ayrıl',this.app.network.mode==='host'?'<p class="subtle">Kurucu ayrıldığında bu masa kapanır. Devam eden el diğer oyunculara aktarılamaz.</p>':'<p class="subtle">Masadan ayrılacaksınız. Geri dönebilmek için aynı oda kodunu ve bu sekmeyi kullanın; kurucu koltuğunuzu botla değiştirmişse geri katılamazsınız.</p>',[{label:'Masaya Dön',action:()=>this.closeModal()},{label:'Ayrıl',className:'danger',action:()=>{this.closeModal();this.app.leave();}}],'leave');
+  }
+  async fullscreen(){
+    try{if(document.fullscreenElement){await document.exitFullscreen();return;}const el=document.documentElement;if(el.requestFullscreen)await el.requestFullscreen({navigationUI:'hide'});else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();else{this.toast('Tam ekranı APK veya tarayıcı menüsünden açabilirsiniz.');return;}try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape');}catch(e){}try{if(navigator.wakeLock)this.app.wake=await navigator.wakeLock.request('screen');}catch(e){}}
+    catch(e){this.toast('Tam ekran bu görünümde desteklenmiyor.');}
+  }
+}
+
+class OkeyApplication{
+  constructor(){
+    this.state=null;this.clockSkew=0;this.resultKey='';this.previousPlaying=false;this.connectionAttempt=0;this.sound=new SoundFX();this.network=new NetworkManager(this);this.ui=new UIManager(this);this.wake=null;
+  }
+  async create(kind){
+    ensure(!this.ui.entryBusy,'Bağlantı işlemi sürüyor.');const attempt=++this.connectionAttempt,name=cleanName(this.ui.$('playerNameInput').value),settings=this.ui.entrySettings();storage.set('name',name);this.ui.lobbyError('');
+    if(kind==='local'){this.network.local(name,settings);this.ui.hideLobby();return;}
+    this.ui.setEntryBusy(true,'Oda kodu oluşturuluyor; sinyal sunucusuna bağlanılıyor…');try{await this.network.host(name,settings);if(attempt===this.connectionAttempt)this.ui.setEntryBusy(false,'');}catch(e){if(attempt!==this.connectionAttempt)return;this.network.shutdown();this.ui.setEntryBusy(false,'');throw e;}
+  }
+  async join(){
+    ensure(!this.ui.entryBusy,'Bağlantı işlemi sürüyor.');const attempt=++this.connectionAttempt,name=cleanName(this.ui.$('playerNameInput').value),code=this.ui.$('roomCodeInput').value.trim().toUpperCase();storage.set('name',name);this.ui.lobbyError('');this.ui.setEntryBusy(true,'Masaya bağlanılıyor…');
+    try{await this.network.join(name,code);}catch(e){if(attempt!==this.connectionAttempt)return;this.network.shutdown();this.ui.setEntryBusy(false,'');throw new Error(e.message||'Masaya bağlanılamadı.');}
+  }
+  cancelConnection(){this.connectionAttempt++;this.network.shutdown();this.ui.setEntryBusy(false,'');this.ui.connection('Hazır',false);this.ui.lobbyError('');}
+  intent(a){try{return this.network.intent(a);}catch(e){this.ui.toast(e.message,true);return false;}}
+  onState(v){
+    const old=this.state;this.previousPlaying=!!(old&&old.status==='playing');this.clockSkew=v.serverNow-now();this.state=v;
+    if(old&&old.handNo!==v.handNo){this.ui.layout=Array(28).fill(null);this.ui.handKey='';this.ui.selected.clear();this.ui.history=[];this.ui.closeModal();}
+    if(old&&old.status==='playing'&&v.status==='playing'&&v.revision>old.revision){
+      if(v.hand.length>old.hand.length)this.sound.play('draw');
+      else if(v.hand.length<old.hand.length||v.turnSerial!==old.turnSerial||v.melds.length!==old.melds.length)this.sound.play('tile');
+    }
+    if(old&&(this.ui.modalKind==='draft'||this.ui.modalKind==='process')&&(old.turnSerial!==v.turnSerial||old.handNo!==v.handNo||v.status!=='playing'))this.ui.closeModal();
+    this.ui.render(v);
+    if(v.status==='ended'&&this.resultKey!==String(v.handNo)){this.resultKey=String(v.handNo);this.ui.hideLobby();this.ui.showResult();this.sound.play('win');}
+    if(v.status==='playing')this.resultKey='';
+  }
+  leave(){this.network.shutdown();this.state=null;this.resultKey='';this.ui.handKey='';this.ui.layout=Array(28).fill(null);this.ui.history=[];this.ui.selected.clear();this.ui.paintEmptyRack();this.ui.$('opponents').innerHTML='';this.ui.$('meldZone').innerHTML='';this.ui.$('selfCount').textContent='0 taş';this.ui.$('noticeLine').textContent='Yeni bir masa kurun veya oda koduyla katılın.';this.ui.$('roomButton').textContent='MASA';this.ui.connection('Hazır',false);this.ui.renderConnection();this.ui.showLobby();}
+}
+globalThis.OkeyCore=Object.freeze({Rules,GameEngine,BotAI,SoundFX,NetworkManager,UIManager});
+if(typeof document!=='undefined')window.addEventListener('DOMContentLoaded',()=>{globalThis.mavi=new OkeyApplication();});
+</script>
+</body>
+</html>
