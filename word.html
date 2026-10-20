@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bir Kelime Bir İşlem - 2 Kişilik Düello</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #f59e0b;
+      --primary: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+
+    .container { width: 100%; max-width: 760px; }
+
+    /* Skor ve Oyuncu Tablosu */
+    .scoreboard { display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; margin-bottom: 20px; align-items: center; }
+    .player-card { background: var(--card); padding: 15px 20px; border-radius: 14px; border: 2px solid transparent; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
+    .player-card.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(245, 158, 11, 0.25); }
+    .player-name { font-weight: 700; font-size: 1.05rem; }
+    .turn-badge { font-size: 0.75rem; color: var(--accent); display: block; margin-top: 3px; }
+    .player-score { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+
+    /* Mod Seçici Sekmeler */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+    .tab-btn.active { background: var(--primary); color: white; }
+
+    /* Ana Oyun Kartı */
+    .game-box { background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .badge { background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; }
+    .timer { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
+
+    /* TDK Anlam Kutusu */
+    .definition-box { background: rgba(15, 23, 42, 0.65); padding: 18px; border-radius: 12px; border-left: 4px solid var(--accent); margin-bottom: 22px; line-height: 1.5; font-size: 1.1rem; min-height: 80px; }
+    .hint-text { margin-top: 10px; font-size: 0.95rem; color: #cbd5e1; font-style: italic; }
+
+    /* Harf Kutuları */
+    .letter-slots { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 22px 0; }
+    .slot { width: 46px; height: 54px; background: var(--bg); border: 2px solid #334155; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: var(--text); transition: 0.25s; }
+    .slot.revealed { border-color: var(--accent); background: rgba(245, 158, 11, 0.15); color: var(--accent); transform: translateY(-2px); }
+    .slot.correct { border-color: var(--success); background: rgba(16, 185, 129, 0.2); color: var(--success); }
+
+    /* Girdi ve Butonlar */
+    .input-row { display: flex; gap: 10px; margin-bottom: 15px; }
+    input[type="text"], input[type="number"] { flex: 1; padding: 14px 16px; border-radius: 10px; border: 2px solid #334155; background: var(--bg); color: white; font-size: 1.1rem; font-weight: 600; outline: none; }
+    input:focus { border-color: var(--primary); }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    button { padding: 12px 18px; border-radius: 10px; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+    button:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-accent { background: var(--accent); color: #0f172a; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-outline { background: transparent; border: 1px solid #475569; color: var(--muted); }
+
+    .status-msg { margin-top: 16px; padding: 12px; border-radius: 10px; font-weight: 600; text-align: center; display: none; }
+
+    /* Bir İşlem Sayı Kartları */
+    .numbers-grid { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+    .num-card { width: 65px; height: 65px; background: var(--bg); border: 2px solid var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; }
+    .target-box { text-align: center; margin: 15px 0; }
+    .target-num { font-size: 2.6rem; font-weight: 900; color: var(--accent); letter-spacing: 2px; }
+    .solution-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); padding: 14px; border-radius: 10px; margin-top: 15px; display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 2 Kişilik Skor Tablosu -->
+  <div class="scoreboard">
+    <div id="p1-card" class="player-card active">
+      <div>
+        <div class="player-name">1. Oyuncu</div>
+        <span id="p1-turn" class="turn-badge">● Sıra Sende</span>
+      </div>
+      <div id="p1-score" class="player-score">0</div>
+    </div>
+
+    <button class="btn-outline" onclick="sirayiDegistir()" title="Sırayı diğer oyuncuya geçir">⇄ Sıra Değiş</button>
+
+    <div id="p2-card" class="player-card">
+      <div>
+        <div class="player-name">2. Oyuncu</div>
+        <span id="p2-turn" class="turn-badge" style="visibility:hidden">● Sıra Sende</span>
+      </div>
+      <div id="p2-score" class="player-score">0</div>
+    </div>
+  </div>
+
+  <!-- Oyun Modu Sekmeleri -->
+  <div class="tabs">
+    <button id="tab-kelime" class="tab-btn active" onclick="modDegistir('kelime')">🔤 TDK Kelime Oyunu</button>
+    <button id="tab-islem" class="tab-btn" onclick="modDegistir('islem')">🔢 Bir İşlem Düellosu</button>
+  </div>
+
+  <!-- ================= 1. TDK KELİME OYUNU EKRANI ================= -->
+  <div id="kelime-ekrani" class="game-box">
+    <div class="top-bar">
+      <span id="kelime-bilgi" class="badge">Yükleniyor...</span>
+      <span id="kelime-puan" class="badge" style="background: rgba(245,158,11,0.2); color: #fbbf24;">0 Puan</span>
+      <span id="kelime-sure" class="timer">⏱ 60s</span>
+    </div>
+
+    <div class="definition-box">
+      <div id="tdk-anlam">TDK Sözlük'ten soru çekiliyor...</div>
+      <div id="tdk-ipucu" class="hint-text"></div>
+    </div>
+
+    <div id="harf-kutulari" class="letter-slots"></div>
+
+    <div class="input-row">
+      <input type="text" id="kelime-girdi" placeholder="Tahmininizi yazıp Enter'a basın..." autocomplete="off" />
+      <button class="btn-success" onclick="kelimeTahminEt()">Tahmin Et</button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-accent" onclick="harfAl()">💡 Harf Al (-100 Puan)</button>
+      <button class="btn-outline" onclick="ekIpucuGoster()">📖 Örnek Cümle / Ek Anlam (-50 Puan)</button>
+      <button class="btn-primary" style="margin-left:auto;" onclick="yeniKelimeSorusu()">Yeni Soru (Pas) ➔</button>
+    </div>
+
+    <div id="kelime-mesaj" class="status-msg"></div>
+  </div>
+
+  <!-- ================= 2. BİR İŞLEM EKRANI ================= -->
+  <div id="islem-ekrani" class="game-box" style="display: none;">
+    <div class="top-bar">
+      <span class="badge">5 Küçük + 1 Büyük Sayı</span>
+      <span class="badge" style="background: rgba(16,185,129,0.2); color: #34d399;">Tam: +400 Puan | Yaklaşık: +200 Puan</span>
+      <span id="islem-sure" class="timer">⏱ 60s</span>
+    </div>
+
+    <div class="target-box">
+      <div style="color: var(--muted); font-size: 0.9rem;">HEDEF SAYI</div>
+      <div id="hedef-sayi" class="target-num">---</div>
+    </div>
+
+    <div id="islem-sayilar" class="numbers-grid"></div>
+
+    <div class="input-row">
+      <input type="number" id="islem-girdi" placeholder="Ulaştığınız sonucu yazın (Örn: 542)..." />
+      <button class="btn-success" onclick="islemKontrolEt()">Sonucu Gönder</button>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-outline" onclick="islemCozumuGoster()">🔍 Bilgisayarın Çözümünü Gör</button>
+      <button class="btn-primary" style="margin-left:auto;" onclick="yeniIslemSorusu()">Yeni İşlem Sorusu ➔</button>
+    </div>
+
+    <div id="islem-cozum" class="solution-box"></div>
+    <div id="islem-mesaj" class="status-msg"></div>
+  </div>
+</div>
+
+<script>
+  // --- OYUNCU VE SKOR YÖNETİMİ ---
+  let aktifOyuncu = 1;
+  let skorlar = { 1: 0, 2: 0 };
+  let zamanlayici = null;
+  let kalanSure = 60;
+
+  function sirayiDegistir() {
+    aktifOyuncu = aktifOyuncu === 1 ? 2 : 1;
+    document.getElementById("p1-card").classList.toggle("active", aktifOyuncu === 1);
+    document.getElementById("p2-card").classList.toggle("active", aktifOyuncu === 2);
+    document.getElementById("p1-turn").style.visibility = aktifOyuncu === 1 ? "visible" : "hidden";
+    document.getElementById("p2-turn").style.visibility = aktifOyuncu === 2 ? "visible" : "hidden";
+  }
+
+  function puanEkle(puan) {
+    skorlar[aktifOyuncu] += puan;
+    document.getElementById(`p${aktifOyuncu}-score`).textContent = skorlar[aktifOyuncu];
+  }
+
+  function modDegistir(mod) {
+    document.getElementById("tab-kelime").classList.toggle("active", mod === "kelime");
+    document.getElementById("tab-islem").classList.toggle("active", mod === "islem");
+    document.getElementById("kelime-ekrani").style.display = mod === "kelime" ? "block" : "none";
+    document.getElementById("islem-ekrani").style.display = mod === "islem" ? "block" : "none";
+    if (mod === "kelime") yeniKelimeSorusu();
+    else yeniIslemSorusu();
+  }
+
+  // --- 1. TDK KELİME OYUNU MANTIĞI ---
+  // Seçilmiş kaliteli Türkçe kelimeler (4-10 harf arası)
+  const kelimeHavuzu = [
+    "PUSULA", "MERDİVEN", "TEBESSÜM", "MÜTEVAZI", "KEHRİBAR", "KÜTÜPHANE",
+    "Mİinyatür".toLocaleUpperCase('tr-TR'), "LABİRENT", "Şükran".toLocaleUpperCase('tr-TR'),
+    "FERAGAT", "İSTİikrar".toLocaleUpperCase('tr-TR'), "KIVILCIM", "YELPAZE", "MUAMMA",
+    "SERÜVEN", "GÖKKUŞAĞI", "MERHALE", "ZANAAT", "ŞEFKAT", "TELAŞ", "VİCDAN", "BİLLUR"
+  ];
+
+  let kelimeState = {
+    kelime: "",
+    acilanlar: [],
+    puan: 0,
+    ekIpucu: "",
+    ipucuKullanildi: false,
+    bitti: false
+  };
+
+  async function yeniKelimeSorusu() {
+    clearInterval(zamanlayici);
+    document.getElementById("kelime-mesaj").style.display = "none";
+    document.getElementById("tdk-ipucu").textContent = "";
+    document.getElementById("kelime-girdi").value = "";
+    document.getElementById("tdk-anlam").textContent = "TDK Sözlük API'sinden anlam çekiliyor...";
+
+    const secilen = kelimeHavuzu[Math.floor(Math.random() * kelimeHavuzu.length)].toLocaleUpperCase('tr-TR');
+    const kucukKelime = secilen.toLocaleLowerCase('tr-TR');
+
+    let anlamMetni = "";
+    let ekIpucuMetni = "";
+
+    try {
+      const res = await fetch(`https://sozluk.gov.tr/gts?ara=${encodeURIComponent(kucukKelime)}`);
+      const data = await res.json();
+
+      if (!data.error && data[0] && data[0].anlamlarListe) {
+        anlamMetni = data[0].anlamlarListe[0].anlam;
+
+        // Varsa örnek cümle veya 2. anlamı ek ipucu olarak kaydet
+        if (data[0].anlamlarListe[0].orneklerListe) {
+          ekIpucuMetni = "Örnek: \"" + data[0].anlamlarListe[0].orneklerListe[0].ornek + "\"";
+        } else if (data[0].anlamlarListe[1]) {
+          ekIpucuMetni = "2. Anlamı: " + data[0].anlamlarListe[1].anlam;
+        }
+
+        // Sansür: Anlam veya örnek içinde kelimenin kendisi geçiyorsa [...] yap
+        const regex = new RegExp(kucukKelime, "gi");
+        anlamMetni = anlamMetni.replace(regex, "[...]");
+        ekIpucuMetni = ekIpucuMetni.replace(regex, "[...]");
+      } else {
+        throw new Error("Kelime bulunamadı");
+      }
+    } catch (err) {
+      anlamMetni = "TDK bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edin.";
+    }
+
+    kelimeState = {
+      kelime: secilen,
+      acilanlar: [],
+      puan: secilen.length * 100,
+      ekIpucu: ekIpucuMetni || "Bu kelime için TDK'da ek örnek cümle bulunmuyor.",
+      ipucuKullanildi: false,
+      bitti: false
+    };
+
+    document.getElementById("tdk-anlam").textContent = anlamMetni;
+    document.getElementById("kelime-bilgi").textContent = `${secilen.length} Harfli Kelime`;
+    guncelleKelimeEkrani();
+    baslatSayac("kelime-sure", () => kelimeSuresiDoldu());
+  }
+
+  function guncelleKelimeEkrani() {
+    document.getElementById("kelime-puan").textContent = `${kelimeState.puan} Puan`;
+    const kutularDiv = document.getElementById("harf-kutulari");
+    kutularDiv.innerHTML = "";
+
+    kelimeState.kelime.split("").forEach((harf, idx) => {
+      const div = document.createElement("div");
+      const acikMi = kelimeState.acilanlar.includes(idx);
+      div.className = "slot" + (acikMi ? " revealed" : "") + (kelimeState.bitti ? " correct" : "");
+      div.textContent = acikMi || kelimeState.bitti ? harf : "";
+      kutularDiv.appendChild(div);
+    });
+  }
+
+  function harfAl() {
+    if (kelimeState.bitti) return;
+    const kapalilar = [];
+    for (let i = 0; i < kelimeState.kelime.length; i++) {
+      if (!kelimeState.acilanlar.includes(i)) kapalilar.push(i);
+    }
+    if (kapalilar.length <= 1) {
+      mesajGoster("kelime-mesaj", "Son harf kaldı, daha fazla harf alamazsınız!", "#f59e0b");
+      return;
+    }
+    const rastgeleIdx = kapalilar[Math.floor(Math.random() * kapalilar.length)];
+    kelimeState.acilanlar.push(rastgeleIdx);
+    kelimeState.puan = Math.max(100, kelimeState.puan - 100);
+    guncelleKelimeEkrani();
+  }
+
+  function ekIpucuGoster() {
+    if (kelimeState.bitti || kelimeState.ipucuKullanildi) return;
+    kelimeState.ipucuKullanildi = true;
+    kelimeState.puan = Math.max(50, kelimeState.puan - 50);
+    document.getElementById("tdk-ipucu").textContent = kelimeState.ekIpucu;
+    guncelleKelimeEkrani();
+  }
+
+  function kelimeTahminEt() {
+    if (kelimeState.bitti) return;
+    const girdi = document.getElementById("kelime-girdi").value.trim().toLocaleUpperCase('tr-TR');
+    if (!girdi) return;
+
+    if (girdi === kelimeState.kelime) {
+      kelimeState.bitti = true;
+      clearInterval(zamanlayici);
+      puanEkle(kelimeState.puan);
+      guncelleKelimeEkrani();
+      mesajGoster("kelime-mesaj", `🎉 Tebrikler! ${aktifOyuncu}. Oyuncu +${kelimeState.puan} puan kazandı! Sıra diğer oyuncuya geçti.`, "#10b981");
+      sirayiDegistir();
+    } else {
+      mesajGoster("kelime-mesaj", "❌ Yanlış tahmin! Tekrar deneyin veya Harf Alın.", "#ef4444");
+    }
+  }
+
+  function kelimeSuresiDoldu() {
+    kelimeState.bitti = true;
+    guncelleKelimeEkrani();
+    mesajGoster("kelime-mesaj", `⌛ Süre doldu! Doğru kelime: ${kelimeState.kelime}. Sıra diğer oyuncuya geçti.`, "#ef4444");
+    sirayiDegistir();
+  }
+
+  // Enter tuşu ile hızlı tahmin gönderme
+  document.getElementById("kelime-girdi").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") kelimeTahminEt();
+  });
+
+  // --- 2. BİR İŞLEM (KESİN ÇÖZÜMLÜ TERSİNE ÜRETİM) MANTIĞI ---
+  let islemState = { sayilar: [], hedef: 0, adimlar: [], bitti: false };
+
+  function yeniIslemSorusu() {
+    clearInterval(zamanlayici);
+    document.getElementById("islem-mesaj").style.display = "none";
+    document.getElementById("islem-cozum").style.display = "none";
+    document.getElementById("islem-girdi").value = "";
+
+    const kucukHavuz = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const buyukHavuz = [25, 50, 75, 100];
+
+    while (true) {
+      let sayilar = [];
+      for (let i = 0; i < 5; i++) sayilar.push(kucukHavuz[Math.floor(Math.random() * kucukHavuz.length)]);
+      sayilar.push(buyukHavuz[Math.floor(Math.random() * buyukHavuz.length)]);
+
+      let havuz = [...sayilar];
+      let adimlar = [];
+      let gecerli = false;
+
+      for (let i = 0; i < 4; i++) {
+        let a = havuz.splice(Math.floor(Math.random() * havuz.length), 1)[0];
+        let b = havuz.splice(Math.floor(Math.random() * havuz.length), 1)[0];
+        if (b > a) [a, b] = [b, a];
+
+        let ops = ['+', '-'];
+        if (a > 1 && b > 1 && a * b < 1500) ops.push('×');
+        if (b > 1 && a % b === 0) ops.push('÷');
+
+        let op = ops[Math.floor(Math.random() * ops.length)];
+        let sonuc = op === '+' ? a + b : op === '-' ? a - b : op === '×' ? a * b : a / b;
+        if (sonuc <= 0) break;
+
+        adimlar.push(`${a} ${op} ${b} = ${sonuc}`);
+        havuz.push(sonuc);
+
+        if (i >= 2 && sonuc >= 105 && sonuc <= 995 && !sayilar.includes(sonuc)) {
+          islemState = { sayilar, hedef: sonuc, adimlar, bitti: false };
+          gecerli = true;
+          break;
+        }
+      }
+      if (gecerli) break;
+    }
+
+    document.getElementById("hedef-sayi").textContent = islemState.hedef;
+    const grid = document.getElementById("islem-sayilar");
+    grid.innerHTML = "";
+    islemState.sayilar.forEach(s => {
+      const d = document.createElement("div");
+      d.className = "num-card";
+      d.textContent = s;
+      grid.appendChild(d);
+    });
+
+    baslatSayac("islem-sure", () => {
+      islemState.bitti = true;
+      islemCozumuGoster();
+      mesajGoster("islem-mesaj", "⌛ Süre doldu! Çözüm yolu yukarıda gösterildi.", "#ef4444");
+      sirayiDegistir();
+    });
+  }
+
+  function islemKontrolEt() {
+    if (islemState.bitti) return;
+    const girilen = parseInt(document.getElementById("islem-girdi").value, 10);
+    if (isNaN(girilen)) return;
+
+    const fark = Math.abs(islemState.hedef - girilen);
+    if (fark === 0) {
+      islemState.bitti = true;
+      clearInterval(zamanlayici);
+      puanEkle(400);
+      islemCozumuGoster();
+      mesajGoster("islem-mesaj", `🎯 Tam İsabet! ${aktifOyuncu}. Oyuncu +400 puan kazandı!`, "#10b981");
+      sirayiDegistir();
+    } else if (fark <= 9) {
+      islemState.bitti = true;
+      clearInterval(zamanlayici);
+      const yaklasikPuan = (10 - fark) * 25;
+      puanEkle(yaklasikPuan);
+      islemCozumuGoster();
+      mesajGoster("islem-mesaj", `👏 ${fark} farkla yaklaştınız! +${yaklasikPuan} puan kazandınız.`, "#f59e0b");
+      sirayiDegistir();
+    } else {
+      mesajGoster("islem-mesaj", `❌ Hedefe uzak kaldınız (Fark: ${fark}). En fazla 9 farkla puan alınabilir.`, "#ef4444");
+    }
+  }
+
+  function islemCozumuGoster() {
+    const kutu = document.getElementById("islem-cozum");
+    kutu.style.display = "block";
+    kutu.innerHTML = `<strong>💡 Bilgisayarın Çözüm Yolu:</strong><br>` + islemState.adimlar.join(" &nbsp;➔&nbsp; ");
+  }
+
+  // --- YARDIMCI FONKSİYONLAR ---
+  function baslatSayac(elementId, bittiCallback) {
+    kalanSure = 60;
+    const el = document.getElementById(elementId);
+    el.textContent = `⏱ ${kalanSure}s`;
+    zamanlayici = setInterval(() => {
+      kalanSure--;
+      el.textContent = `⏱ ${kalanSure}s`;
+      if (kalanSure <= 0) {
+        clearInterval(zamanlayici);
+        bittiCallback();
+      }
+    }, 1000);
+  }
+
+  function mesajGoster(id, metin, renk) {
+    const el = document.getElementById(id);
+    el.style.display = "block";
+    el.style.background = `${renk}22`;
+    el.style.border = `1px solid ${renk}`;
+    el.style.color = renk;
+    el.textContent = metin;
+  }
+
+  // Sayfa açıldığında ilk soruyu başlat
+  yeniKelimeSorusu();
+</script>
+</body>
+</html>
