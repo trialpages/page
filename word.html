@@ -1,456 +1,198 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bir Kelime Bir İşlem - 2 Kişilik Düello</title>
-  <style>
-    :root {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --accent: #f59e0b;
-      --primary: #3b82f6;
-      --success: #10b981;
-      --danger: #ef4444;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-    }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-
-    .container { width: 100%; max-width: 760px; }
-
-    /* Skor ve Oyuncu Tablosu */
-    .scoreboard { display: grid; grid-template-columns: 1fr auto 1fr; gap: 15px; margin-bottom: 20px; align-items: center; }
-    .player-card { background: var(--card); padding: 15px 20px; border-radius: 14px; border: 2px solid transparent; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
-    .player-card.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(245, 158, 11, 0.25); }
-    .player-name { font-weight: 700; font-size: 1.05rem; }
-    .turn-badge { font-size: 0.75rem; color: var(--accent); display: block; margin-top: 3px; }
-    .player-score { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
-
-    /* Mod Seçici Sekmeler */
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; background: var(--card); color: var(--muted); font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; }
-    .tab-btn.active { background: var(--primary); color: white; }
-
-    /* Ana Oyun Kartı */
-    .game-box { background: var(--card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .badge { background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem; }
-    .timer { font-size: 1.3rem; font-weight: 800; color: var(--accent); }
-
-    /* TDK Anlam Kutusu */
-    .definition-box { background: rgba(15, 23, 42, 0.65); padding: 18px; border-radius: 12px; border-left: 4px solid var(--accent); margin-bottom: 22px; line-height: 1.5; font-size: 1.1rem; min-height: 80px; }
-    .hint-text { margin-top: 10px; font-size: 0.95rem; color: #cbd5e1; font-style: italic; }
-
-    /* Harf Kutuları */
-    .letter-slots { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 22px 0; }
-    .slot { width: 46px; height: 54px; background: var(--bg); border: 2px solid #334155; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: var(--text); transition: 0.25s; }
-    .slot.revealed { border-color: var(--accent); background: rgba(245, 158, 11, 0.15); color: var(--accent); transform: translateY(-2px); }
-    .slot.correct { border-color: var(--success); background: rgba(16, 185, 129, 0.2); color: var(--success); }
-
-    /* Girdi ve Butonlar */
-    .input-row { display: flex; gap: 10px; margin-bottom: 15px; }
-    input[type="text"], input[type="number"] { flex: 1; padding: 14px 16px; border-radius: 10px; border: 2px solid #334155; background: var(--bg); color: white; font-size: 1.1rem; font-weight: 600; outline: none; }
-    input:focus { border-color: var(--primary); }
-
-    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    button { padding: 12px 18px; border-radius: 10px; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
-    button:hover { opacity: 0.92; transform: translateY(-1px); }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-accent { background: var(--accent); color: #0f172a; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-outline { background: transparent; border: 1px solid #475569; color: var(--muted); }
-
-    .status-msg { margin-top: 16px; padding: 12px; border-radius: 10px; font-weight: 600; text-align: center; display: none; }
-
-    /* Bir İşlem Sayı Kartları */
-    .numbers-grid { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
-    .num-card { width: 65px; height: 65px; background: var(--bg); border: 2px solid var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; }
-    .target-box { text-align: center; margin: 15px 0; }
-    .target-num { font-size: 2.6rem; font-weight: 900; color: var(--accent); letter-spacing: 2px; }
-    .solution-box { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); padding: 14px; border-radius: 10px; margin-top: 15px; display: none; }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <!-- 2 Kişilik Skor Tablosu -->
-  <div class="scoreboard">
-    <div id="p1-card" class="player-card active">
-      <div>
-        <div class="player-name">1. Oyuncu</div>
-        <span id="p1-turn" class="turn-badge">● Sıra Sende</span>
-      </div>
-      <div id="p1-score" class="player-score">0</div>
-    </div>
-
-    <button class="btn-outline" onclick="sirayiDegistir()" title="Sırayı diğer oyuncuya geçir">⇄ Sıra Değiş</button>
-
-    <div id="p2-card" class="player-card">
-      <div>
-        <div class="player-name">2. Oyuncu</div>
-        <span id="p2-turn" class="turn-badge" style="visibility:hidden">● Sıra Sende</span>
-      </div>
-      <div id="p2-score" class="player-score">0</div>
-    </div>
-  </div>
-
-  <!-- Oyun Modu Sekmeleri -->
-  <div class="tabs">
-    <button id="tab-kelime" class="tab-btn active" onclick="modDegistir('kelime')">🔤 TDK Kelime Oyunu</button>
-    <button id="tab-islem" class="tab-btn" onclick="modDegistir('islem')">🔢 Bir İşlem Düellosu</button>
-  </div>
-
-  <!-- ================= 1. TDK KELİME OYUNU EKRANI ================= -->
-  <div id="kelime-ekrani" class="game-box">
-    <div class="top-bar">
-      <span id="kelime-bilgi" class="badge">Yükleniyor...</span>
-      <span id="kelime-puan" class="badge" style="background: rgba(245,158,11,0.2); color: #fbbf24;">0 Puan</span>
-      <span id="kelime-sure" class="timer">⏱ 60s</span>
-    </div>
-
-    <div class="definition-box">
-      <div id="tdk-anlam">TDK Sözlük'ten soru çekiliyor...</div>
-      <div id="tdk-ipucu" class="hint-text"></div>
-    </div>
-
-    <div id="harf-kutulari" class="letter-slots"></div>
-
-    <div class="input-row">
-      <input type="text" id="kelime-girdi" placeholder="Tahmininizi yazıp Enter'a basın..." autocomplete="off" />
-      <button class="btn-success" onclick="kelimeTahminEt()">Tahmin Et</button>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn-accent" onclick="harfAl()">💡 Harf Al (-100 Puan)</button>
-      <button class="btn-outline" onclick="ekIpucuGoster()">📖 Örnek Cümle / Ek Anlam (-50 Puan)</button>
-      <button class="btn-primary" style="margin-left:auto;" onclick="yeniKelimeSorusu()">Yeni Soru (Pas) ➔</button>
-    </div>
-
-    <div id="kelime-mesaj" class="status-msg"></div>
-  </div>
-
-  <!-- ================= 2. BİR İŞLEM EKRANI ================= -->
-  <div id="islem-ekrani" class="game-box" style="display: none;">
-    <div class="top-bar">
-      <span class="badge">5 Küçük + 1 Büyük Sayı</span>
-      <span class="badge" style="background: rgba(16,185,129,0.2); color: #34d399;">Tam: +400 Puan | Yaklaşık: +200 Puan</span>
-      <span id="islem-sure" class="timer">⏱ 60s</span>
-    </div>
-
-    <div class="target-box">
-      <div style="color: var(--muted); font-size: 0.9rem;">HEDEF SAYI</div>
-      <div id="hedef-sayi" class="target-num">---</div>
-    </div>
-
-    <div id="islem-sayilar" class="numbers-grid"></div>
-
-    <div class="input-row">
-      <input type="number" id="islem-girdi" placeholder="Ulaştığınız sonucu yazın (Örn: 542)..." />
-      <button class="btn-success" onclick="islemKontrolEt()">Sonucu Gönder</button>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn-outline" onclick="islemCozumuGoster()">🔍 Bilgisayarın Çözümünü Gör</button>
-      <button class="btn-primary" style="margin-left:auto;" onclick="yeniIslemSorusu()">Yeni İşlem Sorusu ➔</button>
-    </div>
-
-    <div id="islem-cozum" class="solution-box"></div>
-    <div id="islem-mesaj" class="status-msg"></div>
-  </div>
-</div>
-
+<html lang="tr"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>Bir Kelime Bir İşlem — Duel Studio Premium</title><script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script><style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;color:#162e45;background:#edf3f8;font-synthesis:none;--ink:#152d45;--muted:#677e90;--blue:#236df4;--deep:#0b3a8e;--teal:#008d75;--amber:#f4a80c;--border:#dfe8f1;--radius:26px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;min-height:100dvh;background:radial-gradient(ellipse 60% 42% at 2% -6%,#c6e3ff 0,transparent 85%),radial-gradient(ellipse 53% 46% at 102% 14%,#ffebc8 0,transparent 82%),radial-gradient(ellipse 53% 45% at 46% 110%,#c8efec 0,transparent 83%),#f1f6fb;background-attachment:fixed;color:var(--ink)}body:before{content:'';pointer-events:none;position:fixed;inset:0;z-index:-1;opacity:.30;background-image:radial-gradient(#7d9db7 .6px,transparent .6px);background-size:19px 19px}
+button,input,select{font:inherit}button{border:0;cursor:pointer;font-weight:800;border-radius:14px;padding:13px 18px;background:#eaf1f8;color:#29445e;transition:transform .2s,box-shadow .2s,background .2s;touch-action:manipulation}button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 7px 20px #163d6524}button:active:not(:disabled){transform:translateY(0) scale(.98)}button:disabled{cursor:not-allowed;opacity:.46}input,select{padding:14px 15px;border:1px solid #d5e1ec;border-radius:13px;color:#19354c;width:100%;background:#fcfeff;outline:none;min-width:0}input:focus,select:focus{border-color:#478df9;box-shadow:0 0 0 4px #2c7cfd1a}button:focus-visible{outline:3px solid #75aaff;outline-offset:3px}label{font-size:12px;font-weight:800;letter-spacing:.4px;color:#4b6579;display:block;margin-bottom:8px}h1,h2,h3,p{margin-top:0}h1,h2,h3{font-family:Manrope,'DM Sans',sans-serif;letter-spacing:-.8px}h1{font-size:clamp(24px,4vw,37px);font-weight:800;line-height:1.2;margin-bottom:5px}h1 span{color:#2178ef}h2{font-size:clamp(22px,2.8vw,28px);font-weight:800;margin-bottom:18px}h3{font-size:clamp(20px,2.2vw,23px);margin:7px 0 6px}p{line-height:1.6}.muted{color:#688096}.small{font-size:13px}.eyebrow{font-size:10px;letter-spacing:2px;font-weight:900;color:#6a8aaa}.hidden{display:none!important}.center{text-align:center}.stack{display:grid;gap:15px}.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}.shell{width:min(100%,1110px);margin:auto;padding:15px clamp(12px,3vw,34px) 35px}.topstrip{height:29px;display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:800;letter-spacing:1.2px;color:#7190a8}.topstrip>span:first-child{color:#2f669f}.status-spark{display:inline-block;width:6px;height:6px;background:#0ebf9e;border-radius:50%;box-shadow:0 0 0 4px #15b89d20;vertical-align:middle;margin-right:8px}.brand{display:flex;align-items:center;gap:16px}.brand-mark{display:grid;place-items:center;width:57px;height:57px;flex:0 0 57px;background:linear-gradient(150deg,#1e86ff,#1551b9);border:1px solid #ffffffb8;border-radius:18px;box-shadow:0 12px 25px #235fbe3a;color:#fff;font-size:33px}.brand-sub{margin-top:0}.version{margin-left:8px;color:#dda143;letter-spacing:1px}header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 1px 25px}.sound-btn{display:flex;align-items:center;justify-content:center;gap:6px;background:#ffffffb8;border:1px solid white;box-shadow:0 5px 15px #2045670c;white-space:nowrap}.glass{border-radius:var(--radius);padding:clamp(20px,3.3vw,34px);background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(255,255,255,.79));border:1px solid #ffffffed;box-shadow:0 22px 65px #23507619,0 3px 14px #153d630b;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}.primary{background:linear-gradient(135deg,#3287ff,#145acb);color:#fff;box-shadow:0 8px 22px #1465cd30}.green{background:linear-gradient(135deg,#18b998,#007e6c);color:#fff;box-shadow:0 8px 20px #0b9d8128}.amber{background:linear-gradient(135deg,#ffdc89,#ffc34b);color:#684513}.danger{color:#b52c48;background:#fde9ef}.choice{flex:1;min-width:0}.choice.on{background:linear-gradient(125deg,#236df4,#124aa8);color:white;box-shadow:0 9px 21px #236df430}.pill{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;background:#eaf2ff;color:#326499;font-size:11px;font-weight:800;letter-spacing:.15px;white-space:nowrap}.mode-switch{flex-wrap:nowrap;border:1px solid #e4ecf4;background:#f4f8fc;border-radius:17px;padding:5px;margin-bottom:5px}.mode-switch button{border-radius:13px}.section-kicker{margin-bottom:2px}.category-section{padding:23px 0 14px;border-top:1px solid #e8eff6;border-bottom:1px solid #e8eff6}.category-intro{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.category-intro p{margin:0 0 17px;max-width:630px}.category-count{white-space:nowrap;border:1px solid #e0eaf4;background:#f5f9fd;border-radius:100px;padding:9px 13px;font-size:11px;color:#55718c;font-weight:800}.category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.category-card{text-align:left;display:flex;flex-direction:column;align-items:stretch;min-height:147px;padding:16px 17px;border:1.5px solid #e3ecf4;background:linear-gradient(145deg,#ffffff,#f7faff);box-shadow:0 4px 15px #203d5410;position:relative;overflow:hidden;border-radius:17px}.category-card:before{content:'';position:absolute;top:0;right:0;width:95px;height:95px;border-radius:50%;background:var(--cat);filter:blur(27px);opacity:.12;transform:translate(32%,-37%);pointer-events:none}.category-card:hover:not(:disabled){border-color:var(--cat);box-shadow:0 9px 26px #174c8220}.category-card.selected{border-color:var(--cat);box-shadow:inset 0 0 0 1px var(--cat),0 8px 24px #1b52941b;background:linear-gradient(155deg,#ffffff,#f1f8ff)}.category-card.selected .cat-check{background:var(--cat);color:white;border-color:transparent}.cat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}.cat-icon{font-size:21px;display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:color-mix(in srgb,var(--cat) 12%,white);color:var(--cat)}.cat-check{border-radius:50%;display:grid;place-items:center;width:21px;height:21px;font-size:11px;border:1px solid #d7e3ec;color:transparent;background:#fff}.cat-title{font-size:13px;font-weight:900;line-height:1.35}.cat-desc{font-size:11px;line-height:1.4;color:#73899b;min-height:31px;margin:3px 0 5px;font-weight:500}.cat-total{font-size:10px;font-weight:900;letter-spacing:.4px;color:var(--cat)}.tone-blue{--cat:#2d76ec}.tone-emerald{--cat:#119c74}.tone-violet{--cat:#8861d7}.tone-rose{--cat:#dc6490}.tone-amber{--cat:#cb881c}.tone-teal{--cat:#009e9a}.tone-slate{--cat:#647e99}.tone-indigo{--cat:#5969cb}.selection-note{margin-top:14px;background:#f1f7ff;border:1px solid #dfeefc;color:#316493;letter-spacing:.2px;font-size:11px;border-radius:12px;padding:12px 14px;font-weight:850}.status{font-size:13px;color:#688096;background:#f5f8fc;border:1px solid #e2ecf6;border-radius:12px;padding:11px}.footer{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px 3px 0;font-size:11px;color:#8397a8;line-height:1.7}.footer span:first-child{font-weight:900;letter-spacing:1px;color:#48789f;white-space:nowrap}.progress-track{height:5px;background:#dae8f5;border-radius:999px;overflow:hidden;margin:0 0 20px}.progress-bar{width:0;height:100%;transition:width .4s;background:linear-gradient(90deg,#22c3ab,#227ef8);border-radius:999px}.scores{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:stretch;gap:13px;margin-bottom:17px}.player{min-width:0;padding:15px 20px;border-radius:20px;background:linear-gradient(145deg,#fff,#f1f7fd);border:1.5px solid #deebf5;box-shadow:0 9px 22px #1b477611;transition:all .3s}.player.active{border-color:#eeb340;box-shadow:0 0 0 3px #ffcb593a,0 10px 27px #c59b3520;transform:translateY(-2px)}.player>div:first-child{font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.player strong{display:inline-block;font-family:Manrope,sans-serif;font-weight:900;letter-spacing:-1px;font-size:clamp(24px,3.6vw,33px);padding-top:6px}.player .muted{padding-top:3px}.timer{font-family:Manrope,sans-serif;font-size:clamp(33px,5vw,46px);letter-spacing:-2px;font-weight:900;color:#227cf2;font-variant-numeric:tabular-nums}.timer.urgent{color:#d64d56;animation:timerPulse 1s infinite}.scores>.center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;min-width:102px}.scores .pill{margin-bottom:4px}.question-overline{display:block;margin-bottom:3px}.question-overline+h2{margin-bottom:0}.definition{background:linear-gradient(145deg,#f3f8ff,#fbfdff);border:1px solid #e3edfa;border-radius:20px;padding:22px 23px;font-family:Manrope,sans-serif;font-size:clamp(17px,2.3vw,21px);font-weight:650;line-height:1.6;min-height:100px}.category-pill{background:#edf8f5;color:#00795f}.data-pill{background:#f1f4f9;color:#678199}.data-pill.source-live{background:#e7f8ef;color:#128256}.letters{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:14px 0 19px}.tile{min-width:41px;height:55px;padding:0 6px;border-radius:13px;background:linear-gradient(145deg,#ecf5ff,#dceafd);border:1px solid #caddf2;border-bottom:4px solid #bad0e9;display:grid;place-items:center;font-family:Manrope,sans-serif;font-size:24px;font-weight:900;color:#3576bd;box-shadow:0 5px 12px #315d9010}.tile.revealed{background:linear-gradient(140deg,#ffeac1,#ffca6c);color:#69480b;border-color:#e7b653;border-bottom-color:#cf9945;animation:pop .35s both}.tile.correct{background:#b0ebd7}.history{background:#f2f7fc;border:1px solid #e1ecf5;border-radius:16px;padding:16px;min-height:45px;white-space:pre-line;line-height:1.65;color:#38556d}.numbers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.number{padding:17px 10px;font-family:Manrope,sans-serif;font-size:25px;background:linear-gradient(145deg,#f0f7ff,#e2eefb);border:1.5px solid #d3e4f5;border-bottom:4px solid #c4daef}.number.selected{background:linear-gradient(130deg,#ffdd92,#ffbd53);border-color:#dca73b;color:#61420a}.ops{display:flex;justify-content:center;gap:10px;margin:6px 0}.ops button{font-size:22px;min-width:57px;border:1px solid #d7e6f4;background:#f0f6fc}.ops button.selected{background:#2876eb;color:white}.result{font-family:Manrope,sans-serif;font-size:clamp(29px,6vw,52px);font-weight:900;color:#008f79;letter-spacing:-2px}#target{background:linear-gradient(120deg,#eaf9f3,#f8fffc);border:1px solid #cceee4;border-radius:18px;padding:15px 10px;margin:7px 0 10px}#wordControls button{flex:1 1 auto}#guessArea input{font-size:19px;text-transform:uppercase;letter-spacing:1px}#feedback{border-left:4px solid #ffbb4e;font-weight:800}#solution{border-left:4px solid #1caa8d;background:#ecfaf6}.log-title{margin-top:4px}.chatButton{position:fixed;z-index:31;bottom:max(20px,env(safe-area-inset-bottom));right:max(20px,env(safe-area-inset-right));border-radius:100px;background:linear-gradient(135deg,#237dfb,#074da9);color:white;display:flex;gap:10px;align-items:center;box-shadow:0 14px 38px #125cbe60;padding:15px 20px}.chatIcon{font-size:20px}.unreadCount{position:absolute;right:-5px;top:-7px;border-radius:50%;min-width:26px;height:26px;display:grid;place-items:center;background:#ffbd43;color:#643d00;border:2px solid #fff;font-size:12px}.chatButton.unread{animation:pulse 1.15s infinite}.chatBackdrop{z-index:39;position:fixed;inset:0;background:#10294655;backdrop-filter:blur(3px)}.chat{z-index:40;position:fixed;right:20px;bottom:88px;width:min(408px,calc(100vw - 32px));height:min(560px,calc(100dvh - 115px));display:flex;flex-direction:column;padding:0;border-radius:23px;overflow:hidden;animation:chatAppear .23s both;box-shadow:0 25px 90px #06264a65}.chat>.row:first-child{flex-wrap:nowrap;padding:16px 18px;background:#fff;border-bottom:1px solid #e4edf6}.chatHeading{display:flex;align-items:center;gap:12px}.onlineDot{width:10px;height:10px;border-radius:50%;background:#0dbb91;box-shadow:0 0 0 5px #14c49f18}.chatHeading strong{font-size:15px}.chat #closeChat{margin-left:auto;padding:7px 10px}.messages{height:auto;min-height:0;flex:1;display:flex;align-items:flex-start;flex-direction:column;gap:12px;overflow-y:auto;background:linear-gradient(160deg,#f7fbff,#eaf3ff);padding:18px;scroll-behavior:smooth}.msg{background:#fff;border:1px solid #e5edf5;padding:11px 14px;border-radius:16px 16px 16px 5px;max-width:88%;font-size:14px;line-height:1.55;overflow-wrap:anywhere;box-shadow:0 3px 10px #1f4c7610}.msg.mine{align-self:flex-end;background:linear-gradient(130deg,#2e87ff,#115bd1);color:#fff;border-radius:16px 16px 5px 16px;border:0}.msgName{display:block;opacity:.6;font-size:11px;font-weight:800;margin-bottom:3px}.chatEmpty{margin:auto;color:#7f95a8;line-height:1.6;text-align:center;font-size:14px;max-width:230px}.chat>.row:last-child{margin:0!important;background:#fff;padding:12px;flex-wrap:nowrap;border-top:1px solid #e5edf5}.chat #chatInput{flex:1;background:#f6faff}.chat #sendChat{flex:0 0 49px;padding:12px 0}.divider{height:1px;background:#e2eaf1;margin:17px 0}.choice:focus-visible,.category-card:focus-visible{outline:3px solid #5598f0;outline-offset:2px}
+@keyframes pop{from{transform:rotateY(85deg) scale(.65)}to{transform:rotateY(0) scale(1)}}@keyframes pulse{50%{box-shadow:0 0 0 11px #ffb84e33}}@keyframes timerPulse{50%{opacity:.65}}@keyframes chatAppear{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}@keyframes fall{to{transform:translateY(110vh) rotate(850deg);opacity:0}}
+@media(max-width:760px){.category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.category-intro{flex-wrap:wrap}.category-count{margin-bottom:12px}.glass{padding:20px}.topstrip>span:last-child{display:none}}
+@media(max-width:540px){.shell{padding:9px 11px 18px}.topstrip{height:24px}.brand{gap:10px}.brand-mark{width:43px;height:43px;flex-basis:43px;border-radius:13px;font-size:27px}header{padding:12px 1px 18px}header h1{font-size:clamp(20px,5.4vw,29px);letter-spacing:-.9px}.brand-sub{font-size:11px}.version{display:none}.eyebrow{letter-spacing:1.5px}.sound-btn{padding:10px;border-radius:12px}.sound-btn span{display:none}.grid{grid-template-columns:1fr;gap:12px}.category-grid{gap:8px}.category-card{min-height:137px;padding:12px}.cat-icon{width:33px;height:33px;font-size:19px}.cat-title{font-size:12px}.cat-desc{font-size:10px}.cat-total{font-size:10px}.glass{border-radius:21px;padding:18px}.scores{gap:7px}.player{padding:10px 11px;border-radius:16px}.player strong{font-size:22px}.scores>.center{min-width:76px}.timer{font-size:32px}.pill{font-size:10px;padding:6px 9px}.definition{padding:17px 16px;font-size:16px}.letters{gap:5px}.tile{min-width:29px;height:43px;padding:0 3px;font-size:18px;border-radius:9px}.number{font-size:22px}.ops button{min-width:45px;padding:10px 8px}#wordControls button{width:100%}.chat{right:0;bottom:0;width:100%;height:min(80dvh,660px);border-radius:23px 23px 0 0;padding-bottom:env(safe-area-inset-bottom)}.chatButton{right:14px;bottom:max(14px,env(safe-area-inset-bottom))}.footer{flex-wrap:wrap;gap:4px;padding:18px 0}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style><meta content="#edf3f8" name="theme-color"/><meta content="Bir Kelime Bir İşlem, iki kişilik online kelime ve matematik düellosu. TDK canlı sözlük, kategoriler, işlem tahtası ve sohbet." name="description"/></head><body><div class="shell"><div class="topstrip"><span><span class="status-spark"></span> DUEL STUDIO</span><span>Türkçe kelime • Matematik • Canlı rekabet</span></div><header><div class="brand"><div class="brand-mark">✦</div><div><div class="eyebrow">KELİME &amp; ZEKA ARENASI <span class="version">2026 EDITION</span></div><h1>Bir Kelime <span>Bir İşlem</span></h1><div class="muted small brand-sub">İki kişilik strateji ve bilgi düellosu</div></div></div><button aria-label="Sesi aç veya kapat" class="sound-btn" id="soundBtn">◖)) <span>Ses açık</span></button></header>
+<section class="glass stack" id="lobby"><div class="eyebrow section-kicker">OYUN KURULUMU / 01</div><h2>Düello ayarlarını belirle</h2><div class="row mode-switch"><button class="choice on" id="localMode">♟ Aynı cihazda</button><button class="choice" id="onlineMode">◉ Online oda</button></div><div class="grid"><div><label>1. oyuncu</label><input id="name1" maxlength="24" value="Oyuncu 1"/></div><div><label>2. oyuncu</label><input id="name2" maxlength="24" value="Oyuncu 2"/></div></div><section aria-labelledby="categoryTitle" class="category-section"><div class="category-intro"><div><div class="eyebrow">KELİME TURUNUN TEMASI / 02</div><h3 id="categoryTitle">Kelime kategorisini seç</h3><p class="muted small">Sözlük tanımları canlı TDK üzerinden alınır. Bağlantı kesilirse yerel anlamlar devreye girer. Online mod PeerJS / WebRTC kullanır.</p></div><span class="category-count" id="categoryCount">Havuz yükleniyor</span></div><div aria-label="Kelime kategorileri" class="category-grid" id="categoryGrid" role="group"></div><div aria-live="polite" class="selection-note" id="categorySummary"></div></section><div><label>Toplam tur</label><select id="roundCount"><option>6</option><option selected="">10</option><option>14</option></select></div><div id="localControls"><button class="primary" id="localStart" style="width:100%">Düelloyu başlat  ↗</button></div><div class="hidden stack" id="onlineControls"><div class="grid"><button class="green" id="createRoom">✧  Oda oluştur</button><div class="row" style="flex-wrap:nowrap"><input id="roomInput" maxlength="5" placeholder="Oda kodu" style="text-transform:uppercase"/><button class="primary" id="joinRoom">Katıl  →</button></div></div><div class="status" id="roomInfo">Oda kurmak veya katılmak için internet bağlantısı gerekir.</div><button class="amber hidden" id="hostStart">✓  Hazırız, düelloyu başlat</button></div><p class="muted small">Online bağlantı PeerJS üzerinden kurulur. Soruların TDK'dan alınması ve farklı cihazların bağlanması için internet gereklidir; yerel yedek kelimeler çevrimdışı da çalışır.</p></section>
+<section class="hidden" id="game"><div aria-label="Maç ilerlemesi" class="progress-track"><div class="progress-bar" id="matchProgress"></div></div><div class="scores"><div class="player" id="p0"><div id="pn0"></div><strong id="ps0">0</strong> puan<div class="small muted" id="st0"></div></div><div class="center"><div class="pill" id="roundLabel">Tur 1</div><div class="timer" id="timer">60</div><div class="small muted" id="modeLabel"></div></div><div class="player" id="p1"><div id="pn1"></div><strong id="ps1">0</strong> puan<div class="small muted" id="st1"></div></div></div><div class="glass stack"><div class="row" style="justify-content:space-between"><span class="eyebrow question-overline">SIRADAKİ MEYDAN OKUMA</span><h2 id="questionTitle">Bir Kelime</h2><span class="pill" id="turnStatus"></span></div><div class="stack hidden" id="wordArea"><div class="row"><span class="pill category-pill" id="activeCategory">◈ Karma</span><span class="pill" id="kind">Kelime türü</span><span class="pill" id="potential">700 puan</span><span class="pill data-pill" id="wordSource">TDK kontrol ediliyor</span></div><div class="definition" id="definition">Tanım yükleniyor…</div><div class="letters" id="letters"></div><div class="history hidden" id="extraHint"></div><div class="row" id="wordControls"><button class="amber" id="letterBtn">Harf al (−100)</button><button id="hintBtn">Ek ipucu (−50)</button><button class="primary" id="pauseBtn">⏸ Süreyi durdur ve tahmin et</button></div><div class="hidden stack" id="guessArea"><input autocomplete="off" id="guess" placeholder="Tahminini yaz"/><div class="row"><button class="green" id="submitGuess">Tahmini onayla</button><button id="resumeBtn">Devam et</button></div></div></div><div class="stack hidden" id="mathArea"><div class="stack" id="mathSetup"><p>Hedef sayıyı oluşturmak için sayı dağılımını seç. Her hedefin bilinen, geçerli bir çözüm yolu bulunur.</p><div class="row"><button class="primary" id="oneBig">1 Büyük + 5 Küçük</button><button class="amber" id="twoBig">2 Büyük + 4 Küçük</button></div></div><div class="hidden stack" id="mathPlay"><div class="center"><div class="muted">HEDEF SAYI</div><div class="result" id="target">---</div></div><div class="numbers" id="numbers"></div><div class="ops"><button data-op="+">+</button><button data-op="-">−</button><button data-op="*">×</button><button data-op="/">÷</button></div><div class="row"><button id="undoBtn">↶ Geri al</button><button id="resetBtn">↻ Sıfırla</button><button class="green" id="finishMath">Sonucu teslim et</button></div><div class="eyebrow log-title">İŞLEM GEÇMİŞİ</div><div class="history" id="mathHistory"></div><div class="small muted">Önce bir sayı, sonra işlem ve ikinci sayıyı seç. Her ara sonuç yeni kart olur. Her sayı yalnızca bir kez kullanılabilir.</div></div></div><div class="history hidden" id="feedback"></div><div class="history hidden" id="solution"></div><button class="primary hidden" id="nextBtn">Sonraki tura geç →</button></div></section>
+<section class="glass center stack hidden" id="end"><div class="eyebrow">MAÇ TAMAMLANDI</div><div style="font-size:55px">🏆🎊</div><h2>Maç Sonucu</h2><div class="result" id="winner"></div><div id="finalScores"></div><button class="primary" id="again">Yeni maç</button></section><footer class="footer"><span>✦ DUEL STUDIO</span><span>Kelime verisi: TDK Güncel Türkçe Sözlük · Oyun kategorileri editöryal sınıflandırmadır.</span></footer></div><button aria-expanded="false" aria-label="Sohbeti aç" class="chatButton hidden" id="chatToggle"><span class="chatIcon">◈</span><span class="chatText">Canlı sohbet</span><span class="unreadCount hidden" id="unreadCount">0</span></button><div class="chatBackdrop hidden" id="chatBackdrop"></div><aside class="chat glass hidden" id="chatPanel"><div class="row" style="justify-content:space-between"><div class="chatHeading"><span class="onlineDot"></span><div><strong>Canlı sohbet</strong><div class="small muted" id="chatConnection">Bağlantı bekleniyor</div></div></div><button aria-label="Sohbeti kapat" id="closeChat">✕</button></div><div aria-live="polite" class="messages" id="messages" role="log"></div><div class="row" style="margin-top:10px;flex-wrap:nowrap"><input id="chatInput" maxlength="400" placeholder="Mesaj yaz"/><button aria-label="Mesaj gönder" class="primary" id="sendChat">➤</button></div></aside>
 <script>
-  // --- OYUNCU VE SKOR YÖNETİMİ ---
-  let aktifOyuncu = 1;
-  let skorlar = { 1: 0, 2: 0 };
-  let zamanlayici = null;
-  let kalanSure = 60;
+'use strict';
+const $=id=>document.getElementById(id), pick=a=>a[Math.floor(Math.random()*a.length)], rand=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const entries=`abide|Anıt niteliğinde yapılmış yapı;adalet|Hak ve hukuka uygunluk;ahenk|Uyum, düzenli birliktelik;akarsu|Yeryüzünde belirli yatakta akan su;akıl|Düşünme ve kavrama yetisi;alaca|Birden çok renkli;alışkanlık|Tekrarlanarak edinilmiş davranış;anı|Geçmişte yaşanan olayın zihindeki izi;anlam|Sözün ifade ettiği kavram;arıza|Bir işleyişte ortaya çıkan bozukluk;armağan|Birini sevindirmek için verilen şey;asalet|Soyluluk, yüksek karakter;atılım|İlerlemek amacıyla yapılan güçlü girişim;avize|Tavandan sarkan aydınlatma aracı;ayrıntı|Bir bütünün küçük parçası;bağımsız|Başkasına bağlı olmayan;bahar|Kışla yaz arasındaki mevsim;bakır|Kızılımsı renkli metal;barış|Savaşın sona erdiği durum;başarı|Bir işi istenen sonuca ulaştırma;bayrak|Bir topluluğun simgesi olan kumaş;bereket|Bolluk ve verimlilik;bilgelik|Derin bilgi ve doğru hüküm verme niteliği;bilim|Düzenli yöntemlerle elde edilen bilgi bütünü;birikim|Zamanla toplanmış değerler;buluş|Önceden bilinmeyen bir şeyi ortaya çıkarma;bulut|Gökte asılı duran su damlacıkları kümesi;cesaret|Tehlike karşısında korkuya yenilmeme;cevher|Değerli taş veya öz;çaba|Bir amaç uğruna gösterilen gayret;çakıl|Küçük taş parçaları;çınar|Geniş yapraklı uzun ömürlü ağaç;çizgi|Bir yüzeyde uzanan ince iz;dağınık|Düzenli biçimde toplanmamış;dayanışma|Ortak amaçla birbirine destek olma;defter|Yazı yazmak için birleştirilmiş sayfalar;denge|Birbirini karşılayan kuvvetlerin durumu;deniz|Geniş tuzlu su kütlesi;derinlik|Bir şeyin aşağıya doğru uzaklığı;dostluk|Karşılıklı sevgi ve güven bağı;duygu|Olayların iç dünyada uyandırdığı etki;düşünce|Zihinde oluşan fikir;ebedi|Sonsuza dek süren;emek|Bir işi yapmak için harcanan güç;erdem|Ahlakça iyi ve doğru olma;esinti|Hafifçe esen hava;evren|Bütün gök cisimlerini içine alan varlık alanı;fayda|Yararlı sonuç;fedakâr|Başkası için kendi çıkarından vazgeçebilen;fidan|Yeni yetişen genç ağaç;fikir|Zihinde tasarlanan düşünce;gelenek|Kuşaktan kuşağa aktarılan alışkanlık;gizem|Kolayca anlaşılamayan sır;gölge|Işığın engellenmesiyle oluşan karanlık alan;gönül|İnsanın manevi duygu dünyası;güven|Korku ve kuşku duymadan inanma;haber|Yeni öğrenilen bilgi;hakikat|Gerçeğin kendisi;hayal|Zihinde canlandırılan görüntü;hedef|Ulaşılmak istenen sonuç;heyecan|Güçlü duygusal hareketlilik;huzur|Ruhsal dinginlik;ışık|Cisimleri görmemizi sağlayan enerji;ilham|Yaratıcı düşünceyi harekete geçiren etki;imkân|Bir işi gerçekleştirmeye elverişli durum;incelik|Nazik ve özenli olma;irade|Karar verme ve uygulama gücü;istikrar|Kararlı ve düzenli sürme;izlenim|Bir şeyin zihinde bıraktığı etki;kader|Alın yazısı olarak düşünülen olaylar bütünü;kalem|Yazı yazmaya yarayan araç;kanat|Kuşların uçmasını sağlayan organ;kavram|Bir nesnenin zihindeki genel tasarımı;kıvılcım|Ateşten sıçrayan küçük parça;kitap|Bir araya getirilmiş yazılı sayfalar;kolaylık|Güçlük bulunmaması;konuk|Bir yere misafir olarak gelen kişi;korku|Tehlike karşısında duyulan kaygı;köprü|İki yakayı birbirine bağlayan yapı;kuram|Olayları açıklamak için geliştirilen düşünce sistemi;kuşku|Bir şeyin doğruluğundan emin olamama;kültür|Toplumun maddi ve manevi değerleri;merak|Öğrenme isteği;miras|Birinden geriye kalan değerler;mutluluk|Sevinç ve doyum içinde olma;nezaket|Başkalarına karşı saygılı davranış;özgürlük|Baskı altında olmadan karar verebilme;paylaşım|Bir şeyi başkalarıyla bölüşme;renk|Işığın gözde oluşturduğu nitelik;sabır|Güçlük karşısında dayanabilme;sanat|Duygu ve düşünceleri estetik biçimde anlatma;sevinç|Hoş bir olaydan doğan mutluluk;sorumluluk|Üstlenilen işin sonuçlarını kabul etme;şafak|Güneş doğmadan önceki aydınlık;şelale|Yüksekten dökülen akarsu;tabiat|Doğal çevrenin bütünü;takvim|Günleri ve ayları gösteren çizelge;tasarım|Bir ürünün önceden zihinde oluşturulan biçimi;tecrübe|Yaşayarak kazanılan bilgi;umut|İyi bir şeyin gerçekleşmesini bekleme;uyum|Birbirine uygun düşme;üretim|Yeni bir mal veya değer ortaya koyma;vicdan|İyiyle kötüyü ayırmaya yarayan iç duygu;yağmur|Bulutlardan düşen su damlaları;yaratıcılık|Yeni ve özgün fikirler ortaya koyabilme;yaşam|Canlı olma durumu;yetenek|Bir işi başarabilme becerisi;yıldız|Kendi ışığını yayan gök cismi;yolculuk|Bir yerden başka yere gitme;zaman|Olayların sıralandığı süre;zarafet|İnce ve hoş davranış;zeka|Öğrenme ve kavrama yeteneği;zenginlik|Çok miktarda değerli şeye sahip olma`.split(';').map(x=>{let [word,definition]=x.split('|');return {word,definition}}).filter(x=>[...x.word].length>=4&&[...x.word].length<=10);
 
-  function sirayiDegistir() {
-    aktifOyuncu = aktifOyuncu === 1 ? 2 : 1;
-    document.getElementById("p1-card").classList.toggle("active", aktifOyuncu === 1);
-    document.getElementById("p2-card").classList.toggle("active", aktifOyuncu === 2);
-    document.getElementById("p1-turn").style.visibility = aktifOyuncu === 1 ? "visible" : "hidden";
-    document.getElementById("p2-turn").style.visibility = aktifOyuncu === 2 ? "visible" : "hidden";
-  }
-
-  function puanEkle(puan) {
-    skorlar[aktifOyuncu] += puan;
-    document.getElementById(`p${aktifOyuncu}-score`).textContent = skorlar[aktifOyuncu];
-  }
-
-  function modDegistir(mod) {
-    document.getElementById("tab-kelime").classList.toggle("active", mod === "kelime");
-    document.getElementById("tab-islem").classList.toggle("active", mod === "islem");
-    document.getElementById("kelime-ekrani").style.display = mod === "kelime" ? "block" : "none";
-    document.getElementById("islem-ekrani").style.display = mod === "islem" ? "block" : "none";
-    if (mod === "kelime") yeniKelimeSorusu();
-    else yeniIslemSorusu();
-  }
-
-  // --- 1. TDK KELİME OYUNU MANTIĞI ---
-  // Seçilmiş kaliteli Türkçe kelimeler (4-10 harf arası)
-  const kelimeHavuzu = [
-    "PUSULA", "MERDİVEN", "TEBESSÜM", "MÜTEVAZI", "KEHRİBAR", "KÜTÜPHANE",
-    "Mİinyatür".toLocaleUpperCase('tr-TR'), "LABİRENT", "Şükran".toLocaleUpperCase('tr-TR'),
-    "FERAGAT", "İSTİikrar".toLocaleUpperCase('tr-TR'), "KIVILCIM", "YELPAZE", "MUAMMA",
-    "SERÜVEN", "GÖKKUŞAĞI", "MERHALE", "ZANAAT", "ŞEFKAT", "TELAŞ", "VİCDAN", "BİLLUR"
-  ];
-
-  let kelimeState = {
-    kelime: "",
-    acilanlar: [],
-    puan: 0,
-    ekIpucu: "",
-    ipucuKullanildi: false,
-    bitti: false
-  };
-
-  async function yeniKelimeSorusu() {
-    clearInterval(zamanlayici);
-    document.getElementById("kelime-mesaj").style.display = "none";
-    document.getElementById("tdk-ipucu").textContent = "";
-    document.getElementById("kelime-girdi").value = "";
-    document.getElementById("tdk-anlam").textContent = "TDK Sözlük API'sinden anlam çekiliyor...";
-
-    const secilen = kelimeHavuzu[Math.floor(Math.random() * kelimeHavuzu.length)].toLocaleUpperCase('tr-TR');
-    const kucukKelime = secilen.toLocaleLowerCase('tr-TR');
-
-    let anlamMetni = "";
-    let ekIpucuMetni = "";
-
-    try {
-      const res = await fetch(`https://sozluk.gov.tr/gts?ara=${encodeURIComponent(kucukKelime)}`);
-      const data = await res.json();
-
-      if (!data.error && data[0] && data[0].anlamlarListe) {
-        anlamMetni = data[0].anlamlarListe[0].anlam;
-
-        // Varsa örnek cümle veya 2. anlamı ek ipucu olarak kaydet
-        if (data[0].anlamlarListe[0].orneklerListe) {
-          ekIpucuMetni = "Örnek: \"" + data[0].anlamlarListe[0].orneklerListe[0].ornek + "\"";
-        } else if (data[0].anlamlarListe[1]) {
-          ekIpucuMetni = "2. Anlamı: " + data[0].anlamlarListe[1].anlam;
-        }
-
-        // Sansür: Anlam veya örnek içinde kelimenin kendisi geçiyorsa [...] yap
-        const regex = new RegExp(kucukKelime, "gi");
-        anlamMetni = anlamMetni.replace(regex, "[...]");
-        ekIpucuMetni = ekIpucuMetni.replace(regex, "[...]");
-      } else {
-        throw new Error("Kelime bulunamadı");
-      }
-    } catch (err) {
-      anlamMetni = "TDK bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edin.";
+const categoryCatalog={
+ karma:{name:'Tüm Kategoriler',icon:'✦',desc:'Her tur yeni bir sürpriz',tone:'blue'},
+ doga:{name:'Doğa & Evren',icon:'☼',desc:'Yeryüzü, gökyüzü ve canlılar',tone:'emerald'},
+ teknoloji:{name:'Bilim & Teknoloji',icon:'⌘',desc:'Keşifler, bilim ve yenilik',tone:'blue'},
+ sanat:{name:'Kültür & Sanat',icon:'◈',desc:'Edebiyat, müzik ve estetik',tone:'violet'},
+ duygu:{name:'Duygular',icon:'♡',desc:'İç dünyamız ve hisler',tone:'rose'},
+ deger:{name:'Erdem & Değerler',icon:'✧',desc:'Ahlak, karakter ve ilkeler',tone:'amber'},
+ toplum:{name:'Toplum & Yaşam',icon:'♧',desc:'İnsan, şehir ve ilişkiler',tone:'teal'},
+ esya:{name:'Eşyalar & Mekânlar',icon:'▣',desc:'Nesneler ve gündelik dünya',tone:'slate'},
+ dusunce:{name:'Dil & Düşünce',icon:'❖',desc:'Kavramlar, bilgi ve fikirler',tone:'indigo'}
+};
+const baseCategories={"akarsu": "doga", "alaca": "doga", "bahar": "doga", "bulut": "doga", "çakıl": "doga", "çınar": "doga", "deniz": "doga", "derinlik": "doga", "esinti": "doga", "evren": "doga", "fidan": "doga", "gölge": "doga", "ışık": "doga", "kanat": "doga", "kıvılcım": "doga", "şafak": "doga", "şelale": "doga", "tabiat": "doga", "yağmur": "doga", "yıldız": "doga", "bilim": "teknoloji", "buluş": "teknoloji", "üretim": "teknoloji", "takvim": "teknoloji", "tasarım": "teknoloji", "ahenk": "sanat", "gelenek": "sanat", "kültür": "sanat", "sanat": "sanat", "zarafet": "sanat", "incelik": "sanat", "anı": "duygu", "dostluk": "duygu", "duygu": "duygu", "gönül": "duygu", "hayal": "duygu", "heyecan": "duygu", "huzur": "duygu", "korku": "duygu", "kuşku": "duygu", "merak": "duygu", "mutluluk": "duygu", "sevinç": "duygu", "umut": "duygu", "adalet": "deger", "asalet": "deger", "cesaret": "deger", "dayanışma": "deger", "emek": "deger", "erdem": "deger", "fedakâr": "deger", "güven": "deger", "hakikat": "deger", "nezaket": "deger", "özgürlük": "dusunce", "sabır": "deger", "vicdan": "deger", "barış": "toplum", "başarı": "toplum", "bayrak": "toplum", "bereket": "toplum", "birikim": "toplum", "hedef": "toplum", "konuk": "toplum", "miras": "toplum", "paylaşım": "toplum", "sorumluluk": "toplum", "tecrübe": "toplum", "yaşam": "toplum", "yolculuk": "toplum", "zenginlik": "toplum", "abide": "esya", "armağan": "esya", "avize": "esya", "bakır": "esya", "çizgi": "esya", "defter": "esya", "kalem": "esya", "kitap": "esya", "köprü": "esya", "renk": "esya", "akıl": "dusunce", "alışkanlık": "dusunce", "anlam": "dusunce", "ayrıntı": "dusunce", "bağımsız": "dusunce", "bilgelik": "dusunce", "çaba": "dusunce", "dağınık": "dusunce", "denge": "dusunce", "düşünce": "dusunce", "ebedi": "dusunce", "fayda": "dusunce", "fikir": "dusunce", "gizem": "dusunce", "ilham": "dusunce", "imkân": "dusunce", "irade": "dusunce", "istikrar": "dusunce", "izlenim": "dusunce", "kader": "dusunce", "kavram": "dusunce", "kolaylık": "dusunce", "kuram": "dusunce", "yaratıcılık": "dusunce", "yetenek": "dusunce", "zaman": "dusunce", "zeka": "dusunce"};
+const enrichedEntries=`doğa|çevremizde kendiliğinden var olan canlı ve cansız varlıkların bütünü|doga
+orman|sık ağaçlarla kaplı geniş arazi|doga
+vadi|dağlar arasındaki uzun çukur alan|doga
+ova|çevresine göre alçakta kalan geniş düz arazi|doga
+rüzgâr|havanın yer değiştirmesiyle oluşan akım|doga
+gökkuşağı|yağış sonrasında ışığın kırılmasıyla beliren renkli yay|doga
+gezegen|bir yıldızın çevresinde dolanan gök cismi|doga
+nehir|geniş ve sürekli akan büyük akarsu|doga
+kanyon|akarsuların aşındırmasıyla oluşan derin boğaz|doga
+volkan|yer altındaki erimiş maddeleri yeryüzüne çıkarabilen dağ|doga
+mercan|denizde yaşayan küçük canlıların oluşturduğu sert iskeletli yapı|doga
+kumsal|su kenarında kumla kaplı bölüm|doga
+pusula|yönleri gösteren mıknatıslı araç|teknoloji
+robot|programlanabilen ve görevleri yerine getiren otomatik düzenek|teknoloji
+yazılım|bilgisayarda işleri yürütmek için hazırlanan programlar bütünü|teknoloji
+donanım|bir aygıtı oluşturan fiziksel parçaların bütünü|teknoloji
+algoritma|bir sorunu çözmek için belirlenmiş sıralı işlemler dizisi|teknoloji
+veri|araştırma veya işlemlerde kullanılan bilgi|teknoloji
+enerji|iş yapabilme yeteneği|teknoloji
+deney|bir varsayımı sınamak için yapılan kontrollü uygulama|teknoloji
+molekül|bir maddenin kimyasal özelliğini koruyan atomlar topluluğu|teknoloji
+laboratuvar|bilimsel inceleme ve deneylerin yapıldığı yer|teknoloji
+mikroskop|çok küçük nesneleri büyüterek gösteren aygıt|teknoloji
+mercek|ışığı kırarak görüntü oluşturan saydam araç|teknoloji
+şiir|duygu ve hayallerin ölçülü ya da özgün bir söyleyişle anlatımı|sanat
+roman|kişileri ve olayları geniş biçimde ele alan düzyazı türü|sanat
+beste|bir müzik eserinin ezgi düzeni|sanat
+ritim|seslerin veya hareketlerin belirli düzende yinelenmesi|sanat
+melodi|ezgi oluşturan ses dizisi|sanat
+sahne|oyun veya gösteri sunulan yer|sanat
+tiyatro|sahnede canlandırılmak üzere yazılan eserlerin sanat dalı|sanat
+heykel|taş veya benzeri maddeler biçimlendirilerek yapılan sanat eseri|sanat
+minyatür|ince ayrıntılarla yapılan küçük boyutlu resim sanatı|sanat
+tasvir|bir varlığın özelliklerini sözle veya çizgiyle betimleme|sanat
+üslup|bir sanatçının kendine özgü anlatım biçimi|sanat
+sergi|eserlerin topluca izleyiciye sunulması|sanat
+özlem|birini veya bir şeyi görmeyi güçlü biçimde isteme duygusu|duygu
+kaygı|geleceğe ilişkin belirsizlikten doğan tedirginlik|duygu
+coşku|güçlü sevinç ve heyecan durumu|duygu
+şefkat|koruma ve esirgeme isteğinden doğan sevgi|duygu
+hasret|uzakta kalınan kimse veya yere duyulan kavuşma isteği|duygu
+utanç|uygunsuz bir davranıştan dolayı duyulan sıkılma|duygu
+şüphe|bir durumun gerçek olup olmadığına dair kararsızlık|duygu
+neşe|canlılık ve sevinç veren duygu|duygu
+hüzün|üzüntüyle karışık içsel keder|duygu
+sevgi|birine veya bir şeye karşı duyulan yakınlık bağı|duygu
+minnet|görülen iyiliğe karşı duyulan teşekkür duygusu|duygu
+merhamet|başkasının sıkıntısını giderme isteği uyandıran acıma|deger
+saygı|bir kimsenin değerini tanımaktan doğan özenli davranış|deger
+dürüstlük|doğruluktan ayrılmama niteliği|deger
+sadakat|bağlılık ve güvenilir olma durumu|deger
+hakkaniyet|hak gözeten adil değerlendirme|deger
+hoşgörü|farklı tutumlara anlayış gösterebilme|deger
+tevazu|kendini üstün görmeme, alçak gönüllülük|deger
+emanet|korunması için başkasına bırakılan şey|deger
+vefa|sevgi ve bağlılığı sürdürme niteliği|deger
+itidal|ölçülü ve dengeli davranma|deger
+özen|bir işi dikkat ve titizlikle yapma|deger
+şehir|nüfusu ve yerleşimi büyük olan yerleşim merkezi|toplum
+mahalle|bir yerleşim yerinin küçük idari bölümü|toplum
+komşu|birbirine yakın konutlarda yaşayan kimseler|toplum
+pazar|ürünlerin satışa sunulduğu alışveriş yeri|toplum
+aile|evlilik veya akrabalık bağıyla oluşan topluluk|toplum
+toplantı|görüşmek için bir araya gelme durumu|toplum
+bayram|topluca sevinç ve kutlama yaşanan özel gün|toplum
+hukuk|toplumsal ilişkileri düzenleyen kurallar bütünü|toplum
+meclis|bir konuyu görüşmek üzere toplanan kurul|toplum
+işbirliği|bir amaç için birlikte çalışma|toplum
+iletişim|duygu veya bilginin karşılıklı aktarılması|toplum
+müze|tarih ve sanat eserlerinin korunduğu, sergilendiği yer|toplum
+masa|üzerinde iş yapılan ayaklı mobilya|esya
+sandalye|oturmak için kullanılan arkalıklı eşya|esya
+anahtar|kilidi açmaya veya kapatmaya yarayan araç|esya
+pencere|yapılarda ışık ve hava geçişi sağlayan açıklık|esya
+lamba|ışık vermek için kullanılan araç|esya
+halı|yere serilmek için dokunan kalın yaygı|esya
+fener|içinde ışık kaynağı bulunan taşınabilir araç|esya
+çanta|eşya taşımaya yarayan saplı torba|esya
+ayna|karşısındaki görüntüyü yansıtan parlak yüzey|esya
+makas|iki kesici ağızla nesneleri ayırmaya yarayan araç|esya
+şemsiye|yağmur veya güneşten korunmak için açılan araç|esya
+perde|ışığı veya görünmeyi engellemek için asılan örtü|esya
+sözcük|anlam taşıyan ses veya harf birliği|dusunce
+mantık|doğru düşünmenin ilkelerini inceleyen disiplin|dusunce
+yargı|bir konu hakkında varılan düşünsel sonuç|dusunce
+kanıt|bir savın doğruluğunu ortaya koyan belirti veya belge|dusunce
+bellek|öğrenilen bilgileri saklama ve hatırlama yetisi|dusunce
+anlatım|düşünce veya duyguları söz ve yazıyla aktarma biçimi|dusunce
+sezgi|akıl yürütmeden doğrudan kavrama gücü|dusunce
+muhakeme|verileri değerlendirerek sonuca ulaşma|dusunce
+söylem|bir konu çevresinde kurulmuş anlatım biçimi|dusunce
+çözüm|bir soruna karşı bulunan sonuç ya da yöntem|dusunce
+özgünlük|başkasını taklit etmeme niteliği|dusunce
+bilinç|kişinin kendisini ve çevresini fark etme yetisi|dusunce`.trim().split('\n').map(line=>{let [word,definition,category]=line.split('|');return {word,definition,category}});
+entries.forEach(entry=>{entry.category=baseCategories[entry.word]||'dusunce'});
+const uniqueWords=new Map();[...entries,...enrichedEntries].forEach(entry=>{let length=[...entry.word].length;if(length>=4&&length<=10&&entry.definition&&!uniqueWords.has(entry.word))uniqueWords.set(entry.word,entry)});
+entries.length=0;entries.push(...uniqueWords.values());
+const categoryKeys=Object.keys(categoryCatalog);
+function categoryCount(key){return key==='karma'?entries.length:entries.filter(entry=>entry.category===key).length}
+function renderCategories(){
+ const grid=$('categoryGrid');grid.replaceChildren();
+ for(const id of categoryKeys){const item=categoryCatalog[id],selected=(s.category||'karma')===id;
+  const card=document.createElement('button');card.type='button';card.className='category-card tone-'+item.tone+(selected?' selected':'');card.setAttribute('aria-pressed',String(selected));card.disabled=mode==='online'&&role===1&&!!conn?.open;
+  card.innerHTML='<span class="cat-top"><span class="cat-icon"></span><span class="cat-check">✓</span></span><span class="cat-title"></span><span class="cat-desc"></span><span class="cat-total"></span>';
+  card.querySelector('.cat-icon').textContent=item.icon;card.querySelector('.cat-title').textContent=item.name;card.querySelector('.cat-desc').textContent=item.desc;card.querySelector('.cat-total').textContent=categoryCount(id)+' kelime';
+  card.onclick=()=>{if(card.disabled)return;s.category=id;renderCategories();if(mode==='online'&&authority())send('state',s)};
+  grid.append(card)
+ }
+ const item=categoryCatalog[s.category]||categoryCatalog.karma;
+ $('categorySummary').textContent='SEÇİMİN  /  '+item.name+'  ·  '+categoryCount(s.category)+' kelimelik seçili havuz';
+ $('categoryCount').textContent=entries.length+' sözcüklük havuz';
+}
+const kelimeHavuzu=entries.map(x=>x.word);let unread=0;let remoteAction=false;let mode='local',role=0,peer=null,conn=null,room='',sound=true,audio=null,tick=null,loading=false,seen=new Set();let s={phase:'lobby',category:'karma',names:['Oyuncu 1','Oyuncu 2'],scores:[0,0],streak:[0,0],round:0,total:10,mode:'word',turn:0,remaining:60,paused:false,word:null,revealed:[],hint:false,guessMode:false,math:null,finished:false,feedback:'',solution:'',messages:[]};
+const authority=()=>mode==='local'||role===0;const canAct=()=>s.phase==='game'&&!s.finished&&(mode==='local'||role===s.turn||remoteAction);const clone=x=>JSON.parse(JSON.stringify(x));const send=(type,payload)=>{if(conn?.open)conn.send({type,payload})};const sync=()=>{render();if(authority())send('state',s)};
+function beep(type){if(!sound)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();let o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime;o.type='sine';o.frequency.setValueAtTime(type==='bad'?230:type==='tick'?660:520,t);o.frequency.exponentialRampToValueAtTime(type==='good'?920:380,t+.14);g.gain.setValueAtTime(.07,t);g.gain.exponentialRampToValueAtTime(.001,t+.18);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+.2)}catch{}}
+function mask(text,word){if(!text)return '';const pattern=[...word].map(char=>{if(char==='i'||char==='İ')return '[iİ]';if(char==='ı'||char==='I')return '[ıI]';return char.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}).join('');try{return String(text).replace(new RegExp(pattern,'giu'),'[…]')}catch{return String(text)}};
+function startGame(){if(!authority())return;s.names=[$('name1').value.trim()||'Oyuncu 1',$('name2').value.trim()||'Oyuncu 2'];s.total=Number($('roundCount').value);s.category=categoryCatalog[s.category]?s.category:'karma';seen.clear();s.scores=[0,0];s.streak=[0,0];s.round=0;s.phase='game';s.messages=[];unread=0;newRound()}
+function newRound(){if(!authority())return;if(s.round>=s.total){s.phase='end';sync();confetti();return}clearInterval(tick);s.round++;s.turn=(s.round-1)%2;s.mode=s.round%2?'word':'math';s.remaining=60;s.paused=false;s.finished=false;s.feedback='';s.solution='';s.word=null;s.math=null;s.revealed=[];s.hint=false;s.guessMode=false;$('guess').value='';sync();if(s.mode==='word')loadWord();else sync();startTicker()}
+async function loadWord(){if(!authority())return;let eligible=entries.filter(e=>s.category==='karma'||e.category===s.category);let pool=eligible.filter(e=>!seen.has(e.word));if(!pool.length){eligible.forEach(e=>seen.delete(e.word));pool=eligible}let item=pick(pool);seen.add(item.word);let word=item.word,def=item.definition,kind='Sözcük',hint='',source='local',questionRound=s.round;let ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),4500);try{let res=await fetch('https://sozluk.gov.tr/gts?ara='+encodeURIComponent(word),{signal:ctrl.signal});if(!res.ok)throw Error('HTTP');let data=await res.json();let d=Array.isArray(data)?data[0]:null;if(d?.anlamlarListe?.[0]?.anlam){source='tdk';def=d.anlamlarListe[0].anlam;kind=d.anlamlarListe[0].ozelliklerListe?.map(x=>x.tam_adi).join(', ')||'Kelime';hint=d.anlamlarListe[0].orneklerListe?.[0]?.ornek||d.anlamlarListe[1]?.anlam||''}}catch{}finally{clearTimeout(timeout)}if(s.phase!=='game'||s.mode!=='word'||s.finished||s.round!==questionRound)return;s.word={value:word,category:item.category,source,definition:mask(def,word),kind,hint:mask(hint||item.definition,word)};sync()}
+function startTicker(){clearInterval(tick);tick=setInterval(()=>{if(!authority()||s.phase!=='game'||s.finished||s.paused||s.mode==='word'&&!s.word||s.mode==='math'&&!s.math)return;if(s.remaining>0){s.remaining--;if(s.remaining<=10)beep('tick');sync()}if(s.remaining<=0)endTurn(false,'Süre doldu.')},1000)}
+function wordPoints(){return Math.max(0,[...s.word.value].length*100-s.revealed.length*100-(s.hint?50:0))}function letter(){if(!canAct()||!s.word||s.guessMode)return;let remaining=[...s.word.value].map((_,i)=>i).filter(i=>!s.revealed.includes(i));if(remaining.length<=1)return;s.revealed.push(pick(remaining));beep('tick');sync()}function hint(){if(!canAct()||!s.word||s.hint||s.guessMode)return;s.hint=true;sync()}function pauseGuess(){if(!canAct()||!s.word)return;s.paused=true;s.guessMode=true;sync();$('guess').focus()};function submitGuess(){if(!canAct()||!s.word||!s.guessMode)return;let v=$('guess').value.trim().toLocaleUpperCase('tr-TR'),w=s.word.value.toLocaleUpperCase('tr-TR');if(!v)return;endTurn(v===w,v===w?'Doğru cevap!':'Yanlış cevap: '+s.word.value.toLocaleUpperCase('tr-TR'),v===w?wordPoints():0)}
+function calc(a,op,b){if(op==='+')return a+b;if(op==='-')return a>b?a-b:null;if(op==='*')return a*b;if(op==='/')return b!==0&&a%b===0?a/b:null;return null}
+function generate(bigCount){
+ const big=[25,50,75,100].sort(()=>Math.random()-.5).slice(0,bigCount);
+ const small=Array.from({length:6-bigCount},()=>rand(1,10));
+ const base=[...big,...small];
+ for(let attempt=0;attempt<6500;attempt++){
+  let remaining=base.map((v,id)=>({v,id})), steps=[];
+  let firstIndex=rand(0,remaining.length-1),current=remaining.splice(firstIndex,1)[0].v;
+  const desired=rand(3,4);
+  for(let k=0;k<desired;k++){
+   let choices=[];
+   for(const candidate of remaining)for(const op of ['+','-','*','/']){
+    const val=calc(current,op,candidate.v);
+    if(val!==null&&Number.isSafeInteger(val)&&val>0&&val<=4999&& !(op==='*'&&(current===1||candidate.v===1))&&!(op==='/'&&candidate.v===1)) choices.push({candidate,op,val});
+    if(op==='-'||op==='/'){
+     const backwards=calc(candidate.v,op,current);
+     if(backwards!==null&&Number.isSafeInteger(backwards)&&backwards>0&&backwards<=4999&&!(op==='/'&&current===1))choices.push({candidate,op,val:backwards,reverse:true});
     }
-
-    kelimeState = {
-      kelime: secilen,
-      acilanlar: [],
-      puan: secilen.length * 100,
-      ekIpucu: ekIpucuMetni || "Bu kelime için TDK'da ek örnek cümle bulunmuyor.",
-      ipucuKullanildi: false,
-      bitti: false
-    };
-
-    document.getElementById("tdk-anlam").textContent = anlamMetni;
-    document.getElementById("kelime-bilgi").textContent = `${secilen.length} Harfli Kelime`;
-    guncelleKelimeEkrani();
-    baslatSayac("kelime-sure", () => kelimeSuresiDoldu());
+   }
+   if(!choices.length)break;
+   const nearLast=k===desired-1;
+   const winnerCandidates=nearLast?choices.filter(c=>c.val>=101&&c.val<=999):choices;
+   if(!winnerCandidates.length)break;
+   const c=pick(winnerCandidates),left=c.reverse?c.candidate.v:current,right=c.reverse?current:c.candidate.v;
+   steps.push(`${left} ${c.op==='*'?'×':c.op==='/'?'÷':c.op} ${right} = ${c.val}`);
+   current=c.val;remaining=remaining.filter(x=>x.id!==c.candidate.id);
   }
-
-  function guncelleKelimeEkrani() {
-    document.getElementById("kelime-puan").textContent = `${kelimeState.puan} Puan`;
-    const kutularDiv = document.getElementById("harf-kutulari");
-    kutularDiv.innerHTML = "";
-
-    kelimeState.kelime.split("").forEach((harf, idx) => {
-      const div = document.createElement("div");
-      const acikMi = kelimeState.acilanlar.includes(idx);
-      div.className = "slot" + (acikMi ? " revealed" : "") + (kelimeState.bitti ? " correct" : "");
-      div.textContent = acikMi || kelimeState.bitti ? harf : "";
-      kutularDiv.appendChild(div);
-    });
-  }
-
-  function harfAl() {
-    if (kelimeState.bitti) return;
-    const kapalilar = [];
-    for (let i = 0; i < kelimeState.kelime.length; i++) {
-      if (!kelimeState.acilanlar.includes(i)) kapalilar.push(i);
-    }
-    if (kapalilar.length <= 1) {
-      mesajGoster("kelime-mesaj", "Son harf kaldı, daha fazla harf alamazsınız!", "#f59e0b");
-      return;
-    }
-    const rastgeleIdx = kapalilar[Math.floor(Math.random() * kapalilar.length)];
-    kelimeState.acilanlar.push(rastgeleIdx);
-    kelimeState.puan = Math.max(100, kelimeState.puan - 100);
-    guncelleKelimeEkrani();
-  }
-
-  function ekIpucuGoster() {
-    if (kelimeState.bitti || kelimeState.ipucuKullanildi) return;
-    kelimeState.ipucuKullanildi = true;
-    kelimeState.puan = Math.max(50, kelimeState.puan - 50);
-    document.getElementById("tdk-ipucu").textContent = kelimeState.ekIpucu;
-    guncelleKelimeEkrani();
-  }
-
-  function kelimeTahminEt() {
-    if (kelimeState.bitti) return;
-    const girdi = document.getElementById("kelime-girdi").value.trim().toLocaleUpperCase('tr-TR');
-    if (!girdi) return;
-
-    if (girdi === kelimeState.kelime) {
-      kelimeState.bitti = true;
-      clearInterval(zamanlayici);
-      puanEkle(kelimeState.puan);
-      guncelleKelimeEkrani();
-      mesajGoster("kelime-mesaj", `🎉 Tebrikler! ${aktifOyuncu}. Oyuncu +${kelimeState.puan} puan kazandı! Sıra diğer oyuncuya geçti.`, "#10b981");
-      sirayiDegistir();
-    } else {
-      mesajGoster("kelime-mesaj", "❌ Yanlış tahmin! Tekrar deneyin veya Harf Alın.", "#ef4444");
-    }
-  }
-
-  function kelimeSuresiDoldu() {
-    kelimeState.bitti = true;
-    guncelleKelimeEkrani();
-    mesajGoster("kelime-mesaj", `⌛ Süre doldu! Doğru kelime: ${kelimeState.kelime}. Sıra diğer oyuncuya geçti.`, "#ef4444");
-    sirayiDegistir();
-  }
-
-  // Enter tuşu ile hızlı tahmin gönderme
-  document.getElementById("kelime-girdi").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") kelimeTahminEt();
-  });
-
-  // --- 2. BİR İŞLEM (KESİN ÇÖZÜMLÜ TERSİNE ÜRETİM) MANTIĞI ---
-  let islemState = { sayilar: [], hedef: 0, adimlar: [], bitti: false };
-
-  function yeniIslemSorusu() {
-    clearInterval(zamanlayici);
-    document.getElementById("islem-mesaj").style.display = "none";
-    document.getElementById("islem-cozum").style.display = "none";
-    document.getElementById("islem-girdi").value = "";
-
-    const kucukHavuz = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    const buyukHavuz = [25, 50, 75, 100];
-
-    while (true) {
-      let sayilar = [];
-      for (let i = 0; i < 5; i++) sayilar.push(kucukHavuz[Math.floor(Math.random() * kucukHavuz.length)]);
-      sayilar.push(buyukHavuz[Math.floor(Math.random() * buyukHavuz.length)]);
-
-      let havuz = [...sayilar];
-      let adimlar = [];
-      let gecerli = false;
-
-      for (let i = 0; i < 4; i++) {
-        let a = havuz.splice(Math.floor(Math.random() * havuz.length), 1)[0];
-        let b = havuz.splice(Math.floor(Math.random() * havuz.length), 1)[0];
-        if (b > a) [a, b] = [b, a];
-
-        let ops = ['+', '-'];
-        if (a > 1 && b > 1 && a * b < 1500) ops.push('×');
-        if (b > 1 && a % b === 0) ops.push('÷');
-
-        let op = ops[Math.floor(Math.random() * ops.length)];
-        let sonuc = op === '+' ? a + b : op === '-' ? a - b : op === '×' ? a * b : a / b;
-        if (sonuc <= 0) break;
-
-        adimlar.push(`${a} ${op} ${b} = ${sonuc}`);
-        havuz.push(sonuc);
-
-        if (i >= 2 && sonuc >= 105 && sonuc <= 995 && !sayilar.includes(sonuc)) {
-          islemState = { sayilar, hedef: sonuc, adimlar, bitti: false };
-          gecerli = true;
-          break;
-        }
-      }
-      if (gecerli) break;
-    }
-
-    document.getElementById("hedef-sayi").textContent = islemState.hedef;
-    const grid = document.getElementById("islem-sayilar");
-    grid.innerHTML = "";
-    islemState.sayilar.forEach(s => {
-      const d = document.createElement("div");
-      d.className = "num-card";
-      d.textContent = s;
-      grid.appendChild(d);
-    });
-
-    baslatSayac("islem-sure", () => {
-      islemState.bitti = true;
-      islemCozumuGoster();
-      mesajGoster("islem-mesaj", "⌛ Süre doldu! Çözüm yolu yukarıda gösterildi.", "#ef4444");
-      sirayiDegistir();
-    });
-  }
-
-  function islemKontrolEt() {
-    if (islemState.bitti) return;
-    const girilen = parseInt(document.getElementById("islem-girdi").value, 10);
-    if (isNaN(girilen)) return;
-
-    const fark = Math.abs(islemState.hedef - girilen);
-    if (fark === 0) {
-      islemState.bitti = true;
-      clearInterval(zamanlayici);
-      puanEkle(400);
-      islemCozumuGoster();
-      mesajGoster("islem-mesaj", `🎯 Tam İsabet! ${aktifOyuncu}. Oyuncu +400 puan kazandı!`, "#10b981");
-      sirayiDegistir();
-    } else if (fark <= 9) {
-      islemState.bitti = true;
-      clearInterval(zamanlayici);
-      const yaklasikPuan = (10 - fark) * 25;
-      puanEkle(yaklasikPuan);
-      islemCozumuGoster();
-      mesajGoster("islem-mesaj", `👏 ${fark} farkla yaklaştınız! +${yaklasikPuan} puan kazandınız.`, "#f59e0b");
-      sirayiDegistir();
-    } else {
-      mesajGoster("islem-mesaj", `❌ Hedefe uzak kaldınız (Fark: ${fark}). En fazla 9 farkla puan alınabilir.`, "#ef4444");
-    }
-  }
-
-  function islemCozumuGoster() {
-    const kutu = document.getElementById("islem-cozum");
-    kutu.style.display = "block";
-    kutu.innerHTML = `<strong>💡 Bilgisayarın Çözüm Yolu:</strong><br>` + islemState.adimlar.join(" &nbsp;➔&nbsp; ");
-  }
-
-  // --- YARDIMCI FONKSİYONLAR ---
-  function baslatSayac(elementId, bittiCallback) {
-    kalanSure = 60;
-    const el = document.getElementById(elementId);
-    el.textContent = `⏱ ${kalanSure}s`;
-    zamanlayici = setInterval(() => {
-      kalanSure--;
-      el.textContent = `⏱ ${kalanSure}s`;
-      if (kalanSure <= 0) {
-        clearInterval(zamanlayici);
-        bittiCallback();
-      }
-    }, 1000);
-  }
-
-  function mesajGoster(id, metin, renk) {
-    const el = document.getElementById(id);
-    el.style.display = "block";
-    el.style.background = `${renk}22`;
-    el.style.border = `1px solid ${renk}`;
-    el.style.color = renk;
-    el.textContent = metin;
-  }
-
-  // Sayfa açıldığında ilk soruyu başlat
-  yeniKelimeSorusu();
-</script>
-</body>
-</html>
+  if(steps.length===desired&&current>=101&&current<=999)return {base,target:current,solution:steps,items:base.map((v,id)=>({id,v})),history:[],undo:[],nextId:6,selected:null,op:null};
+ }
+ return null;
+}
+function setupMath(n){if(!canAct()||s.mode!=='math'||s.math)return;let m=generate(n);if(!m){alert('Sayı üretilemedi, tekrar deneyin.');return}s.math=m;sync()}
+function mathSelect(id){if(!canAct()||!s.math)return;let m=s.math;if(m.selected===null){m.selected=id;sync();return}if(!m.op){m.selected=id;sync();return}if(id===m.selected)return;let a=m.items.find(x=>x.id===m.selected),b=m.items.find(x=>x.id===id);if(!a||!b)return;let v=calc(a.v,m.op,b.v);if(v===null){s.feedback='Bu işlem pozitif tam sayı üretmiyor. Başka işlem seçin.';sync();return}m.undo.push(clone({items:m.items,history:m.history,nextId:m.nextId}));m.history.push(`${a.v} ${m.op==='*'?'×':m.op==='/'?'÷':m.op} ${b.v} = ${v}`);m.items=m.items.filter(x=>x.id!==a.id&&x.id!==b.id);m.items.push({id:m.nextId++,v});m.selected=null;m.op=null;s.feedback='';sync()}
+function undo(){if(!canAct()||!s.math)return;let m=s.math,last=m.undo.pop();if(last){Object.assign(m,last);m.selected=null;m.op=null;sync()}}function resetMath(){if(!canAct()||!s.math)return;let m=s.math;m.items=m.base.map((v,i)=>({id:i,v}));m.history=[];m.undo=[];m.nextId=6;m.selected=null;m.op=null;sync()}
+function finishMath(){if(!canAct()||!s.math)return;let m=s.math;let diff=Math.min(...m.items.map(x=>Math.abs(x.v-m.target)));let pts=diff===0?400+(s.remaining>=30?50:0):diff<=9?(10-diff)*25:0;endTurn(diff===0,diff===0?'Tam isabet!':`En yakın sonuç: ${diff} fark`,pts)}
+function endTurn(success,message,points=0){if(!authority()||s.finished)return;clearInterval(tick);s.finished=true;s.paused=true;s.feedback=message+(points?` · +${points} puan`:'');s.scores[s.turn]+=points;s.streak[s.turn]=success?s.streak[s.turn]+1:0;if(s.mode==='word'&&s.word)s.solution='Cevap: '+s.word.value.toLocaleUpperCase('tr-TR');if(s.mode==='math'&&s.math)s.solution='Bilgisayarın çözüm yolu:\n'+s.math.solution.join('\n');beep(success?'good':'bad');sync()}
+function confetti(){if(s.phase!=='end')return;for(let i=0;i<70;i++){let e=document.createElement('span');e.textContent=pick(['🎊','✨','🎉','💛']);e.style.cssText=`position:fixed;top:-30px;left:${Math.random()*100}vw;z-index:9;pointer-events:none;animation:fall ${2+Math.random()*3}s linear forwards;font-size:${rand(15,28)}px`;document.body.append(e);setTimeout(()=>e.remove(),5200)}}let style=document.createElement('style');style.textContent='@keyframes fall{to{transform:translateY(110vh) rotate(850deg);opacity:0}}';document.head.append(style);
+function renderChat(){let list=$('messages');let atBottom=list.scrollHeight-list.scrollTop-list.clientHeight<55;list.replaceChildren();if(!s.messages.length){let empty=document.createElement('div');empty.className='chatEmpty';empty.textContent='Henüz mesaj yok. İlk mesajı göndererek sohbeti başlat!';list.append(empty)}s.messages.forEach(m=>{let d=document.createElement('div');d.className='msg'+(m.from===role?' mine':'');let name=document.createElement('span');name.className='msgName';name.textContent=m.from===role?'Sen':m.name;let body=document.createElement('div');body.textContent=m.text;d.append(name,body);list.append(d)});if(atBottom)list.scrollTop=list.scrollHeight;$('chatConnection').textContent=conn?.open?'● Bağlı · Mesajlar anlık iletilir':'Bağlantı bekleniyor';$('unreadCount').textContent=unread>9?'9+':String(unread);$('unreadCount').classList.toggle('hidden',!unread);$('chatToggle').classList.toggle('unread',unread>0)}
+function openChat(open){$('chatPanel').classList.toggle('hidden',!open);$('chatBackdrop').classList.toggle('hidden',!open);$('chatToggle').setAttribute('aria-expanded',String(open));if(open){unread=0;$('chatToggle').classList.remove('unread');renderChat();setTimeout(()=>$('chatInput').focus(),60)}}
+function render(){ $('lobby').classList.toggle('hidden',s.phase!=='lobby');$('game').classList.toggle('hidden',s.phase!=='game');$('end').classList.toggle('hidden',s.phase!=='end');$('chatToggle').classList.toggle('hidden',mode!=='online'||!conn?.open);renderChat();if(s.phase==='end'){let a=s.scores,b=s.names;$('winner').textContent=a[0]===a[1]?'Beraberlik!':b[a[0]>a[1]?0:1]+' kazandı!';$('finalScores').textContent=`${b[0]}: ${a[0]} puan · ${b[1]}: ${a[1]} puan`;return}if(s.phase!=='game')return;for(let i=0;i<2;i++){$('pn'+i).textContent=s.names[i];$('ps'+i).textContent=s.scores[i];$('st'+i).textContent=`🔥 ${s.streak[i]} seri`;$('p'+i).classList.toggle('active',s.turn===i)}$('roundLabel').textContent=`Tur ${s.round}/${s.total}`;$('matchProgress').style.width=((s.round-1)/s.total*100)+'%';$('timer').textContent=s.remaining;$('timer').classList.toggle('urgent',s.remaining<=10);$('modeLabel').textContent=s.mode==='word'?'KELİME':'İŞLEM';$('questionTitle').textContent=s.mode==='word'?'🔤 Bir Kelime':'🧮 Bir İşlem';$('turnStatus').textContent=s.names[s.turn]+' oynuyor';$('wordArea').classList.toggle('hidden',s.mode!=='word');$('mathArea').classList.toggle('hidden',s.mode!=='math');$('feedback').classList.toggle('hidden',!s.feedback);$('feedback').textContent=s.feedback;$('solution').classList.toggle('hidden',!s.finished);$('solution').textContent=s.solution;$('nextBtn').classList.toggle('hidden',!s.finished||!authority());$('nextBtn').textContent=s.round>=s.total?'Maç sonucunu gör →':'Sonraki tura geç →';let active=canAct();if(s.mode==='word'){$('definition').textContent=s.word?.definition||'Soru TDK sözlüğünden hazırlanıyor…';$('activeCategory').textContent=(categoryCatalog[s.category]||categoryCatalog.karma).icon+' '+(categoryCatalog[s.category]||categoryCatalog.karma).name;$('wordSource').textContent=s.word?(s.word.source==='tdk'?'● TDK canlı':'○ Yerel tanım'):'◌ Sözlük kontrolü';$('wordSource').classList.toggle('source-live',s.word?.source==='tdk');$('kind').textContent=s.word?.kind||'Sözlük';$('potential').textContent=s.word?wordPoints()+' puan':'—';$('letters').replaceChildren();if(s.word)[...s.word.value.toLocaleUpperCase('tr-TR')].forEach((c,i)=>{let e=document.createElement('div');e.className='tile'+(s.revealed.includes(i)||s.finished?' revealed':'');e.textContent=s.revealed.includes(i)||s.finished?c:'?';$('letters').append(e)});$('extraHint').classList.toggle('hidden',!s.hint);$('extraHint').textContent=s.word?.hint||'Başka ipucu bulunamadı.';$('wordControls').classList.toggle('hidden',s.finished);$('guessArea').classList.toggle('hidden',!s.guessMode||s.finished);$('letterBtn').disabled=!active||!s.word||s.guessMode||s.revealed.length>=[...(s.word?.value||'')].length-1;$('hintBtn').disabled=!active||s.hint||s.guessMode;$('pauseBtn').disabled=!active||!s.word||s.guessMode;$('submitGuess').disabled=!active;$('resumeBtn').disabled=!active}else{$('mathSetup').classList.toggle('hidden',!!s.math);$('mathPlay').classList.toggle('hidden',!s.math);$('oneBig').disabled=!active;$('twoBig').disabled=!active;if(s.math){let m=s.math;$('target').textContent=m.target;$('numbers').replaceChildren();m.items.forEach(x=>{let b=document.createElement('button');b.className='number'+(m.selected===x.id?' selected':'');b.textContent=x.v;b.disabled=!active;b.onclick=()=>action('mathSelect',x.id);$('numbers').append(b)});document.querySelectorAll('[data-op]').forEach(b=>{b.classList.toggle('selected',m.op===b.dataset.op);b.disabled=!active||m.selected===null});$('mathHistory').textContent=m.history.length?m.history.join('\n'):'İşlemler burada görünecek.';['undoBtn','resetBtn','finishMath'].forEach(id=>$(id).disabled=!active)}}}
+function action(type,arg){if(mode==='online'&&!authority()){send('action',{type,arg});return}switch(type){case 'letter':letter();break;case 'hint':hint();break;case 'pause':pauseGuess();break;case 'resume':if(canAct()){s.paused=false;s.guessMode=false;sync()}break;case 'guess':if(mode==='online'&&role!==0){/* handled by host with supplied text */}submitGuess();break;case 'setup':setupMath(arg);break;case 'mathSelect':mathSelect(arg);break;case 'op':if(canAct()&&s.math&&s.math.selected!==null){s.math.op=arg;sync()}break;case 'undo':undo();break;case 'reset':resetMath();break;case 'finish':finishMath();break;case 'next':newRound();break}}
+function makePeer(id,onOpen){if(typeof Peer==='undefined'){alert('PeerJS yüklenemedi. İnternet bağlantısını kontrol edin.');return}try{peer=new Peer(id,{debug:0});peer.on('open',onOpen);peer.on('error',e=>{$('roomInfo').textContent='Bağlantı hatası: '+e.type});peer.on('disconnected',()=>{$('roomInfo').textContent='Sinyal sunucusu bağlantısı koptu.'})}catch(e){$('roomInfo').textContent=e.message}}
+function bindConnection(c){conn=c;c.on('open',()=>{if(role===0){$('roomInfo').textContent='Oyuncu bağlandı! Oyun başlatılabilir.';$('hostStart').classList.remove('hidden');send('state',s);renderCategories()}else{$('roomInfo').textContent='Odaya bağlandınız. Ev sahibi oyunu başlatacak.';send('hello',{name:$('name2').value.trim()||'Oyuncu 2'})} renderCategories();render() });c.on('data',msg=>{if(!msg||typeof msg!=='object')return;if(role===0&&msg.type==='hello'&&s.phase==='lobby'){let name=String(msg.payload?.name||'Oyuncu 2').trim().slice(0,24);$('name2').value=name;s.names[1]=name;send('state',s);return}if(role===1&&msg.type==='state'){let priorGuess=s.guessMode;s=msg.payload;renderCategories();render();if(!priorGuess&&s.guessMode&&s.turn===role&&s.phase==='game')$('guess').focus();if(s.phase==='end')confetti()}else if(role===0&&msg.type==='action'){let {type,arg}=msg.payload||{};if(type==='guess'){if(canAct()&&s.guessMode&&s.turn===1){let v=String(arg||'').trim().toLocaleUpperCase('tr-TR');if(v){let ok=v===s.word.value.toLocaleUpperCase('tr-TR');endTurn(ok,ok?'Doğru cevap!':'Yanlış cevap: '+s.word.value.toLocaleUpperCase('tr-TR'),ok?wordPoints():0)}}}else if(s.turn===1&&s.phase==='game'&&!s.finished){remoteAction=true;try{action(type,arg)}finally{remoteAction=false}}}else if(msg.type==='chat'){let txt=String(msg.payload||'').slice(0,400);if(!txt)return;s.messages.push({from:role===0?1:0,name:s.names[role===0?1:0],text:txt});if(role===0)sync();else render();if($('chatPanel').classList.contains('hidden')){unread++;$('chatToggle').classList.add('unread')}renderChat()}});c.on('close',()=>{$('roomInfo').textContent='Rakibin bağlantısı koptu. Yeniden odaya bağlanın.';clearInterval(tick);s.paused=true;render()})}
+$('localMode').onclick=()=>{openChat(false);mode='local';renderCategories();$('localMode').classList.add('on');$('onlineMode').classList.remove('on');$('localControls').classList.remove('hidden');$('onlineControls').classList.add('hidden')};$('onlineMode').onclick=()=>{mode='online';renderCategories();$('onlineMode').classList.add('on');$('localMode').classList.remove('on');$('localControls').classList.add('hidden');$('onlineControls').classList.remove('hidden')};$('localStart').onclick=startGame;$('createRoom').onclick=()=>{role=0;room=Array.from({length:5},()=>pick('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'.split(''))).join('');$('roomInfo').textContent='Oda hazırlanıyor…';makePeer('bkbi-'+room,()=>{$('roomInfo').textContent='Oda kodu: '+room+' · Arkadaşınızla paylaşın.';peer.on('connection',c=>{if(conn?.open){c.on('open',()=>c.close());return}bindConnection(c)})})};$('joinRoom').onclick=()=>{room=$('roomInput').value.trim().toUpperCase();if(!/^[A-Z2-9]{5}$/.test(room)){alert('Beş haneli oda kodunu girin.');return}role=1;$('roomInfo').textContent='Bağlanılıyor…';makePeer(undefined,()=>bindConnection(peer.connect('bkbi-'+room,{reliable:true})))};$('hostStart').onclick=()=>{if(conn?.open)startGame()};$('letterBtn').onclick=()=>action('letter');$('hintBtn').onclick=()=>action('hint');$('pauseBtn').onclick=()=>action('pause');$('resumeBtn').onclick=()=>action('resume');$('submitGuess').onclick=()=>{if(mode==='online'&&role===1)send('action',{type:'guess',arg:$('guess').value});else submitGuess();$('guess').value=''};$('guess').onkeydown=e=>{if(e.key==='Enter')$('submitGuess').click()};$('oneBig').onclick=()=>action('setup',1);$('twoBig').onclick=()=>action('setup',2);document.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>action('op',b.dataset.op));$('undoBtn').onclick=()=>action('undo');$('resetBtn').onclick=()=>action('reset');$('finishMath').onclick=()=>action('finish');$('nextBtn').onclick=()=>action('next');$('again').onclick=()=>{clearInterval(tick);if(peer){peer.destroy();peer=null;conn=null}mode='local';s.phase='lobby';$('hostStart').classList.add('hidden');$('localMode').click();render()};$('soundBtn').onclick=()=>{sound=!sound;$('soundBtn').textContent=sound?'🔊 Ses':'🔇 Sessiz'};$('chatToggle').onclick=()=>openChat($('chatPanel').classList.contains('hidden'));$('closeChat').onclick=()=>openChat(false);$('chatBackdrop').onclick=()=>openChat(false);document.addEventListener('keydown',e=>{if(e.key==='Escape')openChat(false)});$('sendChat').onclick=()=>{let txt=$('chatInput').value.trim();if(!txt||!conn?.open)return;$('chatInput').value='';s.messages.push({from:role,name:s.names[role],text:txt});send('chat',txt);if(authority())sync();else render();renderChat()};$('chatInput').onkeydown=e=>{if(e.key==='Enter')$('sendChat').click()};renderCategories();render();
+</script></body></html>
