@@ -1,0 +1,2758 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sohbet Çarkı — Dost Meclisi Konu Bulmaca</title>
+    <style>
+        /* ==========================================================================
+           CLASSIC GENTLEMAN'S LOUNGE / LIBRARY AESTHETIC TOKENS
+           ========================================================================== */
+        :root {
+            --bg-oxford: #0d1522;
+            --bg-espresso: #1c130e;
+            --bg-panel: rgba(24, 34, 50, 0.78);
+            --bg-card: rgba(19, 28, 42, 0.92);
+            --bg-input: rgba(11, 17, 28, 0.85);
+            
+            --brass-primary: #c5a059;
+            --brass-light: #e4c887;
+            --brass-dark: #8c6b2d;
+            --brass-glow: rgba(197, 160, 89, 0.24);
+            --brass-border: rgba(197, 160, 89, 0.35);
+
+            --cream-primary: #f3ede2;
+            --cream-secondary: #d8cfc0;
+            --cream-muted: #988f80;
+
+            --accent-terracotta: #8a3b2e;
+            --accent-forest: #2b4c3b;
+            --accent-slate: #2b425b;
+
+            --shadow-deep: 0 20px 50px rgba(0, 0, 0, 0.65);
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.45);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+
+            --font-serif: 'Georgia', 'Times New Roman', 'Palatino Linotype', serif;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            min-height: 100%;
+            background-color: var(--bg-oxford);
+            background-image: 
+                radial-gradient(circle at 20% 25%, rgba(56, 36, 25, 0.55) 0%, transparent 55%),
+                radial-gradient(circle at 80% 75%, rgba(30, 45, 68, 0.6) 0%, transparent 60%),
+                linear-gradient(145deg, #0a101a 0%, #141e2e 50%, #1c140f 100%);
+            color: var(--cream-primary);
+            font-family: var(--font-sans);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Subtle ambient leather/paper grain effect using CSS repeating pattern */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: radial-gradient(rgba(243, 237, 226, 0.03) 1px, transparent 0);
+            background-size: 24px 24px;
+            z-index: 0;
+        }
+
+        /* ==========================================================================
+           HEADER & NAVIGATION BAR
+           ========================================================================== */
+        .app-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 18px 24px 48px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.22);
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-emblem {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--brass-light), var(--brass-primary) 60%, var(--brass-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 0 2px #162436;
+            flex-shrink: 0;
+        }
+
+        .brand-emblem svg {
+            width: 24px;
+            height: 24px;
+            fill: #0d1522;
+        }
+
+        .brand-titles h1 {
+            font-family: var(--font-serif);
+            font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: var(--cream-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-titles p {
+            font-size: 0.85rem;
+            color: var(--cream-muted);
+            letter-spacing: 0.02em;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-brass-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(19, 28, 42, 0.85);
+            color: var(--cream-secondary);
+            border: 1px solid var(--brass-border);
+            padding: 9px 15px;
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .btn-brass-outline:hover {
+            border-color: var(--brass-light);
+            color: var(--brass-light);
+            background: rgba(197, 160, 89, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .btn-brass-outline.active {
+            background: rgba(197, 160, 89, 0.2);
+            border-color: var(--brass-primary);
+            color: var(--brass-light);
+        }
+
+        .btn-brass-outline svg {
+            width: 17px;
+            height: 17px;
+            fill: currentColor;
+        }
+
+        /* ==========================================================================
+           MAIN WORKSPACE LAYOUT
+           ========================================================================== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: minmax(340px, 1.25fr) minmax(340px, 0.95fr);
+            gap: 32px;
+            align-items: start;
+            flex: 1;
+        }
+
+        @media (max-width: 1040px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 28px;
+            }
+        }
+
+        /* ==========================================================================
+           LEFT COLUMN: INTERACTIVE WHEEL STAGE
+           ========================================================================== */
+        .wheel-stage-card {
+            background: var(--bg-panel);
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: var(--shadow-deep);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .stage-top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(11, 17, 28, 0.75);
+            border: 1px solid rgba(197, 160, 89, 0.3);
+            border-radius: 999px;
+            font-size: 0.8rem;
+            color: var(--cream-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--brass-primary);
+            box-shadow: 0 0 8px var(--brass-primary);
+            transition: background 0.3s ease;
+        }
+
+        .status-dot.spinning {
+            background: #e2a03f;
+            animation: pulseGlow 0.8s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            from { transform: scale(0.9); opacity: 0.7; }
+            to { transform: scale(1.35); opacity: 1; }
+        }
+
+        .speed-telemetry {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            color: var(--brass-light);
+            background: rgba(11, 17, 28, 0.75);
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            padding: 5px 12px;
+            border-radius: 999px;
+        }
+
+        /* Wheel Canvas Container */
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px auto 12px;
+            touch-action: none; /* Prevents page scroll when flicking the wheel */
+            user-select: none;
+        }
+
+        #wheelCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+            filter: drop-shadow(0 16px 34px rgba(0, 0, 0, 0.75));
+        }
+
+        #wheelCanvas:active {
+            cursor: grabbing;
+        }
+
+        .drag-hint-banner {
+            font-size: 0.82rem;
+            color: var(--cream-muted);
+            text-align: center;
+            margin-top: 2px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .drag-hint-banner span {
+            color: var(--brass-light);
+            font-weight: 500;
+        }
+
+        /* Variable-Speed Spin Controls Bar */
+        .spin-controls-wrapper {
+            width: 100%;
+            background: rgba(13, 21, 34, 0.82);
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .power-button-row {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+            flex-wrap: wrap;
+        }
+
+        .btn-hold-spin {
+            flex: 1.5;
+            min-width: 210px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #2b2116 0%, #1c150e 100%);
+            border: 1.5px solid var(--brass-primary);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            color: var(--cream-primary);
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .btn-hold-spin:hover {
+            border-color: var(--brass-light);
+            box-shadow: 0 8px 25px rgba(197, 160, 89, 0.2);
+        }
+
+        .btn-hold-spin:active {
+            transform: scale(0.99);
+        }
+
+        .power-fill-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0%;
+            background: linear-gradient(90deg, rgba(197, 160, 89, 0.22), rgba(228, 200, 135, 0.48), rgba(186, 86, 48, 0.62));
+            pointer-events: none;
+            transition: width 0.04s linear;
+            z-index: 0;
+        }
+
+        .btn-hold-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .btn-hold-sub {
+            position: relative;
+            z-index: 1;
+            font-family: var(--font-sans);
+            font-size: 0.74rem;
+            font-weight: 400;
+            color: var(--brass-light);
+            letter-spacing: 0.02em;
+        }
+
+        .quick-spin-group {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            min-width: 220px;
+        }
+
+        .btn-quick-speed {
+            background: rgba(24, 36, 54, 0.85);
+            border: 1px solid rgba(197, 160, 89, 0.28);
+            border-radius: var(--radius-sm);
+            color: var(--cream-secondary);
+            padding: 8px 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            transition: all 0.18s ease;
+        }
+
+        .btn-quick-speed span.sub-speed {
+            font-size: 0.68rem;
+            font-weight: 400;
+            color: var(--cream-muted);
+        }
+
+        .btn-quick-speed:hover {
+            background: rgba(197, 160, 89, 0.16);
+            border-color: var(--brass-light);
+            color: var(--cream-primary);
+            transform: translateY(-1px);
+        }
+
+        /* ==========================================================================
+           RIGHT COLUMN: SELECTED TOPIC CARD, PRESETS & TOPIC MANAGER
+           ========================================================================== */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        /* Selected Topic Card */
+        .topic-showcase-card {
+            background: linear-gradient(160deg, rgba(28, 39, 58, 0.94) 0%, rgba(25, 19, 15, 0.96) 100%);
+            border: 1.5px solid var(--brass-primary);
+            border-radius: var(--radius-lg);
+            padding: 26px;
+            box-shadow: var(--shadow-deep), inset 0 0 30px rgba(197, 160, 89, 0.06);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .topic-showcase-card.highlight-win {
+            animation: cardRevealPulse 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes cardRevealPulse {
+            0% { transform: scale(0.97); box-shadow: 0 0 0 0 rgba(228, 200, 135, 0.6); }
+            50% { transform: scale(1.01); box-shadow: 0 0 35px 8px rgba(228, 200, 135, 0.28); }
+            100% { transform: scale(1); }
+        }
+
+        /* Ornamental corner accents */
+        .corner-ornament {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: var(--brass-primary);
+            opacity: 0.55;
+            pointer-events: none;
+        }
+        .corner-tl { top: 10px; left: 10px; border-top: 2px solid; border-left: 2px solid; }
+        .corner-tr { top: 10px; right: 10px; border-top: 2px solid; border-right: 2px solid; }
+        .corner-bl { bottom: 10px; left: 10px; border-bottom: 2px solid; border-left: 2px solid; }
+        .corner-br { bottom: 10px; right: 10px; border-bottom: 2px solid; border-right: 2px solid; }
+
+        .topic-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: rgba(197, 160, 89, 0.16);
+            border: 1px solid rgba(197, 160, 89, 0.45);
+            color: var(--brass-light);
+            font-size: 0.76rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .slice-index-tag {
+            font-family: var(--font-serif);
+            font-size: 0.82rem;
+            color: var(--cream-muted);
+        }
+
+        .selected-topic-title {
+            font-family: var(--font-serif);
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            color: var(--cream-primary);
+            margin-bottom: 8px;
+            line-height: 1.25;
+        }
+
+        .selected-topic-desc {
+            font-size: 0.94rem;
+            color: var(--cream-secondary);
+            margin-bottom: 20px;
+        }
+
+        .questions-box {
+            background: rgba(11, 17, 28, 0.72);
+            border: 1px solid rgba(197, 160, 89, 0.24);
+            border-radius: var(--radius-md);
+            padding: 16px 18px;
+            margin-bottom: 20px;
+        }
+
+        .questions-box-header {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--brass-primary);
+            margin-bottom: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .question-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .question-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.93rem;
+            color: var(--cream-primary);
+            line-height: 1.45;
+        }
+
+        .question-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(197, 160, 89, 0.18);
+            border: 1px solid var(--brass-primary);
+            color: var(--brass-light);
+            font-family: var(--font-serif);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .topic-card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-card-action {
+            flex: 1;
+            min-width: 155px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-remove-slice {
+            background: rgba(138, 59, 46, 0.25);
+            border: 1px solid rgba(205, 98, 80, 0.45);
+            color: #f2b8ad;
+        }
+
+        .btn-remove-slice:hover:not(:disabled) {
+            background: rgba(138, 59, 46, 0.45);
+            border-color: #e48473;
+            color: #fff;
+        }
+
+        .btn-remove-slice:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-copy-topic {
+            background: rgba(197, 160, 89, 0.15);
+            border: 1px solid var(--brass-border);
+            color: var(--brass-light);
+        }
+
+        .btn-copy-topic:hover {
+            background: rgba(197, 160, 89, 0.28);
+            border-color: var(--brass-light);
+        }
+
+        /* ==========================================================================
+           PRESETS & CUSTOM TOPIC MANAGEMENT PANEL
+           ========================================================================== */
+        .management-card {
+            background: var(--bg-panel);
+            border: 1px solid rgba(197, 160, 89, 0.24);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .section-heading h2 {
+            font-family: var(--font-serif);
+            font-size: 1.15rem;
+            color: var(--cream-primary);
+            font-weight: 600;
+        }
+
+        .slice-count-pill {
+            font-size: 0.78rem;
+            color: var(--brass-light);
+            background: rgba(197, 160, 89, 0.14);
+            border: 1px solid rgba(197, 160, 89, 0.32);
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+
+        /* Preset Filter Buttons */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
+        .btn-preset {
+            background: rgba(13, 21, 34, 0.75);
+            border: 1px solid rgba(197, 160, 89, 0.22);
+            border-radius: var(--radius-sm);
+            padding: 9px 11px;
+            color: var(--cream-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.18s ease;
+        }
+
+        .btn-preset:hover {
+            border-color: var(--brass-primary);
+            color: var(--cream-primary);
+        }
+
+        .btn-preset.active {
+            background: linear-gradient(135deg, rgba(197, 160, 89, 0.25), rgba(197, 160, 89, 0.08));
+            border-color: var(--brass-light);
+            color: var(--brass-light);
+            font-weight: 600;
+        }
+
+        .preset-count {
+            font-size: 0.72rem;
+            opacity: 0.8;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        /* Add New Custom Topic Form */
+        .custom-topic-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(11, 17, 28, 0.65);
+            border: 1px solid rgba(197, 160, 89, 0.18);
+            padding: 14px;
+            border-radius: var(--radius-md);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .input-lounge {
+            flex: 1;
+            min-width: 160px;
+            background: var(--bg-input);
+            border: 1px solid rgba(197, 160, 89, 0.28);
+            border-radius: var(--radius-sm);
+            padding: 9px 12px;
+            color: var(--cream-primary);
+            font-size: 0.85rem;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-lounge::placeholder {
+            color: var(--cream-muted);
+        }
+
+        .input-lounge:focus {
+            border-color: var(--brass-light);
+        }
+
+        .btn-add-topic {
+            background: linear-gradient(135deg, var(--brass-primary), var(--brass-dark));
+            color: #0d1522;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 9px 16px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: filter 0.2s ease, transform 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn-add-topic:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        /* Collapsible Active Slices List */
+        .slices-list-container {
+            max-height: 210px;
+            overflow-y: auto;
+            border: 1px solid rgba(197, 160, 89, 0.16);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            background: rgba(11, 17, 28, 0.55);
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+            gap: 6px;
+        }
+
+        .slices-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .slices-list-container::-webkit-scrollbar-track {
+            background: rgba(11, 17, 28, 0.4);
+        }
+        .slices-list-container::-webkit-scrollbar-thumb {
+            background: rgba(197, 160, 89, 0.35);
+            border-radius: 3px;
+        }
+
+        .slice-chip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 6px 9px;
+            border-radius: 6px;
+            background: rgba(24, 36, 54, 0.7);
+            border: 1px solid rgba(197, 160, 89, 0.18);
+            font-size: 0.77rem;
+            color: var(--cream-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .slice-chip:hover {
+            border-color: var(--brass-primary);
+            color: var(--cream-primary);
+        }
+
+        .slice-chip.removed {
+            opacity: 0.42;
+            text-decoration: line-through;
+            background: rgba(15, 20, 30, 0.4);
+        }
+
+        .slice-chip-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .slice-chip-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Toast Notification */
+        .toast-banner {
+            position: fixed;
+            bottom: 44px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(19, 28, 42, 0.96);
+            border: 1px solid var(--brass-primary);
+            color: var(--cream-primary);
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 100;
+        }
+
+        .toast-banner.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Minimal Subtle Footer */
+        .minimal-footer {
+            margin-top: 32px;
+            padding-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.74rem;
+            color: rgba(216, 207, 192, 0.36);
+            letter-spacing: 0.06em;
+            font-family: var(--font-serif);
+        }
+
+        @media (max-width: 640px) {
+            .app-wrapper {
+                padding: 12px 14px 36px;
+            }
+            .wheel-stage-card, .topic-showcase-card, .management-card {
+                padding: 16px;
+            }
+            .minimal-footer {
+                flex-direction: column;
+                gap: 6px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- HEADER -->
+        <header class="top-header">
+            <div class="brand-group">
+                <div class="brand-emblem" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8Zm0-13a5 5 0 1 0 5 5 5.006 5.006 0 0 0-5-5Zm0 8a3 3 0 1 1 3-3 3.003 3.003 0 0 1-3 3Z"/>
+                    </svg>
+                </div>
+                <div class="brand-titles">
+                    <h1>Sohbet Çarkı</h1>
+                    <p>Dost Meclisi İçin Derinlikli Konu &amp; Muhabbet Pusulası</p>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <button id="btnSoundToggle" class="btn-brass-outline active" type="button" title="Mekanik Çark Sesini Aç/Kapat">
+                    <svg id="iconSoundOn" viewBox="0 0 24 24">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                    <span id="soundStatusText">Ses Açık</span>
+                </button>
+                <button id="btnShuffleSlices" class="btn-brass-outline" type="button" title="Dilimlerin Sırasını Karıştır">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+                    </svg>
+                    <span>Karıştır</span>
+                </button>
+                <button id="btnRestoreAll" class="btn-brass-outline" type="button" title="Çıkarılan Tüm Konuları Geri Yükle">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+                    </svg>
+                    <span>Tümünü Sıfırla</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN WORKSPACE -->
+        <main class="main-grid">
+            <!-- LEFT: WHEEL STAGE -->
+            <section class="wheel-stage-card" aria-label="Sohbet Çarkı Alanı">
+                <div class="stage-top-bar">
+                    <div class="status-badge">
+                        <span id="statusDot" class="status-dot"></span>
+                        <span id="wheelStatusText">Çevirmeye Hazır — Çarkı Tutup Savurun</span>
+                    </div>
+                    <div id="speedTelemetry" class="speed-telemetry">Hız: 0.0 RPM</div>
+                </div>
+
+                <div class="canvas-container" id="canvasContainer">
+                    <canvas id="wheelCanvas"></canvas>
+                </div>
+
+                <p class="drag-hint-banner">
+                    <span>İpucu:</span> Çarkı fare veya parmağınızla doğrudan tutup istediğiniz hızda savurabilirsiniz.
+                </p>
+
+                <!-- Variable-Speed Power Button + Quick Speed Triggers -->
+                <div class="spin-controls-wrapper">
+                    <div class="power-button-row">
+                        <button id="btnHoldSpin" class="btn-hold-spin" type="button">
+                            <div id="powerFillBar" class="power-fill-bar"></div>
+                            <div class="btn-hold-content">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2v4a6 6 0 1 1-6 6H2a10 10 0 1 0 10-10zm-1 5v6l5 3 .75-1.23-4.25-2.52V7H11z"/>
+                                </svg>
+                                <span id="holdBtnLabel">Basılı Tut &amp; Bırak (Güçlü Çevir)</span>
+                            </div>
+                            <span id="holdBtnSub" class="btn-hold-sub">Basılı tutma sürenize göre dönüş hızı artar</span>
+                        </button>
+
+                        <div class="quick-spin-group">
+                            <button class="btn-quick-speed" type="button" data-speed="slow">
+                                <span>Yavaş</span>
+                                <span class="sub-speed">Hafif Dokunuş</span>
+                            </button>
+                            <button class="btn-quick-speed" type="button" data-speed="medium">
+                                <span>Orta Hız</span>
+                                <span class="sub-speed">Dengeli Tur</span>
+                            </button>
+                            <button class="btn-quick-speed" type="button" data-speed="fast">
+                                <span>Çok Hızlı</span>
+                                <span class="sub-speed">Tam Güç</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT: SELECTED TOPIC + TOPIC MANAGER -->
+            <aside class="right-panel">
+                <!-- Selected Topic Card -->
+                <article id="topicShowcaseCard" class="topic-showcase-card" aria-live="polite">
+                    <div class="corner-ornament corner-tl"></div>
+                    <div class="corner-ornament corner-tr"></div>
+                    <div class="corner-ornament corner-bl"></div>
+                    <div class="corner-ornament corner-br"></div>
+
+                    <div class="topic-meta-row">
+                        <span id="selectedCategoryBadge" class="category-pill">Derin &amp; Felsefi</span>
+                        <span id="selectedSliceNumber" class="slice-index-tag">Dilim #1 / 32</span>
+                    </div>
+
+                    <h2 id="selectedTopicTitle" class="selected-topic-title">Zaman Yolculuğu</h2>
+                    <p id="selectedTopicDesc" class="selected-topic-desc">
+                        Geçmişin bilgeliği mi yoksa geleceğin merakı mı? Zamanın akışına müdahale etmenin felsefesi.
+                    </p>
+
+                    <div class="questions-box">
+                        <div class="questions-box-header">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 12h-2v-2h2v2zm2.07-7.75-.9.92C13.45 7.9 13 8.5 13 10h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                            </svg>
+                            <span>Sohbeti Başlatacak Sorular</span>
+                        </div>
+                        <ul id="selectedQuestionsList" class="question-list">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+
+                    <div class="topic-card-actions">
+                        <button id="btnRemoveCurrentSlice" class="btn-card-action btn-remove-slice" type="button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                            <span>Bu Konuyu Çarktan Çıkar</span>
+                        </button>
+                        <button id="btnCopyTopic" class="btn-card-action btn-copy-topic" type="button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            </svg>
+                            <span>Soruları Kopyala</span>
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Category Presets & Custom Slice Manager -->
+                <section class="management-card" aria-label="Konu ve Dilim Yönetimi">
+                    <div class="section-heading">
+                        <h2>Çark Dilimleri &amp; Kategori Seçimi</h2>
+                        <span id="activeSliceCountBadge" class="slice-count-pill">32 Aktif Dilim</span>
+                    </div>
+
+                    <div class="preset-grid" id="presetButtonsContainer">
+                        <button class="btn-preset active" type="button" data-preset="default32">
+                            <span>Klasik Seçki</span>
+                            <span class="preset-count">32 Dilim</span>
+                        </button>
+                        <button class="btn-preset" type="button" data-preset="extended48">
+                            <span>Genişletilmiş</span>
+                            <span class="preset-count">48 Dilim</span>
+                        </button>
+                        <button class="btn-preset" type="button" data-preset="felsefe">
+                            <span>Derin &amp; Felsefi</span>
+                            <span class="preset-count">Özel</span>
+                        </button>
+                        <button class="btn-preset" type="button" data-preset="nostalji">
+                            <span>Nostalji &amp; Anılar</span>
+                            <span class="preset-count">Özel</span>
+                        </button>
+                        <button class="btn-preset" type="button" data-preset="kultur">
+                            <span>Kültür &amp; Hayat</span>
+                            <span class="preset-count">Özel</span>
+                        </button>
+                        <button class="btn-preset" type="button" data-preset="gelecek">
+                            <span>Gelecek &amp; Çağ</span>
+                            <span class="preset-count">Özel</span>
+                        </button>
+                    </div>
+
+                    <!-- Add Custom Topic -->
+                    <form id="customTopicForm" class="custom-topic-form">
+                        <div class="form-row">
+                            <input
+                                type="text"
+                                id="inputCustomTitle"
+                                class="input-lounge"
+                                placeholder="Yeni konu başlığı (Örn: Çocukluk Oyunları)"
+                                maxlength="28"
+                                required
+                            />
+                            <input
+                                type="text"
+                                id="inputCustomQuestion"
+                                class="input-lounge"
+                                placeholder="Özel alt soru (İsteğe bağlı)"
+                                maxlength="120"
+                            />
+                            <button type="submit" class="btn-add-topic">+ Çarka Ekle</button>
+                        </div>
+                    </form>
+
+                    <!-- Active / Inactive Slice Toggles -->
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:0.78rem; color:var(--cream-muted);">
+                                Dilime tıklayarak çarktan çıkarabilir veya tekrar dahil edebilirsiniz:
+                            </span>
+                        </div>
+                        <div id="slicesListContainer" class="slices-list-container">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </section>
+            </aside>
+        </main>
+
+        <!-- SUBTLE MINIMAL FOOTER -->
+        <footer class="minimal-footer">
+            <span>Klasik Dost Meclisi Sohbet Çarkı • Web Audio Mekanik Ses Motoru</span>
+            <span>designed by hmdysn &amp; openai</span>
+        </footer>
+    </div>
+
+    <div id="toastBanner" class="toast-banner" role="status" aria-live="polite"></div>
+
+    <script>
+        /* ==========================================================================
+           1. RICH CONVERSATION TOPICS DATABASE (32 CORE + 16 EXTENDED = 48 TOPICS)
+           ========================================================================== */
+        const SLICE_PALETTE = [
+            '#162436', // Deep Navy
+            '#382419', // Espresso Brown
+            '#24384d', // Muted Slate Blue
+            '#4a251d', // Warm Terracotta/Rust
+            '#1f3328', // Deep Olive/Forest
+            '#47361d'  // Ochre/Bronze
+        ];
+
+        const MASTER_TOPICS = [
+            {
+                id: 't1',
+                title: '90\'lar Nostaljisi',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Kasetlerin kalemle sarıldığı, sokak lambaları yanana dek oyun oynanan yılların ruhu.',
+                questions: [
+                    '90\'lar veya 2000\'lerin başından bugüne geri getirebileceğin tek bir alışkanlık veya nesne ne olurdu?',
+                    'O dönemdeki mahalle kültürünü ve komşuluk ilişkilerini bugünkü şehir hayatıyla nasıl kıyaslarsın?',
+                    'Çocukluğunda televizyonda veya radyoda duyduğunda seni hâlâ o yıllara götüren ses ya da program hangisi?'
+                ]
+            },
+            {
+                id: 't2',
+                title: 'Zaman Yolculuğu',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Geçmişin bilgeliği mi yoksa geleceğin merakı mı? Zamanın akışına müdahale etmenin felsefesi.',
+                questions: [
+                    'Tek yönlü bir biletin olsa geçmişe mi gitmeyi seçerdin yoksa 200 yıl sonrasına mı? Neden?',
+                    'Geçmişteki 15 yaşındaki haline sadece iki cümlelik bir mektup bırakabilsen ne yazardın?',
+                    'Tarihte hiçbir şeyi değiştirmeden sadece sessiz bir gözlemci olarak bulunmak isteyeceğin an hangisi?'
+                ]
+            },
+            {
+                id: 't3',
+                title: 'Teknolojisiz 1 Hafta',
+                category: 'Gelecek & Çağ',
+                group: 'gelecek',
+                desc: 'Ekranlardan, bildirimlerden ve algoritmalardan tamamen uzak yedi tam gün.',
+                questions: [
+                    'Telefon, internet ve ekran olmadan geçireceğin bir haftada ilk üç gün seni en çok ne zorlardı?',
+                    'İnternet öncesi dönemde insanların vakit geçirme biçimlerinden hangisini hayatına katmak isterdin?',
+                    'Sürekli ulaşılabilir olmak sence özgürlük mü yoksa görünmez bir zorunluluk mu?'
+                ]
+            },
+            {
+                id: 't4',
+                title: 'Unutulmaz Kitap/Film',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Hayata bakış açımızı değiştiren, bittiğinde uzun süre etkisinden çıkamadığımız eserler.',
+                questions: [
+                    'İzledikten veya okuduktan sonra dünyaya bakışını kalıcı olarak değiştiren eser hangisiydi?',
+                    'Hangi kurgusal karakterle bir akşam çay içip uzun uzun dertleşmek isterdin?',
+                    'Hafızandan sildirip ilk kez izleme/okuma heyecanını yeniden yaşamak istediğin yapıt hangisi?'
+                ]
+            },
+            {
+                id: 't5',
+                title: 'Issız Ada Üçlüsü',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Modern dünyanın karmaşasından uzakta, sadece en temel değerlerle baş başa kalmak.',
+                questions: [
+                    'Hayatta kalma ekipmanları hariç, ruhunu beslemek için yanına alacağın üç şey ne olurdu?',
+                    'Bir yıl boyunca tek başına doğada yaşamak sence insanı olgunlaştırır mı yoksa yabancılaştırır mı?',
+                    'Modern hayatta "olmazsa olmaz" sandığımız ama aslında hiç ihtiyacımız olmayan en büyük lüks nedir?'
+                ]
+            },
+            {
+                id: 't6',
+                title: 'Adalet mi Merhamet mi?',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Vicdanın terazisinde kuralların kesinliği ile affetmenin iyileştirici gücü arasındaki denge.',
+                questions: [
+                    'Kesin adaletin merhametsizliğe dönüştüğü bir durum mümkün müdür? Nerede sınır çizilmeli?',
+                    'Bir insanın yaptığı hatayı telafi etmesi için pişmanlık yeterli midir yoksa bedel ödemek şart mıdır?',
+                    'Hayatında sana gösterilen ve asla unutamadığın en büyük merhamet örneği neydi?'
+                ]
+            },
+            {
+                id: 't7',
+                title: 'Çocukluk Kahramanı',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Küçükken hayranlıkla izlediğimiz, yerinde olmak istediğimiz gerçek veya hayali figürler.',
+                questions: [
+                    'Çocukken örnek aldığın veya hayran olduğun kişi kimdi ve bugün ona baktığında ne hissediyorsun?',
+                    'Küçükken büyüyünce nasıl bir yetişkin olacağını hayal ederdin? O hayale ne kadar yakınsın?',
+                    'Çocukluktaki saf hayal gücümüzü yetişkinlikte korumak için neler yapabiliriz?'
+                ]
+            },
+            {
+                id: 't8',
+                title: 'Yapay Zeka & Gelecek',
+                category: 'Gelecek & Çağ',
+                group: 'gelecek',
+                desc: 'Makinelerin düşündüğü ve ürettiği bir çağda insan olmanın biricik anlamı.',
+                questions: [
+                    'Yapay zekanın asla taklit edemeyeceğine inandığın en temel insani özellik nedir?',
+                    'Her türlü zihinsel ve fiziksel işin makinelerce yapıldığı bir dünyada insan anlamı nerede arayacak?',
+                    '2050 yılında sıradan bir Salı gününün nasıl görüneceğini hayal ediyorsun?'
+                ]
+            },
+            {
+                id: 't9',
+                title: 'Tarihte Bir Gün',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'İnsanlık tarihinin kırılma noktaları, eski uygarlıklar ve kayıp şehirler.',
+                questions: [
+                    'Geçmişteki hangi medeniyetin günlük yaşamını, çarşısını ve sohbetlerini yerinde görmek isterdin?',
+                    'Tarihteki hangi bilgin, sanatçı veya liderle bir saatlik yürüyüşe çıkmak isterdin?',
+                    'Bugünkü dönemimiz 300 yıl sonra tarih kitaplarında sence hangi başlıkla anlatılacak?'
+                ]
+            },
+            {
+                id: 't10',
+                title: 'En Büyük Keşke',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Alınmayan riskler, söylenmeyen sözler ve pişmanlıkların bize öğrettiği dersler.',
+                questions: [
+                    'İnsan hayatının sonunda yaptıklarından mı daha çok pişman olur yoksa cesaret edemediklerinden mi?',
+                    '"İyi ki o zaman istediğim gibi olmamış" dediğin bir hayal kırıklığın var mı?',
+                    'Pişmanlık duygusu sence insanı geriye çeken bir yük mü yoksa doğru yolu gösteren bir pusula mı?'
+                ]
+            },
+            {
+                id: 't11',
+                title: 'İdeal Şehir Hayatı',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Ruhumuza iyi gelen mimari, yürünebilir sokaklar ve insan ölçeğinde kentler.',
+                questions: [
+                    'Sıfırdan bir şehir kurma imkanın olsa merkezine neyi koyardın ve neyi tamamen yasaklardın?',
+                    'Bir şehri "yuva" gibi hissettiren şey mimarisi ve doğası mıdır yoksa içindeki insanlar mı?',
+                    'Şimdiye kadar gördüğün veya duyduğun şehirler arasında ruhuna en yakın olanı hangisi?'
+                ]
+            },
+            {
+                id: 't12',
+                title: 'Para & Mutluluk',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Maddi refahın huzurla ilişkisi, gerçek zenginliğin tanımı ve kanaat.',
+                questions: [
+                    'Sana göre "zenginlik" banka hesabındaki rakamla mı ölçülür yoksa boş vakit özgürlüğüyle mi?',
+                    'Para harcayarak satın aldığın ve sana en uzun süreli mutluluk veren deneyim veya eşya neydi?',
+                    'Maddi hiçbir kaygın olmasaydı her sabah yataktan hangi amaç için kalkardın?'
+                ]
+            },
+            {
+                id: 't13',
+                title: 'Unutulmayan Öğretmen',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Tek bir cümlesiyle veya yaklaşımıyla hayatımızda iz bırakan rehber insanlar.',
+                questions: [
+                    'Okul yıllarında veya sonrasında hayatına dokunan, adını hâlâ saygıyla andığın öğretmenin kimdi?',
+                    'Bir insana bir şey öğretmenin en etkili yolu bilgi aktarmak mıdır yoksa merak uyandırmak mı?',
+                    'Hayat okulunda şimdiye kadar aldığın en pahalı veya en zorlu ders ne oldu?'
+                ]
+            },
+            {
+                id: 't14',
+                title: 'İlkokul Anıları',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Beslenme çantası kokusu, tahta sıralar ve ilk çocukluk arkadaşlıkları.',
+                questions: [
+                    'İlkokul yıllarından gözünün önüne gelen en net kare veya en komik anı nedir?',
+                    'O dönemdeki en yakın sıra arkadaşınla bugün karşılaşsan ona ilk ne sorardın?',
+                    'Çocukken çok büyük ve ciddi görünen ama bugün gülümseyerek hatırladığın bir endişen neydi?'
+                ]
+            },
+            {
+                id: 't15',
+                title: 'Gelecekten Tek Haber',
+                category: 'Gelecek & Çağ',
+                group: 'gelecek',
+                desc: 'Bilinmezliğin cazibesi ile geleceği önceden bilmenin getireceği sorumluluk.',
+                questions: [
+                    'Geleceğe dair sadece tek bir sorunun cevabını kesin olarak öğrenebilsen neyi bilmek isterdin?',
+                    'Kendi geleceğini tüm detaylarıyla önceden bilmek hayatın heyecanını öldürür müydü?',
+                    'İnsanlığın önümüzdeki 50 yılda çözeceğine en çok umut bağladığın sorun hangisi?'
+                ]
+            },
+            {
+                id: 't16',
+                title: 'Kültürel Miras',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Kuşaktan kuşağa aktarılan gelenekler, deyimler, sofralar ve yaşam bilgeliği.',
+                questions: [
+                    'Kültürümüzde kaybolmaya yüz tutmuş ama mutlaka yaşatılması gerektiğine inandığın gelenek nedir?',
+                    'Ailenden veya büyüklerinden duyduğun ve kulağına küpe olan en güzel atasözü ya da öğüt hangisi?',
+                    'Misafirperverlik ve sofra kültürümüzün insan ilişkilerindeki yeri hakkında ne düşünüyorsun?'
+                ]
+            },
+            {
+                id: 't17',
+                title: 'Issız Bir Köyde Yaşam',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Toprakla uğraşmak, mevsimlerin ritmine uymak ve sadeleşmenin huzuru.',
+                questions: [
+                    'Deniz kıyısında veya dağ yamacında sakin bir köyde yaşama fikri sana huzur mu veriyor yoksa yalnızlık mı?',
+                    'Kendi sebzeni yetiştirip doğayla iç içe yaşamanın en romantik yanı ile en zor gerçekliği nedir?',
+                    'İnsan neden hayatının bir döneminde mutlaka "her şeyi bırakıp sahil kasabasına yerleşme" hayali kurar?'
+                ]
+            },
+            {
+                id: 't18',
+                title: 'Hayatın Dönüm Noktası',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Bizi bugünkü biz yapan kavşaklar, tesadüfler ve cesur kararlar.',
+                questions: [
+                    'Geriye dönüp baktığında "O gün o kararı vermeseydim bugün bambaşka biriydim" dediğin an hangisi?',
+                    'Hayatındaki en büyük değişimler planlayarak mı gerçekleşti yoksa beklenmedik olaylarla mı?',
+                    'Konfor alanından çıkmak için bir kriz mi gerekir yoksa içsel bir farkındalık yeterli midir?'
+                ]
+            },
+            {
+                id: 't19',
+                title: 'En İlginç Tesadüf',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Açıklanması güç karşılaşmalar, tevafuklar ve hayatın sürprizli kurgusu.',
+                questions: [
+                    'Başına gelen ve anlattığında insanların inanmakta güçlük çektiği en tuhaf tesadüf neydi?',
+                    'Sence hayatta "tesadüf" diye bir şey gerçekten var mıdır yoksa her şey birbiriyle bağlantılı mıdır?',
+                    'Hiç beklemediğin bir anda karşına çıkıp hayatının akışını değiştiren bir insan oldu mu?'
+                ]
+            },
+            {
+                id: 't20',
+                title: 'Dijital Çağ & Yalnızlık',
+                category: 'Gelecek & Çağ',
+                group: 'gelecek',
+                desc: 'Binlerce "takipçi" arasında gerçek bir dost sohbetine duyulan özlem.',
+                questions: [
+                    'İletişim araçları bu kadar gelişmişken insanların kendini daha yalnız hissetmesinin sebebi ne olabilir?',
+                    'Yüz yüze bir çay sohbetinin yerini hiçbir dijital görüşmenin tutamamasının sırrı nedir?',
+                    'Sosyal medyada kusursuz görünme çabası samimi insan ilişkilerini nasıl etkiliyor?'
+                ]
+            },
+            {
+                id: 't21',
+                title: 'Eski Dostluklar',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Araya yıllar ve mesafeler girse de kaldığı yerden devam edebilen kadim bağlar.',
+                questions: [
+                    'Bir arkadaşlığı "gerçek dostluk" mertebesine taşıyan en önemli sınav nedir?',
+                    'Yıllarca görüşmesen bile bir araya geldiğinde dün ayrılmışsınız gibi hissettiğin dostun kim?',
+                    'Yetişkinlikte yeni ve derin dostluklar kurmak neden gençlik yıllarına göre daha zordur?'
+                ]
+            },
+            {
+                id: 't22',
+                title: 'Bir Yetenek Seçsen',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Emek vermeden bir gecede ustalaşabileceğimiz o büyüleyici beceri.',
+                questions: [
+                    'Yarın sabah uyandığında bir enstrümanı, dili veya sanatı ustalıkla icra edebilecek olsan hangisini seçerdin?',
+                    'Bir yeteneği değerli kılan şey sonuçta ortaya çıkan eser midir yoksa onu öğrenirken çekilen zahmet mi?',
+                    'İnsanların sahip olduğu hangi yeteneği izlerken içten içe büyük bir hayranlık duyuyorsun?'
+                ]
+            },
+            {
+                id: 't23',
+                title: 'Zanaat ve Ustalık',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Ahşabın, derinin, saatin veya çininin sabırla işlendiği el emeği dünyası.',
+                questions: [
+                    'Geleneksel el sanatlarından veya zanaatlardan (marangozluk, saat tamiri, ciltçilik vb.) hangisini öğrenmek isterdin?',
+                    'Fabrikasyon üretimin her yeri sardığı dünyada "el yapımı" bir eşyanın ruhu neden farklıdır?',
+                    'Sabırla ve acele etmeden bir işin üzerinde günlerce çalışmak modern insana ne öğretir?'
+                ]
+            },
+            {
+                id: 't24',
+                title: 'Doğa mı Metropol mü?',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Büyük şehrin kültürel dinamizmi ile ormanın ve denizin dinginliği arasındaki tercih.',
+                questions: [
+                    'Ruhunu şarj etmek için kalabalık ve hareketli bir kültür sanat ortamına mı ihtiyaç duyarsın yoksa ıssız bir ormana mı?',
+                    'Metropol hayatının insana kattığı en güzel şey ile insandan götürdüğü en değerli şey nedir?',
+                    'İkisinin kusursuz dengelendiği bir yaşam düzeni sence nasıl kurulabilir?'
+                ]
+            },
+            {
+                id: 't25',
+                title: 'Yemek & Hafıza',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Bir kokunun veya tadın bizi saniyeler içinde yıllar öncesine ışınlama gücü.',
+                questions: [
+                    'Kokusu burnuna geldiğinde seni anında çocukluğuna veya çok özel bir ana götüren yemek hangisi?',
+                    'Dünyanın en lüks restoranı mı yoksa sevdiğin dostlarla kurulmuş mütevazı bir yer sofrası mı?',
+                    'Hayatın boyunca tek bir mutfak kültürünün yemekleriyle beslenecek olsan hangisini seçerdin?'
+                ]
+            },
+            {
+                id: 't26',
+                title: 'Sessizlik ve Huzur',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Gürültülü bir dünyada kendi iç sesimizi duyabilmenin ve susabilmenin kıymeti.',
+                questions: [
+                    'Bir dostla yan yana oturup hiç konuşmadan da anlaşabilmek sence nasıl bir mertebedir?',
+                    'Modern insan sessizlikle ve kendi düşünceleriyle baş başa kalmaktan neden çekiniyor?',
+                    'Kendini en huzurlu ve dingin hissettiğin günün saati ve mekanı neresi?'
+                ]
+            },
+            {
+                id: 't27',
+                title: 'Seyahat Rotası',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Turist olarak fotoğraf çekmek değil, bir coğrafyanın ruhuna misafir olmak.',
+                questions: [
+                    'Zaman ve bütçe sınırın olmasa yarın sabah çantanı toplayıp çıkacağın rota neresi olurdu?',
+                    'Seni daha çok kuzeyin sisli ve serin coğrafyaları mı çeker yoksa güneyin sıcak ve kadim şehirleri mi?',
+                    'Bir seyahati unutulmaz kılan şey gidilen yer mi yoksa yol arkadaşın mıdır?'
+                ]
+            },
+            {
+                id: 't28',
+                title: 'İnsan Doğası',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'İnsanın özündeki iyilik, bencillik, fedakarlık ve karakterin sınavları.',
+                questions: [
+                    'İnsan doğuştan iyi midir, yoksa iyilik sonradan öğrenilen ve emek isteyen bir seçim midir?',
+                    'Bir insanın gerçek karakterini anlamak için onu hangi durumda gözlemlemek gerekir?',
+                    'Güç ve imkan sahibi olmak insanı değiştirir mi yoksa zaten içinde olanı mı ortaya çıkarır?'
+                ]
+            },
+            {
+                id: 't29',
+                title: 'Gelenek ve Modernite',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Köklerimize bağlı kalırken yeniliğe ve çağın ruhuna açık olabilmenin dengesi.',
+                questions: [
+                    'Hem köklerine sadık kalıp hem de dünyaya açık bir insan olmak sence nasıl başarılır?',
+                    'Modernleşirken farkında olmadan kaybettiğimiz en önemli insani değer sence nedir?',
+                    'Geçmişin bilgeliği ile bugünün bilimi hangi noktada birbirini tamamlar?'
+                ]
+            },
+            {
+                id: 't30',
+                title: 'Müzik & Ruh Hali',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Kelimelerin yetmediği yerde devreye giren melodiler ve hayatımızın fon müziği.',
+                questions: [
+                    'Hayatının şu anki dönemini bir enstrüman veya müzik türü temsil etse bu hangisi olurdu?',
+                    'Hüzünlüyken hüzünlü şarkılar dinlemek acıyı artırır mı yoksa insanı teselli mi eder?',
+                    'Yıllar geçse de eskimeyen, her dinlediğinde ilk günkü gibi etkileyen başucu eserin hangisi?'
+                ]
+            },
+            {
+                id: 't31',
+                title: 'Gece Sohbetleri',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Gece yarısından sonra maskelerin düştüğü, en samimi düşüncelerin konuşulduğu saatler.',
+                questions: [
+                    'Neden en derin ve en samimi sohbetler hep gece geç saatlerde ortaya çıkar?',
+                    'Bugüne kadar yaptığın ve sabahın ilk ışıklarına kadar süren en unutulmaz sohbet hangisiydi?',
+                    'İnsan gündüz söyleyemediği hangi hakikatleri gece karanlığında daha rahat dile getirir?'
+                ]
+            },
+            {
+                id: 't32',
+                title: 'Yarım Kalan Hayal',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Bir kenara bıraktığımız ama içimizde hâlâ kıvılcımı duran hevesler ve projeler.',
+                questions: [
+                    'Bir zamanlar büyük bir heyecanla başlayıp hayat telaşıyla yarım bıraktığın hayalin neydi?',
+                    'Bir hayale yeniden başlamak için "artık çok geç" denilen bir yaş gerçekten var mıdır?',
+                    'Önümüzdeki bir yıl içinde sadece kendin için gerçekleştirmek istediğin o küçük ama anlamlı hedef ne?'
+                ]
+            },
+            // --- EXTENDED 16 TOPICS (FOR 48-SLICE MODE) ---
+            {
+                id: 't33',
+                title: 'Uzay & Evren',
+                category: 'Gelecek & Çağ',
+                group: 'gelecek',
+                desc: 'Milyarlarca galaksi arasında yalnız mıyız? Kozmosun büyüklüğü ve insanın yeri.',
+                questions: [
+                    'Evrende başka zeki yaşam formları olduğuna inanıyor musun? Onlarla karşılaşsak ilk ne olurdu?',
+                    'Gece gökyüzündeki yıldızlara bakmak sana kendi dertlerinin küçüklüğünü mü hissettiriyor yoksa sonsuzluk merakı mı?',
+                    'Mars\'ta kurulacak ilk insan kolonisine katılma teklifi gelse kabul eder miydin?'
+                ]
+            },
+            {
+                id: 't34',
+                title: 'Mektup Kültürü',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Kağıda mürekkeple dokunmanın, zarf beklemenin ve kelimeleri özenle seçmenin ağırlığı.',
+                questions: [
+                    'En son ne zaman birine el yazısıyla uzun bir mektup veya kartpostal yazdın?',
+                    'Anlık mesajlaşma çağında "beklemenin" ve "özlemenin" değeri nasıl değişti?',
+                    'Yüz yıl sonra bir sahafta senin yazdığın bir mektup bulunsa içinde ne anlatıyor olmasını isterdin?'
+                ]
+            },
+            {
+                id: 't35',
+                title: 'Cesaretin Tanımı',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Korkmamak değil, korkuya rağmen doğru bildiğin yolda yürüyebilmek.',
+                questions: [
+                    'Hayatında "İşte o an gerçekten cesurdum" dediğin an hangisiydi?',
+                    'Sence topluma uyum sağlamak mı daha zordur yoksa kalabalığın karşısında kendi doğrunu savunmak mı?',
+                    'En büyük cesaret bazen kalıp mücadele etmek midir yoksa vazgeçip gidebilmek mi?'
+                ]
+            },
+            {
+                id: 't36',
+                title: 'Kütüphane Kokusu',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Eski kitap sayfalarının arasında saklanan bilgelik, sahaflar ve okuma serüveni.',
+                questions: [
+                    'E-kitap ve sesli kitapların yaygınlaşmasına rağmen basılı kitabın yerinin dolmamasının sebebi nedir?',
+                    'Bir sahafta saatlerce vakit geçirmek sana neler hissettirir?',
+                    'Kendi kütüphanende en çok değer verdiğin, kimseye ödünç veremediğin kitap hangisi?'
+                ]
+            },
+            {
+                id: 't37',
+                title: 'Rüyaların Dili',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Bilinçaltımızın gece kurduğu gizemli tiyatro ve unutulmayan rüyalar.',
+                questions: [
+                    'Yıllar geçse de tüm detaylarıyla hatırladığın en etkileyici rüyan neydi?',
+                    'Rüyaların bize farkında olmadığımız içsel gerçekleri fısıldadığına inanır mısın?',
+                    'Rüyalarını tamamen kontrol edebilme (lucid dream) imkanın olsa ilk neyi deneyimlemek isterdin?'
+                ]
+            },
+            {
+                id: 't38',
+                title: 'Sade Yaşam (Minimalizm)',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Az eşya, az gürültü, derin anlam: Tüketim çağında sadeleşmenin özgürlüğü.',
+                questions: [
+                    'Sahip olduğumuz eşyalar bir süre sonra bize mi sahip olmaya başlıyor?',
+                    'Hayatından çıkardığında kendini çok daha hafif ve özgür hissettiğin alışkanlık veya eşya neydi?',
+                    'Zihinsel minimalizm (zihni gereksiz gündemlerden arındırmak) sence nasıl mümkün olur?'
+                ]
+            },
+            {
+                id: 't39',
+                title: 'Mizah ve Zeka',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Hayatın en sert gerçeklerini bile tebessümle karşılayabilme sanatı.',
+                questions: [
+                    'Bir insanın mizah anlayışı onun zekası ve dünya görüşü hakkında bize ne söyler?',
+                    'En zor zamanlarda bile insanı ayakta tutan "trajikomik" bakış açısı neden bu kadar kıymetlidir?',
+                    'Seni her seferinde içtenlikle güldürmeyi başaran o unutulmaz anı veya espri nedir?'
+                ]
+            },
+            {
+                id: 't40',
+                title: 'Babalar ve Oğullar/Kızlar',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Kuşaklar arası sessiz sevgi, sonradan anlaşılan fedakarlıklar ve aile mirası.',
+                questions: [
+                    'Yaşın ilerledikçe anne veya babanın hangi davranışını "Şimdi çok daha iyi anlıyorum" diyerek hatırlıyorsun?',
+                    'Ailenden aldığın ve kendi karakterinin en sağlam taşı olarak gördüğün özellik nedir?',
+                    'Gelecek kuşaklara maddi miras dışında bırakmak istediğin en önemli değer hangisi?'
+                ]
+            },
+            {
+                id: 't41',
+                title: 'Ölümsüzlük İkilemi',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Hayatı kıymetli ve anlamlı kılan şey onun sınırlı olması mıdır?',
+                questions: [
+                    'Sonsuza dek yaşama şansın olsaydı bunu bir ödül olarak mı görürdün yoksa bir lanet olarak mı?',
+                    'Zamanın sınırsız olduğu bir hayatta erteleme alışkanlığımız bizi nereye sürüklerdi?',
+                    'Bir insanın ölümünden sonra da dünyada "yaşamaya devam etmesi" sence neyle mümkündür?'
+                ]
+            },
+            {
+                id: 't42',
+                title: 'Kış Gecesi & Şömine',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Dışarıda fırtına veya kar yağarken içerideki sıcaklığın ve muhabbetin dinginliği.',
+                questions: [
+                    'En sevdiğin mevsim hangisi ve o mevsimin ruh halin üzerindeki etkisi nasıl?',
+                    'Yağmurlu veya karlı bir akşamda ideal dinlenme ritüelin nasıl görünür?',
+                    'Mekanların atmosferi ve ışıklandırması sohbetin kalitesini sence ne kadar etkiler?'
+                ]
+            },
+            {
+                id: 't43',
+                title: 'Bilim ve Merak',
+                category: 'Gelecek & Çağ',
+                group: 'gelecek',
+                desc: 'Evrenin işleyişini çözmeye çalışan insan zihninin bitmeyen keşif tutkusu.',
+                questions: [
+                    'Bugün hayatta olan veya geçmişte yaşamış bir bilim insanının laboratuvarına konuk olsan kimi seçerdin?',
+                    'İnsan beyninin henüz tam çözülememiş sırlarından hangisi seni en çok heyecanlandırıyor?',
+                    'Merak duygusunu kaybetmemek için günlük hayatta neler yapıyorsun?'
+                ]
+            },
+            {
+                id: 't44',
+                title: 'Yolculuk mu Varış mı?',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Hedefe ulaşmanın zaferi mi yoksa yolda olmanın ve dönüşmenin güzelliği mi?',
+                questions: [
+                    'Çok istediğin bir hedefe ulaştığında yaşadığın o kısa boşluk hissinin sebebi sence nedir?',
+                    'Hayatta seni sonuç odaklı olmak mı daha çok motive eder yoksa sürecin kendisinden keyif almak mı?',
+                    'Şimdiye kadar çıktığın en öğretici içsel veya fiziksel yolculuk hangisiydi?'
+                ]
+            },
+            {
+                id: 't45',
+                title: 'Unutulmuş Meslekler',
+                category: 'Nostalji & Anılar',
+                group: 'nostalji',
+                desc: 'Tarihin tozlu sayfalarında kalan zanaatlar ve eski çarşıların insanları.',
+                questions: [
+                    'Eski dönemlerdeki mesleklerden (katiplik, deniz feneri bekçiliği, seyyahlık vb.) hangisi ruhuna uygun?',
+                    'Deniz feneri bekçisi gibi aylarca yalnız ama anlamlı bir görevde çalışabilir miydin?',
+                    'Bugün çok popüler olan hangi meslekler 30 yıl sonra tamamen tarihe karışacak?'
+                ]
+            },
+            {
+                id: 't46',
+                title: 'İkinci Şanslar',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Affetmek, güveni yeniden inşa etmek ve beyaz bir sayfa açabilmenin ağırlığı.',
+                questions: [
+                    'Bir insana ikinci şans vermek sence büyüklük müdür yoksa bazen saflık mı?',
+                    'Kırılan bir güven eskisinden daha sağlam hale gelebilir mi, yoksa izi hep kalır mı?',
+                    'İnsanın başkalarını affetmesi mi daha zordur yoksa kendi hatalarını affetmesi mi?'
+                ]
+            },
+            {
+                id: 't47',
+                title: 'Mimari ve Ruh',
+                category: 'Kültür & Hayat',
+                group: 'kultur',
+                desc: 'Taşın, ahşabın ve yüksek tavanlı yapıların insan psikolojisi üzerindeki etkisi.',
+                questions: [
+                    'Eski yapıların ve tarihi mekanların insana verdiği o derin huzur hissi nereden kaynaklanır?',
+                    'Hayalindeki çalışma odasını veya kütüphaneyi tüm detaylarıyla nasıl tasarlardın?',
+                    'Modern cam gökdelenler mi yoksa avlulu, cumbalı geleneksel taş/ahşap evler mi?'
+                ]
+            },
+            {
+                id: 't48',
+                title: 'Sözün Ağırlığı',
+                category: 'Derin & Felsefi',
+                group: 'felsefe',
+                desc: 'Söylenen sözün geri alınamazlığı, belagat sanatı ve dinlemenin inceliği.',
+                questions: [
+                    'İyi bir konuşmacı olmak mı daha büyük bir erdemdir yoksa gerçekten iyi bir dinleyici olmak mı?',
+                    'Hayatında duyduğun ve yıllarca zihninden çıkmayan en etkileyici cümle neydi?',
+                    'Söz vermek ve verilen sözü her şartta tutmak günümüzde neden bu kadar nadirleşti?'
+                ]
+            }
+        ];
+
+        /* ==========================================================================
+           2. WEB AUDIO API MECHANICAL SOUND & CHIME ENGINE (ZERO EXTERNAL FILES)
+           ========================================================================== */
+        class LoungeSoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+                this.lastTickTime = 0;
+            }
+
+            initContext() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) {
+                        this.ctx = new AudioCtx();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            /**
+             * Synthesizes a realistic wooden/brass mechanical peg-and-flapper click.
+             * Modulates pitch and resonance slightly based on the wheel's angular velocity.
+             */
+            playPegClick(speedRatio = 0.5) {
+                if (!this.enabled) return;
+                this.initContext();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                // Prevent ultrasonic overlapping clicks if spinning extremely fast
+                if (now - this.lastTickTime < 0.016) return;
+                this.lastTickTime = now;
+
+                const clampedRatio = Math.min(1, Math.max(0.05, speedRatio));
+
+                // 1. Short percussive wooden body resonance (triangle/sine)
+                const bodyOsc = this.ctx.createOscillator();
+                const bodyGain = this.ctx.createGain();
+                bodyOsc.type = 'triangle';
+
+                const baseFreq = 190 + clampedRatio * 140 + (Math.random() * 14 - 7);
+                bodyOsc.frequency.setValueAtTime(baseFreq, now);
+                bodyOsc.frequency.exponentialRampToValueAtTime(58, now + 0.032);
+
+                const peakGain = 0.14 + clampedRatio * 0.18;
+                bodyGain.gain.setValueAtTime(0.001, now);
+                bodyGain.gain.linearRampToValueAtTime(peakGain, now + 0.002);
+                bodyGain.gain.exponentialRampToValueAtTime(0.0008, now + 0.036);
+
+                // 2. Crisp brass/leather transient snap using filtered short burst
+                const snapOsc = this.ctx.createOscillator();
+                const snapFilter = this.ctx.createBiquadFilter();
+                const snapGain = this.ctx.createGain();
+
+                snapOsc.type = 'square';
+                snapOsc.frequency.setValueAtTime(1150 + clampedRatio * 550, now);
+                snapOsc.frequency.exponentialRampToValueAtTime(320, now + 0.014);
+
+                snapFilter.type = 'bandpass';
+                snapFilter.frequency.setValueAtTime(1400 + clampedRatio * 600, now);
+                snapFilter.Q.setValueAtTime(3.2, now);
+
+                snapGain.gain.setValueAtTime(peakGain * 0.45, now);
+                snapGain.gain.exponentialRampToValueAtTime(0.0005, now + 0.015);
+
+                bodyOsc.connect(bodyGain);
+                bodyGain.connect(this.ctx.destination);
+
+                snapOsc.connect(snapFilter);
+                snapFilter.connect(snapGain);
+                snapGain.connect(this.ctx.destination);
+
+                bodyOsc.start(now);
+                bodyOsc.stop(now + 0.038);
+                snapOsc.start(now);
+                snapOsc.stop(now + 0.017);
+            }
+
+            /**
+             * Plays a warm, acoustic lounge chord chime when a winning slice is selected.
+             */
+            playCompletionChime() {
+                if (!this.enabled) return;
+                this.initContext();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                // Warm A-major 9th arpeggiated lounge chime
+                const freqs = [220.0, 277.18, 329.63, 440.0, 493.88, 659.25];
+
+                freqs.forEach((freq, idx) => {
+                    const start = now + idx * 0.055;
+                    const osc = this.ctx.createOscillator();
+                    const subOsc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'sine';
+                    subOsc.type = 'triangle';
+
+                    osc.frequency.setValueAtTime(freq, start);
+                    subOsc.frequency.setValueAtTime(freq * 0.5, start);
+
+                    gain.gain.setValueAtTime(0.0001, start);
+                    gain.gain.linearRampToValueAtTime(0.075 / (1 + idx * 0.18), start + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0005, start + 1.35);
+
+                    osc.connect(gain);
+                    subOsc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(start);
+                    subOsc.start(start);
+                    osc.stop(start + 1.4);
+                    subOsc.stop(start + 1.4);
+                });
+            }
+        }
+
+        /* ==========================================================================
+           3. STATE MANAGEMENT & LOCAL STORAGE PERSISTENCE
+           ========================================================================== */
+        const STORAGE_KEY = 'sohbet_carki_lounge_state_v1';
+
+        const state = {
+            preset: 'default32',
+            removedIds: [],
+            customTopics: [],
+            allTopics: [],
+            activeSlices: [],
+            selectedTopicId: 't2',
+
+            // Wheel Physics State
+            angle: 0,                  // Current wheel rotation in radians
+            omega: 0,                  // Angular velocity (rad/sec)
+            isDragging: false,
+            isSpinning: false,
+            dragStartAngle: 0,
+            wheelStartAngle: 0,
+            pointerHistory: [],        // Recent { angle, time } samples for flick calculation
+            lastPegIndex: -1,
+
+            // Flapper / Pointer Physics (top-right / right side pointer at angle = 0)
+            flapperAngle: 0,           // Deflection angle of the brass flapper in radians
+            flapperVelocity: 0,
+
+            // Hold-to-Spin Power Gauge
+            isHoldingPower: false,
+            holdStartTime: 0,
+            holdPowerRatio: 0,
+            holdAnimFrame: null
+        };
+
+        const soundEngine = new LoungeSoundEngine();
+
+        function loadPersistedState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed.preset) state.preset = parsed.preset;
+                    if (Array.isArray(parsed.removedIds)) state.removedIds = parsed.removedIds;
+                    if (Array.isArray(parsed.customTopics)) state.customTopics = parsed.customTopics;
+                    if (typeof parsed.soundEnabled === 'boolean') {
+                        soundEngine.enabled = parsed.soundEnabled;
+                    }
+                }
+            } catch (err) {
+                console.warn('LocalStorage okunamadı:', err);
+            }
+            rebuildTopicsList();
+        }
+
+        function savePersistedState() {
+            try {
+                const payload = {
+                    preset: state.preset,
+                    removedIds: state.removedIds,
+                    customTopics: state.customTopics,
+                    soundEnabled: soundEngine.enabled
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+            } catch (err) {
+                console.warn('LocalStorage kaydedilemedi:', err);
+            }
+        }
+
+        function rebuildTopicsList() {
+            // Merge base topics based on preset + custom topics
+            let pool = [];
+            if (state.preset === 'default32') {
+                pool = MASTER_TOPICS.slice(0, 32);
+            } else if (state.preset === 'extended48') {
+                pool = MASTER_TOPICS.slice(0, 48);
+            } else {
+                pool = MASTER_TOPICS.filter(t => t.group === state.preset);
+            }
+
+            state.allTopics = [...pool, ...state.customTopics];
+            state.activeSlices = state.allTopics.filter(t => !state.removedIds.includes(t.id));
+
+            // Ensure at least 2 slices remain on the wheel so it is always playable
+            if (state.activeSlices.length < 2 && state.allTopics.length >= 2) {
+                state.removedIds = [];
+                state.activeSlices = [...state.allTopics];
+            }
+
+            // Ensure valid selected topic
+            const currentSelected = state.activeSlices.find(t => t.id === state.selectedTopicId) || state.activeSlices[0];
+            if (currentSelected) {
+                state.selectedTopicId = currentSelected.id;
+            }
+        }
+
+        /* ==========================================================================
+           4. HIGH-DPI CANVAS WHEEL & FLAPPER RENDERER
+           ========================================================================== */
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const container = document.getElementById('canvasContainer');
+            const rect = container.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            const size = Math.max(280, Math.floor(Math.min(rect.width, rect.height)));
+
+            if (canvas.width !== size * dpr || canvas.height !== size * dpr) {
+                canvas.width = size * dpr;
+                canvas.height = size * dpr;
+            }
+            drawWheelFrame();
+        }
+
+        /**
+         * Determines which slice index is currently under the pointer (angle = 0 rad, i.e., 3 o'clock right side)
+         */
+        function getSliceIndexAtPointer(wheelAngle, count) {
+            if (count <= 0) return 0;
+            const sliceArc = (Math.PI * 2) / count;
+            // Pointer is located at 0 radians (3 o'clock position)
+            let normalized = (-wheelAngle) % (Math.PI * 2);
+            if (normalized < 0) normalized += Math.PI * 2;
+            return Math.floor(normalized / sliceArc) % count;
+        }
+
+        function drawWheelFrame() {
+            const dpr = window.devicePixelRatio || 1;
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.save();
+            ctx.clearRect(0, 0, width, height);
+
+            const cx = width * 0.485; // Slightly left-centered to give room for the ornate right-hand brass pointer assembly
+            const cy = height * 0.5;
+            const maxRadius = Math.min(cx, cy) - 18 * dpr;
+            const rimOuterRadius = maxRadius;
+            const rimInnerRadius = maxRadius * 0.915;
+            const hubRadius = maxRadius * 0.165;
+
+            const slices = state.activeSlices;
+            const count = slices.length;
+            const sliceArc = (Math.PI * 2) / count;
+            const activeIdx = getSliceIndexAtPointer(state.angle, count);
+
+            // 1. OUTER MAHOGANY & BRASS BEZEL RING
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, rimOuterRadius, 0, Math.PI * 2);
+            const bezelGrad = ctx.createRadialGradient(
+                cx - rimOuterRadius * 0.25, cy - rimOuterRadius * 0.25, rimInnerRadius * 0.7,
+                cx, cy, rimOuterRadius
+            );
+            bezelGrad.addColorStop(0, '#49331f');
+            bezelGrad.addColorStop(0.75, '#24170f');
+            bezelGrad.addColorStop(0.91, '#c5a059');
+            bezelGrad.addColorStop(0.96, '#f3dfa8');
+            bezelGrad.addColorStop(1, '#7a5c22');
+            ctx.fillStyle = bezelGrad;
+            ctx.fill();
+            ctx.restore();
+
+            // 2. TRIANGULAR SLICES
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(state.angle);
+
+            for (let i = 0; i < count; i++) {
+                const startAngle = i * sliceArc;
+                const endAngle = startAngle + sliceArc;
+                const midAngle = startAngle + sliceArc * 0.5;
+
+                // Pick harmonious slice color ensuring adjacent slices don't clash
+                let colorIndex = i % SLICE_PALETTE.length;
+                if (i === count - 1 && colorIndex === 0) {
+                    colorIndex = 2;
+                }
+                const baseColor = SLICE_PALETTE[colorIndex];
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, rimInnerRadius, startAngle, endAngle);
+                ctx.closePath();
+
+                // Subtle radial shading per slice
+                const sliceGrad = ctx.createRadialGradient(0, 0, hubRadius * 0.8, 0, 0, rimInnerRadius);
+                sliceGrad.addColorStop(0, lightenHex(baseColor, -10));
+                sliceGrad.addColorStop(0.7, baseColor);
+                sliceGrad.addColorStop(1, lightenHex(baseColor, 8));
+
+                ctx.fillStyle = sliceGrad;
+                ctx.fill();
+
+                // Highlight winning/active slice under pointer
+                if (i === activeIdx) {
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(228, 200, 135, 0.16)';
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Fine antique gold divider line
+                ctx.lineWidth = Math.max(1, 1.15 * dpr);
+                ctx.strokeStyle = 'rgba(197, 160, 89, 0.42)';
+                ctx.stroke();
+
+                // 3. RADIAL SLICE TEXT
+                ctx.save();
+                ctx.rotate(midAngle);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+
+                // Dynamic font size based on slice count (32 vs 48 vs smaller presets)
+                let fontSizeFactor = 0.032;
+                if (count > 36) fontSizeFactor = 0.0255;
+                else if (count > 26) fontSizeFactor = 0.0295;
+                else if (count < 16) fontSizeFactor = 0.038;
+
+                const fontSize = Math.max(9 * dpr, Math.floor(rimInnerRadius * fontSizeFactor));
+                ctx.font = `${i === activeIdx ? '700' : '600'} ${fontSize}px Georgia, serif`;
+
+                // Soft text shadow for crisp legibility
+                ctx.fillStyle = i === activeIdx ? '#fff7e2' : '#f3ede2';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.82)';
+                ctx.shadowBlur = 3 * dpr;
+                ctx.shadowOffsetX = 1 * dpr;
+                ctx.shadowOffsetY = 1 * dpr;
+
+                const textMaxWidth = rimInnerRadius - hubRadius - 24 * dpr;
+                const label = truncateSliceLabel(ctx, slices[i].title, textMaxWidth);
+                ctx.fillText(label, rimInnerRadius - 12 * dpr, 0);
+                ctx.restore();
+            }
+
+            // 4. INNER ORNAMENTAL RING AROUND SLICES
+            ctx.beginPath();
+            ctx.arc(0, 0, rimInnerRadius, 0, Math.PI * 2);
+            ctx.lineWidth = 3 * dpr;
+            ctx.strokeStyle = '#c5a059';
+            ctx.stroke();
+
+            // 5. PERIMETER BRASS PEGS / STUDS AT EACH SLICE BOUNDARY
+            const pegOrbitRadius = (rimOuterRadius + rimInnerRadius) * 0.5;
+            const pegRadius = Math.max(2.5 * dpr, Math.min(4.5 * dpr, (rimOuterRadius - rimInnerRadius) * 0.24));
+
+            for (let i = 0; i < count; i++) {
+                const pegAngle = i * sliceArc;
+                const px = Math.cos(pegAngle) * pegOrbitRadius;
+                const py = Math.sin(pegAngle) * pegOrbitRadius;
+
+                ctx.beginPath();
+                ctx.arc(px, py, pegRadius, 0, Math.PI * 2);
+                const pegGrad = ctx.createRadialGradient(
+                    px - pegRadius * 0.3, py - pegRadius * 0.3, pegRadius * 0.1,
+                    px, py, pegRadius
+                );
+                pegGrad.addColorStop(0, '#fff4d2');
+                pegGrad.addColorStop(0.55, '#dfc17b');
+                pegGrad.addColorStop(1, '#6e501b');
+                ctx.fillStyle = pegGrad;
+                ctx.fill();
+                ctx.lineWidth = 0.8 * dpr;
+                ctx.strokeStyle = '#1b120c';
+                ctx.stroke();
+            }
+
+            ctx.restore(); // End rotating wheel coordinate system
+
+            // 6. CENTER ORNAMENTAL COMPASS HUB CAP
+            ctx.save();
+            ctx.translate(cx, cy);
+
+            // Outer hub shadow ring
+            ctx.beginPath();
+            ctx.arc(0, 0, hubRadius * 1.12, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(10, 15, 24, 0.72)';
+            ctx.fill();
+
+            // Brass hub base
+            ctx.beginPath();
+            ctx.arc(0, 0, hubRadius, 0, Math.PI * 2);
+            const hubGrad = ctx.createRadialGradient(
+                -hubRadius * 0.25, -hubRadius * 0.25, hubRadius * 0.1,
+                0, 0, hubRadius
+            );
+            hubGrad.addColorStop(0, '#f7e4b2');
+            hubGrad.addColorStop(0.55, '#c5a059');
+            hubGrad.addColorStop(0.88, '#7c5d24');
+            hubGrad.addColorStop(1, '#4a3512');
+            ctx.fillStyle = hubGrad;
+            ctx.fill();
+
+            // Inner dark navy medallion
+            ctx.beginPath();
+            ctx.arc(0, 0, hubRadius * 0.74, 0, Math.PI * 2);
+            ctx.fillStyle = '#0d1522';
+            ctx.fill();
+            ctx.lineWidth = 1.5 * dpr;
+            ctx.strokeStyle = '#dfc17b';
+            ctx.stroke();
+
+            // Compass Star Rose inside Hub (rotates gently with wheel)
+            ctx.save();
+            ctx.rotate(state.angle);
+            const points = 8;
+            for (let p = 0; p < points; p++) {
+                ctx.rotate((Math.PI * 2) / points);
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(hubRadius * 0.14, -hubRadius * 0.14);
+                ctx.lineTo(0, -hubRadius * 0.58);
+                ctx.lineTo(-hubRadius * 0.14, -hubRadius * 0.14);
+                ctx.closePath();
+                ctx.fillStyle = p % 2 === 0 ? '#dfc17b' : '#8c6b2d';
+                ctx.fill();
+            }
+            ctx.restore();
+
+            // Center cap jewel
+            ctx.beginPath();
+            ctx.arc(0, 0, hubRadius * 0.18, 0, Math.PI * 2);
+            ctx.fillStyle = '#f3ede2';
+            ctx.fill();
+            ctx.restore();
+
+            // 7. MECHANICAL BRASS FLAPPER / POINTER ASSEMBLY (AT 3 O'CLOCK)
+            drawMechanicalFlapper(cx, cy, rimOuterRadius, rimInnerRadius, dpr);
+
+            ctx.restore();
+        }
+
+        function drawMechanicalFlapper(cx, cy, rimOuterRadius, rimInnerRadius, dpr) {
+            const pivotX = cx + rimOuterRadius + 8 * dpr;
+            const pivotY = cy;
+            const pointerLength = (rimOuterRadius - rimInnerRadius) + 26 * dpr;
+
+            ctx.save();
+            ctx.translate(pivotX, pivotY);
+            // Deflect flapper based on physical peg collisions
+            ctx.rotate(state.flapperAngle);
+
+            // Drop shadow for pointer
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+            ctx.shadowBlur = 10 * dpr;
+            ctx.shadowOffsetY = 4 * dpr;
+
+            // Tapered antique brass needle pointing left (-X) into the wheel slices
+            ctx.beginPath();
+            ctx.moveTo(6 * dpr, -11 * dpr);
+            ctx.lineTo(-pointerLength, 0);
+            ctx.lineTo(6 * dpr, 11 * dpr);
+            ctx.closePath();
+
+            const flapGrad = ctx.createLinearGradient(0, -11 * dpr, 0, 11 * dpr);
+            flapGrad.addColorStop(0, '#f7e4b5');
+            flapGrad.addColorStop(0.5, '#c5a059');
+            flapGrad.addColorStop(1, '#75561f');
+            ctx.fillStyle = flapGrad;
+            ctx.fill();
+            ctx.lineWidth = 1.2 * dpr;
+            ctx.strokeStyle = '#261a13';
+            ctx.stroke();
+
+            // Crimson / espresso inlay line on needle
+            ctx.beginPath();
+            ctx.moveTo(-2 * dpr, 0);
+            ctx.lineTo(-pointerLength * 0.72, 0);
+            ctx.lineWidth = 2.2 * dpr;
+            ctx.strokeStyle = '#4a251d';
+            ctx.stroke();
+
+            // Brass mounting boss at pivot
+            ctx.beginPath();
+            ctx.arc(0, 0, 12 * dpr, 0, Math.PI * 2);
+            const bossGrad = ctx.createRadialGradient(-3 * dpr, -3 * dpr, 2 * dpr, 0, 0, 12 * dpr);
+            bossGrad.addColorStop(0, '#fff2cc');
+            bossGrad.addColorStop(0.6, '#c5a059');
+            bossGrad.addColorStop(1, '#594014');
+            ctx.fillStyle = bossGrad;
+            ctx.fill();
+            ctx.lineWidth = 1.5 * dpr;
+            ctx.strokeStyle = '#162436';
+            ctx.stroke();
+
+            // Inner rivet
+            ctx.beginPath();
+            ctx.arc(0, 0, 4.5 * dpr, 0, Math.PI * 2);
+            ctx.fillStyle = '#1c130e';
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function truncateSliceLabel(context, text, maxWidth) {
+            if (context.measureText(text).width <= maxWidth) return text;
+            let trimmed = text;
+            while (trimmed.length > 4 && context.measureText(trimmed + '…').width > maxWidth) {
+                trimmed = trimmed.slice(0, -1);
+            }
+            return trimmed + '…';
+        }
+
+        function lightenHex(hex, percent) {
+            const num = parseInt(hex.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.min(255, Math.max(0, (num >> 16) + amt));
+            const G = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amt));
+            const B = Math.min(255, Math.max(0, (num & 0x0000FF) + amt));
+            return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
+        }
+
+        /* ==========================================================================
+           5. PHYSICS LOOP, PEG COLLISION DETECTION & DRAG/FLICK GESTURES
+           ========================================================================== */
+        let lastFrameTime = performance.now();
+
+        function updatePhysicsLoop(now) {
+            const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+            lastFrameTime = now;
+
+            const count = state.activeSlices.length;
+
+            if (!state.isDragging && Math.abs(state.omega) > 0.0001) {
+                // Advance wheel rotation
+                state.angle += state.omega * dt;
+
+                // Realistic exponential friction normalized to 60fps equivalent (0.991 per 16.67ms frame)
+                const frameFactor = dt * 60;
+                state.omega *= Math.pow(0.991, frameFactor);
+
+                // Extra gentle mechanical resistance at very low speeds so it settles cleanly
+                if (Math.abs(state.omega) < 0.35) {
+                    state.omega *= Math.pow(0.975, frameFactor);
+                }
+
+                // Stop threshold
+                if (Math.abs(state.omega) < 0.018) {
+                    state.omega = 0;
+                    if (state.isSpinning) {
+                        state.isSpinning = false;
+                        onWheelStopped();
+                    }
+                }
+            }
+
+            // Detect slice boundary peg passing the pointer (angle = 0)
+            if (count > 0) {
+                const currentIdx = getSliceIndexAtPointer(state.angle, count);
+                if (state.lastPegIndex !== -1 && currentIdx !== state.lastPegIndex) {
+                    const absSpeed = Math.abs(state.omega);
+                    const speedRatio = Math.min(1, absSpeed / 18);
+
+                    // Play mechanical click sound
+                    soundEngine.playPegClick(speedRatio);
+
+                    // Deflect the mechanical flapper based on spin direction
+                    const dir = state.omega >= 0 ? 1 : -1;
+                    const kickStrength = Math.min(0.52, 0.18 + speedRatio * 0.34);
+                    state.flapperAngle = dir * kickStrength;
+                    state.flapperVelocity = dir * (2.5 + speedRatio * 5.0);
+
+                    // Update live preview topic title lightly while spinning or dragging
+                    if (state.isDragging) {
+                        selectTopicByIndex(currentIdx, false);
+                    }
+                }
+                state.lastPegIndex = currentIdx;
+            }
+
+            // Spring-damper physics for the brass flapper needle
+            if (Math.abs(state.flapperAngle) > 0.001 || Math.abs(state.flapperVelocity) > 0.001) {
+                const springK = 260;
+                const damping = 18;
+                const accel = -springK * state.flapperAngle - damping * state.flapperVelocity;
+                state.flapperVelocity += accel * dt;
+                state.flapperAngle += state.flapperVelocity * dt;
+            } else {
+                state.flapperAngle = 0;
+                state.flapperVelocity = 0;
+            }
+
+            // Update RPM telemetry badge
+            updateSpeedTelemetry();
+
+            // Redraw wheel if moving or flapper oscillating
+            if (state.isDragging || Math.abs(state.omega) > 0 || Math.abs(state.flapperAngle) > 0.001) {
+                drawWheelFrame();
+            }
+
+            requestAnimationFrame(updatePhysicsLoop);
+        }
+
+        function updateSpeedTelemetry() {
+            const rpm = (Math.abs(state.omega) / (Math.PI * 2)) * 60;
+            const telemetryEl = document.getElementById('speedTelemetry');
+            telemetryEl.textContent = `Hız: ${rpm.toFixed(1)} RPM`;
+
+            const dot = document.getElementById('statusDot');
+            const statusText = document.getElementById('wheelStatusText');
+
+            if (state.isDragging) {
+                dot.classList.add('spinning');
+                statusText.textContent = 'Çark Tutuldu — Döndürüp Savurun';
+            } else if (state.isSpinning) {
+                dot.classList.add('spinning');
+                if (rpm > 65) statusText.textContent = 'Çok Hızlı Dönüyor...';
+                else if (rpm > 20) statusText.textContent = 'Çark Dönüyor...';
+                else statusText.textContent = 'Yavaşlıyor, Konu Seçiliyor...';
+            } else {
+                dot.classList.remove('spinning');
+                statusText.textContent = 'Çevirmeye Hazır — Çarkı Tutup Savurun';
+            }
+        }
+
+        function getPointerAngleFromCenter(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const cx = rect.left + rect.width * 0.485;
+            const cy = rect.top + rect.height * 0.5;
+            return Math.atan2(clientY - cy, clientX - cx);
+        }
+
+        function normalizeAngleDelta(delta) {
+            while (delta > Math.PI) delta -= Math.PI * 2;
+            while (delta < -Math.PI) delta += Math.PI * 2;
+            return delta;
+        }
+
+        function setupWheelPointerEvents() {
+            canvas.addEventListener('pointerdown', (e) => {
+                soundEngine.initContext();
+                canvas.setPointerCapture(e.pointerId);
+
+                state.isDragging = true;
+                state.isSpinning = false;
+                state.omega = 0;
+
+                const ptrAngle = getPointerAngleFromCenter(e.clientX, e.clientY);
+                state.dragStartAngle = ptrAngle;
+                state.wheelStartAngle = state.angle;
+                state.pointerHistory = [{ angle: ptrAngle, time: performance.now() }];
+                drawWheelFrame();
+            });
+
+            canvas.addEventListener('pointermove', (e) => {
+                if (!state.isDragging) return;
+                const now = performance.now();
+                const currentPtrAngle = getPointerAngleFromCenter(e.clientX, e.clientY);
+
+                const prevSample = state.pointerHistory[state.pointerHistory.length - 1];
+                const stepDelta = normalizeAngleDelta(currentPtrAngle - prevSample.angle);
+                state.angle += stepDelta;
+
+                // Estimate instantaneous angular velocity for sound modulation while dragging
+                const dt = Math.max(0.008, (now - prevSample.time) / 1000);
+                state.omega = stepDelta / dt;
+
+                state.pointerHistory.push({ angle: currentPtrAngle, time: now });
+                // Keep only samples within the last 130ms for accurate flick release velocity
+                state.pointerHistory = state.pointerHistory.filter(s => now - s.time <= 130);
+
+                drawWheelFrame();
+            });
+
+            const finishPointerDrag = (e) => {
+                if (!state.isDragging) return;
+                state.isDragging = false;
+                try {
+                    canvas.releasePointerCapture(e.pointerId);
+                } catch (_) {}
+
+                const now = performance.now();
+                const recent = state.pointerHistory.filter(s => now - s.time <= 130);
+
+                let flickVelocity = 0;
+                if (recent.length >= 2) {
+                    const first = recent[0];
+                    const last = recent[recent.length - 1];
+                    let totalAngle = 0;
+                    for (let i = 1; i < recent.length; i++) {
+                        totalAngle += normalizeAngleDelta(recent[i].angle - recent[i - 1].angle);
+                    }
+                    const elapsedSec = Math.max(0.012, (last.time - first.time) / 1000);
+                    flickVelocity = (totalAngle / elapsedSec) * 1.35;
+                }
+
+                // Clamp maximum angular velocity to realistic range (up to ~34 rad/s ≈ 325 RPM)
+                const maxOmega = 34;
+                flickVelocity = Math.max(-maxOmega, Math.min(maxOmega, flickVelocity));
+
+                if (Math.abs(flickVelocity) > 0.55) {
+                    state.omega = flickVelocity;
+                    state.isSpinning = true;
+                } else {
+                    state.omega = 0;
+                    state.isSpinning = false;
+                    // Update selected card to wherever user manually placed the wheel
+                    const idx = getSliceIndexAtPointer(state.angle, state.activeSlices.length);
+                    selectTopicByIndex(idx, false);
+                }
+            };
+
+            canvas.addEventListener('pointerup', finishPointerDrag);
+            canvas.addEventListener('pointercancel', finishPointerDrag);
+        }
+
+        /**
+         * Launches the wheel programmatically with a specific angular velocity
+         */
+        function triggerWheelSpin(targetOmega) {
+            soundEngine.initContext();
+            state.isDragging = false;
+            // Add subtle randomness so repeated clicks never land identically
+            const jitter = (Math.random() * 1.4) - 0.7;
+            state.omega = targetOmega + jitter;
+            state.isSpinning = true;
+        }
+
+        function onWheelStopped() {
+            const count = state.activeSlices.length;
+            if (count === 0) return;
+            const winIdx = getSliceIndexAtPointer(state.angle, count);
+            selectTopicByIndex(winIdx, true);
+            soundEngine.playCompletionChime();
+            drawWheelFrame();
+        }
+
+        /* ==========================================================================
+           6. UI RENDERING, TOPIC CARD & VARIABLE-POWER SPIN CONTROLS
+           ========================================================================== */
+        function selectTopicByIndex(index, animateHighlight = false) {
+            const topic = state.activeSlices[index];
+            if (!topic) return;
+
+            state.selectedTopicId = topic.id;
+
+            document.getElementById('selectedCategoryBadge').textContent = topic.category;
+            document.getElementById('selectedSliceNumber').textContent = `Dilim #${index + 1} / ${state.activeSlices.length}`;
+            document.getElementById('selectedTopicTitle').textContent = topic.title;
+            document.getElementById('selectedTopicDesc').textContent = topic.desc;
+
+            const qList = document.getElementById('selectedQuestionsList');
+            qList.innerHTML = '';
+            topic.questions.forEach((qText, i) => {
+                const li = document.createElement('li');
+                li.className = 'question-item';
+                li.innerHTML = `
+                    <span class="question-num">${i + 1}</span>
+                    <span>${escapeHtml(qText)}</span>
+                `;
+                qList.appendChild(li);
+            });
+
+            const removeBtn = document.getElementById('btnRemoveCurrentSlice');
+            removeBtn.disabled = state.activeSlices.length <= 2;
+
+            if (animateHighlight) {
+                const card = document.getElementById('topicShowcaseCard');
+                card.classList.remove('highlight-win');
+                void card.offsetWidth; // Reflow to restart animation
+                card.classList.add('highlight-win');
+            }
+        }
+
+        function renderManagementPanel() {
+            // Update active slice count pill
+            const activeCount = state.activeSlices.length;
+            const totalCount = state.allTopics.length;
+            document.getElementById('activeSliceCountBadge').textContent =
+                `${activeCount} / ${totalCount} Aktif Dilim`;
+
+            // Highlight active preset button
+            document.querySelectorAll('#presetButtonsContainer .btn-preset').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.preset === state.preset);
+            });
+
+            // Render interactive slice chips
+            const listContainer = document.getElementById('slicesListContainer');
+            listContainer.innerHTML = '';
+
+            state.allTopics.forEach((topic, idx) => {
+                const isRemoved = state.removedIds.includes(topic.id);
+                const chip = document.createElement('div');
+                chip.className = `slice-chip ${isRemoved ? 'removed' : ''}`;
+                chip.title = isRemoved ? 'Çarka geri eklemek için tıklayın' : 'Çarktan çıkarmak için tıklayın';
+
+                const dotColor = SLICE_PALETTE[idx % SLICE_PALETTE.length];
+                chip.innerHTML = `
+                    <span class="slice-chip-dot" style="background:${dotColor}; border:1px solid #c5a059;"></span>
+                    <span class="slice-chip-title">${escapeHtml(topic.title)}</span>
+                    <span style="font-size:0.7rem; color:#c5a059;">${isRemoved ? '+' : '✓'}</span>
+                `;
+
+                chip.addEventListener('click', () => {
+                    toggleTopicActiveState(topic.id);
+                });
+
+                listContainer.appendChild(chip);
+            });
+        }
+
+        function toggleTopicActiveState(topicId) {
+            const isRemoved = state.removedIds.includes(topicId);
+            if (isRemoved) {
+                state.removedIds = state.removedIds.filter(id => id !== topicId);
+                showToast('Konu tekrar çarka dahil edildi.');
+            } else {
+                if (state.activeSlices.length <= 2) {
+                    showToast('Çarkta en az 2 aktif konu bulunmalıdır.');
+                    return;
+                }
+                state.removedIds.push(topicId);
+                showToast('Konu çarktan çıkarıldı.');
+            }
+
+            rebuildTopicsList();
+            savePersistedState();
+            renderManagementPanel();
+            const currentIdx = getSliceIndexAtPointer(state.angle, state.activeSlices.length);
+            selectTopicByIndex(currentIdx, false);
+            drawWheelFrame();
+        }
+
+        function setupHoldToSpinButton() {
+            const holdBtn = document.getElementById('btnHoldSpin');
+            const fillBar = document.getElementById('powerFillBar');
+            const subLabel = document.getElementById('holdBtnSub');
+
+            const updateHoldGauge = () => {
+                if (!state.isHoldingPower) return;
+                const elapsed = performance.now() - state.holdStartTime;
+                // Ping-pong or smooth ramp over 1.6 seconds
+                const raw = Math.min(1, elapsed / 1500);
+                state.holdPowerRatio = raw;
+                fillBar.style.width = `${(raw * 100).toFixed(1)}%`;
+
+                let powerLabel = 'Yavaş Çevir';
+                if (raw > 0.78) powerLabel = 'Maksimum Güç (Çok Hızlı!)';
+                else if (raw > 0.45) powerLabel = 'Orta-Yüksek Hız';
+                else if (raw > 0.2) powerLabel = 'Dengeli Hız';
+
+                subLabel.textContent = `Güç: %${Math.round(raw * 100)} — ${powerLabel}`;
+                state.holdAnimFrame = requestAnimationFrame(updateHoldGauge);
+            };
+
+            const startHold = (e) => {
+                e.preventDefault();
+                soundEngine.initContext();
+                if (state.isHoldingPower) return;
+                state.isHoldingPower = true;
+                state.holdStartTime = performance.now();
+                state.holdPowerRatio = 0.08;
+                state.holdAnimFrame = requestAnimationFrame(updateHoldGauge);
+            };
+
+            const releaseHold = (e) => {
+                if (!state.isHoldingPower) return;
+                e.preventDefault();
+                state.isHoldingPower = false;
+                if (state.holdAnimFrame) cancelAnimationFrame(state.holdAnimFrame);
+
+                const ratio = Math.max(0.1, state.holdPowerRatio);
+                fillBar.style.width = '0%';
+                subLabel.textContent = 'Basılı tutma sürenize göre dönüş hızı artar';
+
+                // Map power ratio [0.1 .. 1.0] to angular velocity [4.5 .. 30.0] rad/sec
+                const targetOmega = 4.5 + ratio * 25.5;
+                triggerWheelSpin(targetOmega);
+            };
+
+            holdBtn.addEventListener('pointerdown', startHold);
+            window.addEventListener('pointerup', releaseHold);
+            holdBtn.addEventListener('pointercancel', releaseHold);
+
+            // Quick speed buttons
+            document.querySelectorAll('.btn-quick-speed').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const mode = btn.dataset.speed;
+                    if (mode === 'slow') triggerWheelSpin(5.2);
+                    else if (mode === 'medium') triggerWheelSpin(13.5);
+                    else if (mode === 'fast') triggerWheelSpin(26.5);
+                });
+            });
+        }
+
+        function setupControlsAndForms() {
+            // Sound toggle button
+            const soundBtn = document.getElementById('btnSoundToggle');
+            const updateSoundUI = () => {
+                soundBtn.classList.toggle('active', soundEngine.enabled);
+                document.getElementById('soundStatusText').textContent =
+                    soundEngine.enabled ? 'Ses Açık' : 'Ses Kapalı';
+            };
+            updateSoundUI();
+
+            soundBtn.addEventListener('click', () => {
+                soundEngine.enabled = !soundEngine.enabled;
+                if (soundEngine.enabled) {
+                    soundEngine.initContext();
+                    soundEngine.playPegClick(0.6);
+                }
+                updateSoundUI();
+                savePersistedState();
+            });
+
+            // Shuffle slices button
+            document.getElementById('btnShuffleSlices').addEventListener('click', () => {
+                for (let i = state.activeSlices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [state.activeSlices[i], state.activeSlices[j]] = [state.activeSlices[j], state.activeSlices[i]];
+                }
+                const currentIdx = getSliceIndexAtPointer(state.angle, state.activeSlices.length);
+                selectTopicByIndex(currentIdx, false);
+                drawWheelFrame();
+                showToast('Çark dilimlerinin dizilimi karıştırıldı.');
+            });
+
+            // Restore all slices button
+            document.getElementById('btnRestoreAll').addEventListener('click', () => {
+                state.removedIds = [];
+                rebuildTopicsList();
+                savePersistedState();
+                renderManagementPanel();
+                const currentIdx = getSliceIndexAtPointer(state.angle, state.activeSlices.length);
+                selectTopicByIndex(currentIdx, false);
+                drawWheelFrame();
+                showToast('Tüm konular çarka geri yüklendi.');
+            });
+
+            // Remove current slice button
+            document.getElementById('btnRemoveCurrentSlice').addEventListener('click', () => {
+                if (state.selectedTopicId) {
+                    toggleTopicActiveState(state.selectedTopicId);
+                }
+            });
+
+            // Copy topic & questions to clipboard
+            document.getElementById('btnCopyTopic').addEventListener('click', () => {
+                const topic = state.activeSlices.find(t => t.id === state.selectedTopicId);
+                if (!topic) return;
+                const formatted = [
+                    `🎯 Günün Sohbet Konusu: ${topic.title} (${topic.category})`,
+                    `${topic.desc}`,
+                    '',
+                    '💬 Sohbet Soruları:',
+                    ...topic.questions.map((q, idx) => `${idx + 1}. ${q}`)
+                ].join('\n');
+
+                copyTextSafe(formatted);
+                showToast('Konu başlığı ve sorular panoya kopyalandı.');
+            });
+
+            // Preset switching
+            document.querySelectorAll('#presetButtonsContainer .btn-preset').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    state.preset = btn.dataset.preset;
+                    state.removedIds = [];
+                    rebuildTopicsList();
+                    savePersistedState();
+                    renderManagementPanel();
+                    const currentIdx = getSliceIndexAtPointer(state.angle, state.activeSlices.length);
+                    selectTopicByIndex(currentIdx, false);
+                    drawWheelFrame();
+                    showToast(`${btn.querySelector('span').textContent} seçkisi yüklendi (${state.activeSlices.length} dilim).`);
+                });
+            });
+
+            // Add Custom Topic form
+            document.getElementById('customTopicForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const titleInput = document.getElementById('inputCustomTitle');
+                const questionInput = document.getElementById('inputCustomQuestion');
+
+                const title = titleInput.value.trim();
+                const customQ = questionInput.value.trim();
+                if (!title) return;
+
+                const newTopic = {
+                    id: 'custom_' + Date.now(),
+                    title,
+                    category: 'Özel Konu',
+                    group: 'custom',
+                    desc: 'Dost meclisi için sizin tarafınızdan çarka eklenen özel sohbet başlığı.',
+                    questions: [
+                        customQ || `Bu konu (${title}) hakkında ilk aklına gelen kişisel anın veya düşüncen nedir?`,
+                        `Geçmişten bugüne ${title.toLowerCase()} konusuna bakış açın nasıl değişti?`,
+                        `Bu başlıkta herkesin gözden kaçırdığını düşündüğün en önemli detay sence nedir?`
+                    ]
+                };
+
+                state.customTopics.push(newTopic);
+                titleInput.value = '';
+                questionInput.value = '';
+
+                rebuildTopicsList();
+                savePersistedState();
+                renderManagementPanel();
+                drawWheelFrame();
+                showToast(`"${title}" çarka yeni dilim olarak eklendi!`);
+            });
+        }
+
+        function copyTextSafe(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+            } catch (_) {}
+            document.body.removeChild(ta);
+        }
+
+        let toastTimer = null;
+        function showToast(msg) {
+            const banner = document.getElementById('toastBanner');
+            banner.textContent = msg;
+            banner.classList.add('visible');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                banner.classList.remove('visible');
+            }, 2600);
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        /* ==========================================================================
+           7. INITIALIZATION
+           ========================================================================== */
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPersistedState();
+            setupWheelPointerEvents();
+            setupHoldToSpinButton();
+            setupControlsAndForms();
+            renderManagementPanel();
+
+            const initialIdx = getSliceIndexAtPointer(state.angle, state.activeSlices.length);
+            selectTopicByIndex(initialIdx, false);
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            lastFrameTime = performance.now();
+            requestAnimationFrame(updatePhysicsLoop);
+        });
+    </script>
+</body>
+</html>
